@@ -1,0 +1,577 @@
+app:
+  description: 实战陪练模块｜工作流C：能力更新工作流（模块归属/周期阶段对齐版）
+  icon: 🤖
+  icon_background: '#FFEAD5'
+  mode: workflow
+  name: 实战能力更新工作流
+  use_icon_as_answer_icon: false
+dependencies: []
+kind: app
+version: 0.6.0
+workflow:
+  conversation_variables: []
+  environment_variables: []
+  features:
+    file_upload:
+      allowed_file_extensions:
+      - .JPG
+      - .JPEG
+      - .PNG
+      - .GIF
+      - .WEBP
+      - .SVG
+      allowed_file_types:
+      - image
+      allowed_file_upload_methods:
+      - local_file
+      - remote_url
+      enabled: false
+      fileUploadConfig:
+        attachment_image_file_size_limit: 2
+        audio_file_size_limit: 50
+        batch_count_limit: 5
+        file_size_limit: 15
+        file_upload_limit: 20
+        image_file_batch_limit: 10
+        image_file_size_limit: 10
+        single_chunk_attachment_limit: 10
+        video_file_size_limit: 100
+        workflow_file_upload_limit: 10
+      image:
+        enabled: false
+        number_limits: 3
+        transfer_methods:
+        - local_file
+        - remote_url
+      number_limits: 3
+    opening_statement: ''
+    retriever_resource:
+      enabled: false
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions: []
+    suggested_questions_after_answer:
+      enabled: false
+    text_to_speech:
+      enabled: false
+      language: ''
+      voice: ''
+  graph:
+    edges:
+    - data:
+        isInIteration: false
+        sourceType: start
+        targetType: python
+      id: start-to-update-engine
+      source: '1743600000001'
+      sourceHandle: source
+      target: '1743600000002'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: python
+        targetType: end
+      id: update-engine-to-end
+      source: '1743600000002'
+      sourceHandle: source
+      target: '1743600000003'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    nodes:
+    - data:
+        desc: 接收实战2评估结果与模块归属信息，输出能力分更新、后续训练方向与管理提示
+        selected: false
+        title: 开始
+        type: start
+        variables:
+        - label: 练习记录ID
+          max_length: 64
+          options: []
+          required: false
+          type: text-input
+          variable: practice_id
+        - label: 用户ID
+          max_length: 128
+          options: []
+          required: true
+          type: text-input
+          variable: user_id
+        - label: 模块编码
+          max_length: 64
+          options: []
+          required: false
+          type: text-input
+          variable: module_code
+        - label: 模块名称（可选）
+          max_length: 100
+          options: []
+          required: false
+          type: text-input
+          variable: module_name
+        - label: 训练周期ID（可选）
+          max_length: 64
+          options: []
+          required: false
+          type: text-input
+          variable: cycle_id
+        - label: 阶段序号（可选）
+          max_length: 32
+          options: []
+          required: false
+          type: number
+          variable: stage_no
+        - label: 场景类型（可选）
+          max_length: 128
+          options: []
+          required: false
+          type: text-input
+          variable: scenario_type
+        - label: 鍦烘櫙缂栫爜锛堝悗绔埆鍚嶅叆鍙ｏ級
+          max_length: 128
+          options: []
+          required: false
+          type: text-input
+          variable: scenario_code
+        - label: 评估结果JSON（优先）
+          max_length: 16000
+          options: []
+          required: false
+          type: paragraph
+          variable: evaluation_result
+        - label: 最终评分（兜底）
+          max_length: 48
+          options: []
+          required: false
+          type: number
+          variable: final_score
+        - label: 评估反馈（兜底）
+          max_length: 4096
+          options: []
+          required: false
+          type: paragraph
+          variable: evaluator_feedback
+        - label: 风险等级（可选）
+          max_length: 32
+          options: []
+          required: false
+          type: text-input
+          variable: risk_level
+        - label: 椋庨櫓鏍囩锛堝悗绔埆鍚嶅叆鍙ｏ級
+          max_length: 512
+          options: []
+          required: false
+          type: text-input
+          variable: risk_tag
+        - label: 风险标签JSON/文本（可选）
+          max_length: 2000
+          options: []
+          required: false
+          type: paragraph
+          variable: risk_tags_json
+        - label: 薄弱维度（可选）
+          max_length: 128
+          options: []
+          required: false
+          type: text-input
+          variable: weak_dimension
+        - label: 后续训练建议（可选）
+          max_length: 512
+          options: []
+          required: false
+          type: paragraph
+          variable: followup_training
+        - label: 简明反馈（可选）
+          max_length: 512
+          options: []
+          required: false
+          type: paragraph
+          variable: concise_feedback
+        - label: 对话轮次（可选）
+          max_length: 48
+          options: []
+          required: false
+          type: number
+          variable: practice_turns
+        - label: 陪练对话全文（可选）
+          max_length: 12000
+          options: []
+          required: false
+          type: paragraph
+          variable: conversation_text
+        - label: 当前产品知识分（可选）
+          max_length: 48
+          options: []
+          required: false
+          type: number
+          variable: current_product_knowledge_score
+        - label: 当前合规表达分（可选）
+          max_length: 48
+          options: []
+          required: false
+          type: number
+          variable: current_compliance_score
+        - label: 当前销售沟通分（可选）
+          max_length: 48
+          options: []
+          required: false
+          type: number
+          variable: current_sales_communication_score
+        - label: 当前应变回应分（可选）
+          max_length: 48
+          options: []
+          required: false
+          type: number
+          variable: current_response_score
+        height: 760
+      height: 439
+      id: '1743600000001'
+      position:
+        x: 30
+        y: 260
+      positionAbsolute:
+        x: 30
+        y: 260
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "import json\nimport re\n\nMODULE_META = {\n    \"product_basics\": {\n        \"name\": \"产品基础\",\n        \"primary_dims\": [\"product_knowledge\"],\n        \"secondary_dims\": [\"response\"],\n        \"training_hint\": \"优先复训产品材质、证书、工艺与基础卖点说明。\"\n    },\n    \"compliance_expression\": {\n        \"name\": \"合规表达\",\n        \"primary_dims\": [\"compliance\"],\n        \"secondary_dims\": [\"response\"],\n        \"training_hint\": \"优先复训合规表达红线、替代表达与风险规避。\"\n    },\n    \"customer_opening\": {\n        \"name\": \"接待开场\",\n        \"primary_dims\": [\"sales_communication\"],\n        \"secondary_dims\": [\"response\"],\n        \"training_hint\": \"优先复训开场破冰、需求探询与自然衔接。\"\n    },\n    \"needs_discovery\": {\n        \"name\": \"需求挖掘\",\n        \"primary_dims\": [\"sales_communication\"],\n        \"secondary_dims\": [\"response\"],\n        \"training_hint\": \"优先复训需求追问、预算识别与购买动机判断。\"\n    },\n    \"objection_handling\": {\n        \"name\": \"异议处理\",\n        \"primary_dims\"\
+          : [\"sales_communication\", \"response\"],\n        \"secondary_dims\": [\"compliance\"],\n        \"training_hint\": \"优先复训价格异议、真假质疑与犹豫拖延应对。\"\n    },\n    \"combo_recommendation\": {\n        \"name\": \"搭配推荐\",\n        \"primary_dims\": [\"sales_communication\"],\n        \"secondary_dims\": [\"product_knowledge\"],\n        \"training_hint\": \"优先复训场景化推荐、搭配逻辑与利益点表达。\"\n    },\n    \"closing_conversion\": {\n        \"name\": \"成交推进\",\n        \"primary_dims\": [\"sales_communication\"],\n        \"secondary_dims\": [\"response\"],\n        \"training_hint\": \"优先复训试探成交、缩小选择与温和推进。\"\n    },\n    \"independent_service\": {\n        \"name\": \"独立上岗\",\n        \"primary_dims\": [\"response\", \"sales_communication\"],\n        \"secondary_dims\": [\"compliance\"],\n        \"training_hint\": \"优先复训独立接待完整链路与临场稳定性。\"\n    },\n    \"final_review\": {\n        \"name\": \"综合复盘\",\n        \"primary_dims\": [\"sales_communication\", \"response\"],\n        \"secondary_dims\": [\"\
+          product_knowledge\", \"compliance\"],\n        \"training_hint\": \"优先做综合复盘，针对最薄弱环节定向补训。\"\n    }\n}\n\nMODULE_ALIAS = {\n    \"产品基础\": \"product_basics\",\n    \"合规表达\": \"compliance_expression\",\n    \"接待开场\": \"customer_opening\",\n    \"需求挖掘\": \"needs_discovery\",\n    \"异议处理\": \"objection_handling\",\n    \"搭配推荐\": \"combo_recommendation\",\n    \"成交推进\": \"closing_conversion\",\n    \"独立上岗\": \"independent_service\",\n    \"综合复盘\": \"final_review\",\n}\n\nDIMENSION_ALIAS = {\n    \"product_knowledge\": \"product_knowledge\",\n    \"产品知识\": \"product_knowledge\",\n    \"专业准确\": \"product_knowledge\",\n    \"产品准确\": \"product_knowledge\",\n\n    \"compliance\": \"compliance\",\n    \"合规表达\": \"compliance\",\n    \"合规安全\": \"compliance\",\n\n    \"sales_communication\": \"sales_communication\",\n    \"销售沟通\": \"sales_communication\",\n    \"需求洞察\": \"sales_communication\",\n    \"异议处理\": \"sales_communication\",\n    \"成交推进\": \"sales_communication\",\n\n    \"response\"\
+          : \"response\",\n    \"应变回应\": \"response\",\n    \"表达自然\": \"response\",\n    \"客户应答\": \"response\",\n    \"回应不清\": \"response\",\n}\n\nDIMENSION_LABEL = {\n    \"product_knowledge\": \"产品知识\",\n    \"compliance\": \"合规表达\",\n    \"sales_communication\": \"销售沟通\",\n    \"response\": \"应变回应\",\n}\n\ndef safe_text(v):\n    return \"\" if v is None else str(v).strip()\n\ndef clamp_num(v, low=0, high=100, default=60):\n    try:\n        if v is None or str(v).strip() == \"\":\n            return float(default)\n        n = float(v)\n    except Exception:\n        return float(default)\n    return round(max(float(low), min(float(high), n)), 2)\n\ndef clamp_int(v, low=-10, high=10, default=0):\n    try:\n        if v is None or str(v).strip() == \"\":\n            return int(default)\n        n = int(round(float(v)))\n    except Exception:\n        return int(default)\n    return max(int(low), min(int(high), n))\n\ndef non_negative_int(v, default=0):\n    try:\n        if v is None\
+          \ or str(v).strip() == \"\":\n            return int(default)\n        n = int(round(float(v)))\n    except Exception:\n        return int(default)\n    return max(0, n)\n\ndef parse_json_obj(raw):\n    text = safe_text(raw)\n    if not text:\n        return {}\n    text = re.sub(r\"^```json\\s*\", \"\", text, flags=re.I)\n    text = re.sub(r\"^```\\s*\", \"\", text)\n    text = re.sub(r\"\\s*```$\", \"\", text)\n    try:\n        data = json.loads(text)\n        return data if isinstance(data, dict) else {}\n    except Exception:\n        pass\n    match = re.search(r\"\\{[\\s\\S]*\\}\", text)\n    if match:\n        try:\n            data = json.loads(match.group(0))\n            return data if isinstance(data, dict) else {}\n        except Exception:\n            pass\n    return {}\n\ndef parse_list(raw):\n    if isinstance(raw, list):\n        return [safe_text(x) for x in raw if safe_text(x)]\n    text = safe_text(raw)\n    if not text:\n        return []\n    try:\n    \
+          \    data = json.loads(text)\n        if isinstance(data, list):\n            return [safe_text(x) for x in data if safe_text(x)]\n    except Exception:\n        pass\n    parts = re.split(r\"[，,、；;|\\n]+\", text)\n    return [p.strip() for p in parts if p.strip()]\n\ndef normalize_module_code(module_code, module_name=\"\"):\n    mc = safe_text(module_code)\n    mn = safe_text(module_name)\n    if mc in MODULE_META:\n        return mc\n    if mc in MODULE_ALIAS:\n        return MODULE_ALIAS[mc]\n    if mn in MODULE_ALIAS:\n        return MODULE_ALIAS[mn]\n    low = mc.lower()\n    if low in MODULE_META:\n        return low\n    return mc or \"final_review\"\n\ndef normalize_module_name(module_code, module_name=\"\"):\n    mc = normalize_module_code(module_code, module_name)\n    if safe_text(module_name):\n        return safe_text(module_name)\n    return MODULE_META.get(mc, {}).get(\"name\", \"综合复盘\")\n\ndef normalize_dimension(value):\n    text = safe_text(value)\n    if text\
+          \ in DIMENSION_ALIAS:\n        return DIMENSION_ALIAS[text]\n    low = text.lower()\n    if low in DIMENSION_ALIAS:\n        return DIMENSION_ALIAS[low]\n    return \"\"\n\ndef normalize_risk_level(value, risk_tags=None, score=None):\n    text = safe_text(value).lower()\n    if text in {\"high\", \"高风险\"}:\n        return \"high\"\n    if text in {\"medium\", \"中风险\"}:\n        return \"medium\"\n    if text in {\"low\", \"低风险\"}:\n        return \"low\"\n\n    tags = risk_tags or []\n    tag_text = \" \".join(tags)\n    if (\"合规表达风险\" in tag_text or \"过度承诺\" in tag_text or \"产品表述错误\" in tag_text):\n        return \"high\"\n    if (\"逼单\" in tag_text or \"回应不清\" in tag_text):\n        return \"medium\"\n\n    numeric = clamp_num(score, 0, 100, 0)\n    if numeric < 60:\n        return \"high\"\n    if numeric < 75:\n        return \"medium\"\n    return \"low\"\n\ndef risk_level_label(level):\n    return {\"high\":\"高风险\",\"medium\":\"中风险\",\"low\":\"低风险\"}.get(level, \"中风险\")\n\
+          \ndef detect_focus_dimension(explicit_dim, eval_dim, module_code, risk_level, risk_tags, scenario_type, feedback):\n    for candidate in [explicit_dim, eval_dim]:\n        dim = normalize_dimension(candidate)\n        if dim:\n            return dim\n\n    tag_text = \" \".join(risk_tags or [])\n    if \"合规表达风险\" in tag_text or \"过度承诺\" in tag_text:\n        return \"compliance\"\n    if \"产品表述错误\" in tag_text:\n        return \"product_knowledge\"\n    if \"逼单\" in tag_text:\n        return \"sales_communication\"\n    if \"回应不清\" in tag_text:\n        return \"response\"\n\n    feedback_text = safe_text(feedback)\n    compliance_keywords = [\"绝对\", \"保值\", \"升值\", \"承诺\", \"全国最低价\", \"100%真\", \"保真\"]\n    product_keywords = [\"真假\", \"材质\", \"证书\", \"工艺\", \"纯度\", \"参数\", \"克重\"]\n    sales_keywords = [\"需求\", \"异议\", \"价格\", \"成交\", \"推进\", \"转化\", \"下单\"]\n    response_keywords = [\"表达\", \"回应\", \"逻辑\", \"含糊\", \"接不住\", \"生硬\"]\n\n    for kw in compliance_keywords:\n    \
+          \    if kw in feedback_text:\n            return \"compliance\"\n    for kw in product_keywords:\n        if kw in feedback_text:\n            return \"product_knowledge\"\n    for kw in sales_keywords:\n        if kw in feedback_text:\n            return \"sales_communication\"\n    for kw in response_keywords:\n        if kw in feedback_text:\n            return \"response\"\n\n    meta = MODULE_META.get(module_code, {})\n    primary = meta.get(\"primary_dims\") or []\n    if primary:\n        return primary[0]\n\n    st = safe_text(scenario_type)\n    if \"真假\" in st or \"材质\" in st:\n        return \"product_knowledge\"\n    if \"嫌贵\" in st or \"犹豫\" in st:\n        return \"sales_communication\"\n\n    if risk_level == \"high\":\n        return \"compliance\"\n    return \"response\"\n\ndef score_band(score):\n    if score >= 85:\n        return 2\n    if score >= 70:\n        return 1\n    if score >= 60:\n        return 0\n    if score >= 50:\n        return -1\n    return\
+          \ -2\n\ndef build_deltas(module_code, focus_dimension, score, risk_level, risk_tags, practice_turns):\n    base = score_band(score)\n    deltas = {\n        \"product_knowledge\": base,\n        \"compliance\": base,\n        \"sales_communication\": base,\n        \"response\": base,\n    }\n\n    meta = MODULE_META.get(module_code, {})\n    primary_dims = meta.get(\"primary_dims\") or []\n    secondary_dims = meta.get(\"secondary_dims\") or []\n\n    primary_bump = 1 if score >= 70 else -1 if score < 60 else 0\n    secondary_bump = 1 if score >= 80 else -1 if score < 50 else 0\n\n    for dim in primary_dims:\n        deltas[dim] = deltas.get(dim, 0) + primary_bump\n\n    for dim in secondary_dims:\n        deltas[dim] = deltas.get(dim, 0) + secondary_bump\n\n    if focus_dimension in deltas:\n        deltas[focus_dimension] += (1 if score >= 75 else -1 if score < 65 else 0)\n\n    if non_negative_int(practice_turns, 0) >= 6 and score >= 75:\n        deltas[\"response\"] += 1\n\
+          \n    tag_text = \" \".join(risk_tags or [])\n    if \"合规表达风险\" in tag_text or \"过度承诺\" in tag_text:\n        deltas[\"compliance\"] -= 3\n        deltas[\"response\"] -= 1\n    if \"产品表述错误\" in tag_text:\n        deltas[\"product_knowledge\"] -= 3\n        deltas[\"compliance\"] -= 1\n    if \"逼单\" in tag_text:\n        deltas[\"sales_communication\"] -= 2\n        deltas[\"response\"] -= 1\n    if \"回应不清\" in tag_text:\n        deltas[\"response\"] -= 2\n\n    if risk_level == \"high\":\n        deltas[focus_dimension] -= 1\n\n    return {k: clamp_int(v) for k, v in deltas.items()}\n\ndef build_training_direction(module_code, focus_dimension, followup_training, risk_level):\n    meta = MODULE_META.get(module_code, {})\n    parts = []\n    if meta.get(\"training_hint\"):\n        parts.append(meta[\"training_hint\"])\n    dim_cn = DIMENSION_LABEL.get(focus_dimension, \"重点维度\")\n    parts.append(f\"下一轮优先围绕“{dim_cn}”安排针对性复训。\")\n    if safe_text(followup_training):\n        parts.append(f\"\
+          评估侧建议：{safe_text(followup_training)}\")\n    if risk_level == \"high\":\n        parts.append(\"当前风险偏高，建议补训完成后再进入进阶陪练。\")\n    elif risk_level == \"medium\":\n        parts.append(\"建议连续完成 2 次同模块复练后再观察分数变化。\")\n    else:\n        parts.append(\"当前可在保持节奏的前提下进入下一轮训练。\")\n    return \" \".join(parts)\n\ndef build_manager_tip(risk_level, focus_dimension, module_name):\n    dim_cn = DIMENSION_LABEL.get(focus_dimension, \"该维度\")\n    if risk_level == \"high\":\n        return f\"建议店长 24 小时内复盘“{module_name}”，重点检查“{dim_cn}”短板与合规稳定性。\"\n    if risk_level == \"medium\":\n        return f\"建议班组长安排 1 次“{module_name}”复练，重点跟进“{dim_cn}”是否回升。\"\n    return f\"当前可继续常规训练，后续关注“{dim_cn}”表现是否持续稳定。\"\n\ndef build_summary(user_id, module_name, scenario_type, score, focus_dimension, deltas, updated_scores, risk_level):\n    dim_cn = DIMENSION_LABEL.get(focus_dimension, \"重点维度\")\n    return (\n        f\"用户 {user_id} 在“{module_name}”模块（场景：{scenario_type or '未提供'}）\"\n        f\"评分 {int(round(score))}\
+          \ 分，重点更新维度为“{dim_cn}”。\"\n        f\"本次能力变化：产品知识 {deltas['product_knowledge']:+d}，\"\n        f\"合规表达 {deltas['compliance']:+d}，\"\n        f\"销售沟通 {deltas['sales_communication']:+d}，\"\n        f\"应变回应 {deltas['response']:+d}。\"\n        f\"更新后能力：产品知识 {int(round(updated_scores['product_knowledge']))}，\"\n        f\"合规表达 {int(round(updated_scores['compliance']))}，\"\n        f\"销售沟通 {int(round(updated_scores['sales_communication']))}，\"\n        f\"应变回应 {int(round(updated_scores['response']))}。\"\n        f\"综合风险等级：{risk_level_label(risk_level)}。\"\n    )\n\ndef build_invalid_output(\n    practice_id, user_id, module_code, module_name, cycle_id, stage_no,\n    scenario_type, current_scores, reason\n):\n    updated_scores = {k: round(v, 2) for k, v in current_scores.items()}\n    result = {\n        \"update_status\": \"invalid\",\n        \"score_branch\": \"practice\",\n        \"update_source\": \"practice\",\n        \"practice_id\": safe_text(practice_id),\n        \"user_id\"\
+          : safe_text(user_id),\n        \"module_code\": safe_text(module_code),\n        \"module_name\": safe_text(module_name),\n        \"cycle_id\": safe_text(cycle_id),\n        \"stage_no\": non_negative_int(stage_no, 0),\n        \"scenario_type\": safe_text(scenario_type),\n        \"input_final_score\": 0,\n        \"risk_tags\": [],\n        \"risk_level\": \"medium\",\n        \"risk_level_label\": \"中风险\",\n        \"focus_dimension\": \"response\",\n        \"focus_dimension_label\": \"应变回应\",\n        \"need_manager_followup\": \"yes\",\n        \"current_scores\": current_scores,\n        \"score_delta\": {\n            \"product_knowledge\": 0,\n            \"compliance\": 0,\n            \"sales_communication\": 0,\n            \"response\": 0\n        },\n        \"updated_scores\": updated_scores,\n        \"overall_score\": round(\n            updated_scores[\"product_knowledge\"] * 0.25\n            + updated_scores[\"compliance\"] * 0.25\n            + updated_scores[\"\
+          sales_communication\"] * 0.30\n            + updated_scores[\"response\"] * 0.20,\n            2\n        ),\n        \"next_training_direction\": \"本次输入不足，先补齐评估结果后再执行能力更新。\",\n        \"manager_tip\": f\"当前无法稳定更新能力画像：{reason}\",\n        \"update_summary\": f\"能力更新未执行，原因：{reason}\",\n    }\n    return {\n        \"update_status\": result[\"update_status\"],\n        \"score_branch\": result[\"score_branch\"],\n        \"update_source\": result[\"update_source\"],\n        \"practice_id\": result[\"practice_id\"],\n        \"user_id\": result[\"user_id\"],\n        \"module_code\": result[\"module_code\"],\n        \"module_name\": result[\"module_name\"],\n        \"cycle_id\": result[\"cycle_id\"],\n        \"stage_no\": result[\"stage_no\"],\n        \"scenario_name\": result[\"scenario_type\"],\n        \"input_final_score\": 0,\n        \"risk_tags\": [],\n        \"product_knowledge_score\": updated_scores[\"product_knowledge\"],\n        \"compliance_score\": updated_scores[\"\
+          compliance\"],\n        \"sales_communication_score\": updated_scores[\"sales_communication\"],\n        \"response_score\": updated_scores[\"response\"],\n        \"overall_score\": result[\"overall_score\"],\n        \"product_knowledge_delta\": 0,\n        \"compliance_delta\": 0,\n        \"sales_communication_delta\": 0,\n        \"response_delta\": 0,\n        \"risk_level\": result[\"risk_level\"],\n        \"risk_level_label\": result[\"risk_level_label\"],\n        \"focus_dimension\": result[\"focus_dimension\"],\n        \"focus_dimension_label\": result[\"focus_dimension_label\"],\n        \"need_manager_followup\": result[\"need_manager_followup\"],\n        \"next_training_direction\": result[\"next_training_direction\"],\n        \"update_summary\": result[\"update_summary\"],\n        \"manager_tip\": result[\"manager_tip\"],\n        \"ability_update_json\": json.dumps(result, ensure_ascii=False),\n    }\n\ndef main(\n    practice_id: str = \"\",\n    user_id:\
+          \ str = \"\",\n    module_code: str = \"\",\n    module_name: str = \"\",\n    cycle_id: str = \"\",\n    stage_no = 0,\n    scenario_type: str = \"\",\n    evaluation_result: str = \"\",\n    final_score = None,\n    evaluator_feedback: str = \"\",\n    risk_level: str = \"\",\n    risk_tags_json: str = \"\",\n    weak_dimension: str = \"\",\n    followup_training: str = \"\",\n    concise_feedback: str = \"\",\n    practice_turns = None,\n    conversation_text: str = \"\",\n    current_product_knowledge_score = None,\n    current_compliance_score = None,\n    current_sales_communication_score = None,\n    current_response_score = None,\n) -> dict:\n    eval_obj = parse_json_obj(evaluation_result)\n\n    module_code_norm = normalize_module_code(\n        safe_text(module_code) or safe_text(eval_obj.get(\"module_code\")),\n        safe_text(module_name) or safe_text(eval_obj.get(\"module_name\"))\n    )\n    module_name_norm = normalize_module_name(\n        module_code_norm,\n\
+          \        safe_text(module_name) or safe_text(eval_obj.get(\"module_name\"))\n    )\n    cycle_id_text = safe_text(cycle_id) or safe_text(eval_obj.get(\"cycle_id\"))\n    stage_no_source = eval_obj.get(\"stage_no\") if (stage_no is None or safe_text(stage_no) in [\"\", \"0\"]) else stage_no\n    stage_no_num = non_negative_int(stage_no_source, 0)\n    scenario_name = safe_text(scenario_type) or safe_text(eval_obj.get(\"scenario_type\"))\n\n    current_scores = {\n        \"product_knowledge\": clamp_num(current_product_knowledge_score, 0, 100, 60),\n        \"compliance\": clamp_num(current_compliance_score, 0, 100, 60),\n        \"sales_communication\": clamp_num(current_sales_communication_score, 0, 100, 60),\n        \"response\": clamp_num(current_response_score, 0, 100, 60),\n    }\n\n    if not safe_text(user_id):\n        return build_invalid_output(practice_id, user_id, module_code_norm, module_name_norm, cycle_id_text, stage_no_num, scenario_name, current_scores, \"缺少 user_id\"\
+          )\n    if not safe_text(module_code_norm):\n        return build_invalid_output(practice_id, user_id, module_code_norm, module_name_norm, cycle_id_text, stage_no_num, scenario_name, current_scores, \"缺少 module_code\")\n    if not eval_obj and (final_score is None or safe_text(final_score) == \"\"):\n        return build_invalid_output(practice_id, user_id, module_code_norm, module_name_norm, cycle_id_text, stage_no_num, scenario_name, current_scores, \"缺少 evaluation_result 或 final_score\")\n\n    input_score = clamp_num(final_score if safe_text(final_score) else eval_obj.get(\"overall_score\"), 0, 100, 0)\n    feedback_text = (\n        safe_text(evaluator_feedback)\n        or safe_text(eval_obj.get(\"concise_feedback\"))\n        or safe_text(eval_obj.get(\"improvement_advice\"))\n        or safe_text(eval_obj.get(\"followup_training\"))\n        or safe_text(concise_feedback)\n    )\n    followup_training_text = safe_text(followup_training) or safe_text(eval_obj.get(\"followup_training\"\
+          ))\n    concise_feedback_text = safe_text(concise_feedback) or safe_text(eval_obj.get(\"concise_feedback\"))\n\n    risk_tags = parse_list(risk_tags_json)\n    if not risk_tags:\n        risk_tags = parse_list(eval_obj.get(\"risk_tags\"))\n    risk_level_norm = normalize_risk_level(safe_text(risk_level) or safe_text(eval_obj.get(\"risk_level\")), risk_tags, input_score)\n    eval_weak_dimension = safe_text(eval_obj.get(\"weak_dimension\"))\n    focus_dimension = detect_focus_dimension(\n        weak_dimension,\n        eval_weak_dimension,\n        module_code_norm,\n        risk_level_norm,\n        risk_tags,\n        scenario_name,\n        feedback_text,\n    )\n    focus_dimension_label = DIMENSION_LABEL.get(focus_dimension, \"应变回应\")\n\n    deltas = build_deltas(\n        module_code=module_code_norm,\n        focus_dimension=focus_dimension,\n        score=input_score,\n        risk_level=risk_level_norm,\n        risk_tags=risk_tags,\n        practice_turns=practice_turns\
+          \ if practice_turns is not None else eval_obj.get(\"sample_round_count\"),\n    )\n\n    updated_scores = {\n        \"product_knowledge\": clamp_num(current_scores[\"product_knowledge\"] + deltas[\"product_knowledge\"], 0, 100, current_scores[\"product_knowledge\"]),\n        \"compliance\": clamp_num(current_scores[\"compliance\"] + deltas[\"compliance\"], 0, 100, current_scores[\"compliance\"]),\n        \"sales_communication\": clamp_num(current_scores[\"sales_communication\"] + deltas[\"sales_communication\"], 0, 100, current_scores[\"sales_communication\"]),\n        \"response\": clamp_num(current_scores[\"response\"] + deltas[\"response\"], 0, 100, current_scores[\"response\"]),\n    }\n\n    overall_score = round(\n        updated_scores[\"product_knowledge\"] * 0.25\n        + updated_scores[\"compliance\"] * 0.25\n        + updated_scores[\"sales_communication\"] * 0.30\n        + updated_scores[\"response\"] * 0.20,\n        2\n    )\n\n    need_manager_followup = \"\
+          yes\" if risk_level_norm == \"high\" or overall_score < 60 else \"no\"\n    next_training_direction = build_training_direction(\n        module_code_norm,\n        focus_dimension,\n        followup_training_text,\n        risk_level_norm,\n    )\n    manager_tip = build_manager_tip(risk_level_norm, focus_dimension, module_name_norm)\n    update_summary = build_summary(\n        safe_text(user_id),\n        module_name_norm,\n        scenario_name,\n        input_score,\n        focus_dimension,\n        deltas,\n        updated_scores,\n        risk_level_norm,\n    )\n\n    ability_update_obj = {\n        \"update_status\": \"success\",\n        \"score_branch\": \"practice\",\n        \"update_source\": \"practice\",\n        \"practice_id\": safe_text(practice_id) or safe_text(eval_obj.get(\"practice_id\")),\n        \"user_id\": safe_text(user_id),\n        \"module_code\": module_code_norm,\n        \"module_name\": module_name_norm,\n        \"cycle_id\": cycle_id_text,\n\
+          \        \"stage_no\": stage_no_num,\n        \"scenario_type\": scenario_name,\n        \"input_final_score\": input_score,\n        \"risk_level\": risk_level_norm,\n        \"risk_level_label\": risk_level_label(risk_level_norm),\n        \"risk_tags\": risk_tags,\n        \"focus_dimension\": focus_dimension,\n        \"focus_dimension_label\": focus_dimension_label,\n        \"current_scores\": current_scores,\n        \"score_delta\": deltas,\n        \"updated_scores\": updated_scores,\n        \"overall_score\": overall_score,\n        \"need_manager_followup\": need_manager_followup,\n        \"next_training_direction\": next_training_direction,\n        \"manager_tip\": manager_tip,\n        \"update_summary\": update_summary,\n        \"concise_feedback\": concise_feedback_text,\n        \"evaluator_feedback\": feedback_text,\n        \"followup_training\": followup_training_text,\n        \"conversation_text\": safe_text(conversation_text),\n        \"source_evaluation\"\
+          : eval_obj if isinstance(eval_obj, dict) else {},\n    }\n\n    return {\n        \"update_status\": \"success\",\n        \"score_branch\": \"practice\",\n        \"update_source\": \"practice\",\n        \"practice_id\": ability_update_obj[\"practice_id\"],\n        \"user_id\": ability_update_obj[\"user_id\"],\n        \"module_code\": ability_update_obj[\"module_code\"],\n        \"module_name\": ability_update_obj[\"module_name\"],\n        \"cycle_id\": ability_update_obj[\"cycle_id\"],\n        \"stage_no\": ability_update_obj[\"stage_no\"],\n        \"scenario_name\": scenario_name,\n        \"input_final_score\": input_score,\n        \"risk_tags\": risk_tags,\n        \"product_knowledge_score\": round(updated_scores[\"product_knowledge\"], 2),\n        \"compliance_score\": round(updated_scores[\"compliance\"], 2),\n        \"sales_communication_score\": round(updated_scores[\"sales_communication\"], 2),\n        \"response_score\": round(updated_scores[\"response\"\
+          ], 2),\n        \"overall_score\": overall_score,\n        \"product_knowledge_delta\": deltas[\"product_knowledge\"],\n        \"compliance_delta\": deltas[\"compliance\"],\n        \"sales_communication_delta\": deltas[\"sales_communication\"],\n        \"response_delta\": deltas[\"response\"],\n        \"risk_level\": risk_level_norm,\n        \"risk_level_label\": risk_level_label(risk_level_norm),\n        \"focus_dimension\": focus_dimension,\n        \"focus_dimension_label\": focus_dimension_label,\n        \"need_manager_followup\": need_manager_followup,\n        \"next_training_direction\": next_training_direction,\n        \"update_summary\": update_summary,\n        \"manager_tip\": manager_tip,\n        \"ability_update_json\": json.dumps(ability_update_obj, ensure_ascii=False)\n    }\n"
+        code_language: python3
+        desc: 兼容实战2 evaluation_result 或单字段兜底输入；按模块归属与风险结果更新能力画像
+        outputs:
+          update_status:
+            type: string
+          score_branch:
+            type: string
+          update_source:
+            type: string
+          practice_id:
+            type: string
+          user_id:
+            type: string
+          module_code:
+            type: string
+          module_name:
+            type: string
+          cycle_id:
+            type: string
+          stage_no:
+            type: number
+          scenario_name:
+            type: string
+          input_final_score:
+            type: number
+          risk_tags:
+            type: array[string]
+          product_knowledge_score:
+            type: number
+          compliance_score:
+            type: number
+          sales_communication_score:
+            type: number
+          response_score:
+            type: number
+          overall_score:
+            type: number
+          product_knowledge_delta:
+            type: number
+          compliance_delta:
+            type: number
+          sales_communication_delta:
+            type: number
+          response_delta:
+            type: number
+          risk_level:
+            type: string
+          risk_level_label:
+            type: string
+          focus_dimension:
+            type: string
+          focus_dimension_label:
+            type: string
+          need_manager_followup:
+            type: string
+          next_training_direction:
+            type: string
+          update_summary:
+            type: string
+          manager_tip:
+            type: string
+          ability_update_json:
+            type: string
+        selected: false
+        title: 能力更新归一化引擎
+        type: code
+        variables:
+        - value_selector:
+          - '1743600000001'
+          - practice_id
+          variable: practice_id
+        - value_selector:
+          - '1743600000001'
+          - user_id
+          variable: user_id
+        - value_selector:
+          - '1743600000001'
+          - module_code
+          variable: module_code
+        - value_selector:
+          - '1743600000001'
+          - module_name
+          variable: module_name
+        - value_selector:
+          - '1743600000001'
+          - cycle_id
+          variable: cycle_id
+        - value_selector:
+          - '1743600000001'
+          - stage_no
+          variable: stage_no
+        - value_selector:
+          - '1743600000001'
+          - scenario_type
+          variable: scenario_type
+        - value_selector:
+          - '1743600000001'
+          - evaluation_result
+          variable: evaluation_result
+        - value_selector:
+          - '1743600000001'
+          - final_score
+          variable: final_score
+        - value_selector:
+          - '1743600000001'
+          - evaluator_feedback
+          variable: evaluator_feedback
+        - value_selector:
+          - '1743600000001'
+          - risk_level
+          variable: risk_level
+        - value_selector:
+          - '1743600000001'
+          - risk_tags_json
+          variable: risk_tags_json
+        - value_selector:
+          - '1743600000001'
+          - weak_dimension
+          variable: weak_dimension
+        - value_selector:
+          - '1743600000001'
+          - followup_training
+          variable: followup_training
+        - value_selector:
+          - '1743600000001'
+          - concise_feedback
+          variable: concise_feedback
+        - value_selector:
+          - '1743600000001'
+          - practice_turns
+          variable: practice_turns
+        - value_selector:
+          - '1743600000001'
+          - conversation_text
+          variable: conversation_text
+        - value_selector:
+          - '1743600000001'
+          - current_product_knowledge_score
+          variable: current_product_knowledge_score
+        - value_selector:
+          - '1743600000001'
+          - current_compliance_score
+          variable: current_compliance_score
+        - value_selector:
+          - '1743600000001'
+          - current_sales_communication_score
+          variable: current_sales_communication_score
+        - value_selector:
+          - '1743600000001'
+          - current_response_score
+          variable: current_response_score
+      height: 96
+      id: '1743600000002'
+      position:
+        x: 340
+        y: 260
+      positionAbsolute:
+        x: 340
+        y: 260
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        desc: 输出能力画像更新结果，供 FastAPI 入库与前端结果卡片展示
+        outputs:
+        - value_selector:
+          - '1743600000002'
+          - update_status
+          variable: update_status
+        - value_selector:
+          - '1743600000002'
+          - score_branch
+          variable: score_branch
+        - value_selector:
+          - '1743600000002'
+          - update_source
+          variable: update_source
+        - value_selector:
+          - '1743600000002'
+          - practice_id
+          variable: practice_id
+        - value_selector:
+          - '1743600000002'
+          - user_id
+          variable: user_id
+        - value_selector:
+          - '1743600000002'
+          - module_code
+          variable: module_code
+        - value_selector:
+          - '1743600000002'
+          - module_name
+          variable: module_name
+        - value_selector:
+          - '1743600000002'
+          - cycle_id
+          variable: cycle_id
+        - value_selector:
+          - '1743600000002'
+          - stage_no
+          variable: stage_no
+        - value_selector:
+          - '1743600000002'
+          - scenario_name
+          variable: scenario_name
+        - value_selector:
+          - '1743600000002'
+          - input_final_score
+          variable: input_final_score
+        - value_selector:
+          - '1743600000002'
+          - risk_tags
+          variable: risk_tags
+        - value_selector:
+          - '1743600000002'
+          - product_knowledge_score
+          variable: product_knowledge_score
+        - value_selector:
+          - '1743600000002'
+          - compliance_score
+          variable: compliance_score
+        - value_selector:
+          - '1743600000002'
+          - sales_communication_score
+          variable: sales_communication_score
+        - value_selector:
+          - '1743600000002'
+          - response_score
+          variable: response_score
+        - value_selector:
+          - '1743600000002'
+          - overall_score
+          variable: overall_score
+        - value_selector:
+          - '1743600000002'
+          - product_knowledge_delta
+          variable: product_knowledge_delta
+        - value_selector:
+          - '1743600000002'
+          - compliance_delta
+          variable: compliance_delta
+        - value_selector:
+          - '1743600000002'
+          - sales_communication_delta
+          variable: sales_communication_delta
+        - value_selector:
+          - '1743600000002'
+          - response_delta
+          variable: response_delta
+        - value_selector:
+          - '1743600000002'
+          - risk_level
+          variable: risk_level
+        - value_selector:
+          - '1743600000002'
+          - risk_level_label
+          variable: risk_level_label
+        - value_selector:
+          - '1743600000002'
+          - focus_dimension
+          variable: focus_dimension
+        - value_selector:
+          - '1743600000002'
+          - focus_dimension_label
+          variable: focus_dimension_label
+        - value_selector:
+          - '1743600000002'
+          - need_manager_followup
+          variable: need_manager_followup
+        - value_selector:
+          - '1743600000002'
+          - next_training_direction
+          variable: next_training_direction
+        - value_selector:
+          - '1743600000002'
+          - update_summary
+          variable: update_summary
+        - value_selector:
+          - '1743600000002'
+          - manager_tip
+          variable: manager_tip
+        - value_selector:
+          - '1743600000002'
+          - ability_update_json
+          variable: ability_update_json
+        selected: false
+        title: 结束
+        type: end
+      height: 600
+      id: '1743600000003'
+      position:
+        x: 650
+        y: 260
+      positionAbsolute:
+        x: 650
+        y: 260
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    viewport:
+      x: 0
+      y: 0
+      zoom: 1
+  rag_pipeline_variables: []

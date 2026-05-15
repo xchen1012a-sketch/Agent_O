@@ -1,0 +1,954 @@
+app:
+  description: 在岗助手-极简极速版-单输入话术生成工作流
+  icon: 🤖
+  icon_background: '#FFEAD5'
+  mode: workflow
+  name: 在岗助手主响应工作流
+  use_icon_as_answer_icon: false
+dependencies:
+- current_identifier: null
+  type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: langgenius/tongyi:0.1.32@20a5454088fa017b72490e1cbaeebff21094d11b13e41197591734d1c08cdbb5
+    version: null
+kind: app
+version: 0.6.0
+workflow:
+  conversation_variables: []
+  environment_variables: []
+  features:
+    file_upload:
+      allowed_file_extensions:
+      - .JPG
+      - .JPEG
+      - .PNG
+      - .GIF
+      - .WEBP
+      - .SVG
+      allowed_file_types:
+      - image
+      allowed_file_upload_methods:
+      - local_file
+      - remote_url
+      enabled: false
+      fileUploadConfig:
+        attachment_image_file_size_limit: 2
+        audio_file_size_limit: 50
+        batch_count_limit: 5
+        file_size_limit: 15
+        file_upload_limit: 20
+        image_file_batch_limit: 10
+        image_file_size_limit: 10
+        single_chunk_attachment_limit: 10
+        video_file_size_limit: 100
+        workflow_file_upload_limit: 10
+      image:
+        enabled: false
+        number_limits: 3
+        transfer_methods:
+        - local_file
+        - remote_url
+      number_limits: 3
+    opening_statement: ''
+    retriever_resource:
+      enabled: true
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions: []
+    suggested_questions_after_answer:
+      enabled: false
+    text_to_speech:
+      enabled: false
+      language: ''
+      voice: ''
+  graph:
+    edges:
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: start
+        targetType: code
+      id: start_node-normalize_node-source
+      source: start_node
+      sourceHandle: source
+      target: normalize_node
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: if-else
+      id: normalize_node-if_redline-source
+      source: normalize_node
+      sourceHandle: source
+      target: if_redline
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: if-else
+        targetType: code
+      id: if_redline-refusal_builder-true
+      source: if_redline
+      sourceHandle: 'true'
+      target: refusal_builder
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: end
+      id: refusal_builder-end_refusal-source
+      source: refusal_builder
+      sourceHandle: source
+      target: end_refusal
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: if-else
+        targetType: knowledge-retrieval
+      id: if_redline-intent_refine-false
+      source: if_redline
+      sourceHandle: 'false'
+      target: intent_refine
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: knowledge-retrieval
+        targetType: code
+      id: knowledge_node-knowledge_normalize-source
+      source: knowledge_node
+      sourceHandle: source
+      target: knowledge_normalize
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: llm
+      id: knowledge_normalize-reply_llm-source
+      source: knowledge_normalize
+      sourceHandle: source
+      target: reply_llm
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: llm
+        targetType: code
+      id: reply_llm-reply_parser-source
+      source: reply_llm
+      sourceHandle: source
+      target: reply_parser
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: end
+      id: reply_parser-end_reply-source
+      source: reply_parser
+      sourceHandle: source
+      target: end_reply
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: knowledge-retrieval
+      id: intent_refine-knowledge_node-source
+      source: intent_refine
+      sourceHandle: source
+      target: knowledge_node
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    nodes:
+    - data:
+        desc: 只保留一个输入，供一线员工快速描述顾客问题或现场情况。
+        selected: false
+        title: 开始
+        type: start
+        variables:
+        - label: 顾客问题或现场情况
+          max_length: 3000
+          options: []
+          required: true
+          type: paragraph
+          variable: scene_input
+      height: 153
+      id: start_node
+      position:
+        x: 0
+        y: 427
+      positionAbsolute:
+        x: 0
+        y: 427
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "def main(scene_input: str = \"\") -> dict:\n    import re\n\n    def\
+          \ clean(v):\n        return str(v or \"\").replace(\"\\r\\n\", \"\\n\").replace(\"\
+          \\r\", \"\\n\").strip()\n\n    text = clean(scene_input)\n    text = re.sub(r\"\
+          \\s+\", \" \", text).strip()\n\n    if not text:\n        text = \"顾客没有明确说明问题，请给一个稳妥的接待开场与追问话术。\"\
+          \n\n    lower_text = text.lower()\n\n    # 只拦截“要求违规说法/要求编造/要求绝对化承诺”本身。\n\
+          \    # 若是在问“哪些不能说/这样说合不合规”，不拦截。\n    safe_training_patterns = [\n      \
+          \  r\"不能说\", r\"合规\", r\"违规\", r\"红线\", r\"禁语\", r\"这样说可以吗\", r\"这话术行吗\"\
+          \n    ]\n    is_training_question = any(re.search(p, text, flags=re.I) for\
+          \ p in safe_training_patterns)\n\n    redline_patterns = [\n        r\"\
+          帮我编\", r\"帮我造\", r\"伪造\", r\"假的证书\", r\"随便说是真的\", r\"保证保值\", r\"保证升值\",\n\
+          \        r\"稳赚\", r\"稳赚不赔\", r\"100%真\", r\"绝对保真\", r\"全国最低价\", r\"闭眼买\"\
+          , r\"假一赔十\",\n        r\"怎么说顾客才会相信.*保值\", r\"怎么忽悠\", r\"怎么误导\", r\"掩盖事实\"\
+          \n    ]\n\n    hit_terms = []\n    if not is_training_question:\n      \
+          \  for p in redline_patterns:\n            if re.search(p, text, flags=re.I):\n\
+          \                hit_terms.append(p)\n\n    code_redline_flag = 1 if hit_terms\
+          \ else 0\n    code_redline_reason = \"涉及违规承诺、编造信息或误导顾客的诉求。\" if hit_terms\
+          \ else \"\"\n\n    question_type = \"通用咨询\"\n    scene_tag = \"门店接待\"\n\n\
+          \    if re.search(r\"贵|便宜|打折|优惠|活动|比价|价格\", text):\n        question_type\
+          \ = \"价格异议\"\n        scene_tag = \"异议处理\"\n    elif re.search(r\"真假|真的吗|保真|材质|纯度|是不是金|钻石|翡翠|证书|鉴定\"\
+          , text):\n        question_type = \"真假/证书\"\n        scene_tag = \"信任建立\"\
+          \n    elif re.search(r\"售后|保养|退换|维修|改圈|清洗\", text):\n        question_type\
+          \ = \"售后咨询\"\n        scene_tag = \"售后解释\"\n    elif re.search(r\"送人|送礼|适合|佩戴|款式|怎么选\"\
+          , text):\n        question_type = \"推荐咨询\"\n        scene_tag = \"产品推荐\"\
+          \n    elif re.search(r\"犹豫|再看看|考虑一下|不想买|下次再来\", text):\n        question_type\
+          \ = \"犹豫不决\"\n        scene_tag = \"成交推进\"\n\n    retrieval_query = f\"\
+          珠宝门店 {question_type} {scene_tag} {text}\"\n\n    return {\n        \"cleaned_input\"\
+          : text,\n        \"user_context\": f\"顾客问题或现场情况：{text}\",\n        \"question_type_pre\"\
+          : question_type,\n        \"scene_tag_pre\": scene_tag,\n        \"retrieval_query\"\
+          : retrieval_query,\n        \"code_redline_flag\": code_redline_flag,\n\
+          \        \"code_redline_reason\": code_redline_reason,\n        \"hit_terms\"\
+          : \"；\".join(hit_terms)\n    }\n"
+        code_language: python3
+        desc: 单输入清洗、红线检测与粗分类；真实检索 query 在下一节点进一步提炼。
+        outputs:
+          cleaned_input:
+            type: string
+          code_redline_flag:
+            type: number
+          code_redline_reason:
+            type: string
+          hit_terms:
+            type: string
+          question_type_pre:
+            type: string
+          retrieval_query:
+            type: string
+          scene_tag_pre:
+            type: string
+          user_context:
+            type: string
+        selected: false
+        title: 输入规范化与红线检测
+        type: code
+        variables:
+        - value_selector:
+          - start_node
+          - scene_input
+          variable: scene_input
+      height: 96
+      id: normalize_node
+      position:
+        x: 342
+        y: 457.08265469036456
+      positionAbsolute:
+        x: 342
+        y: 457.08265469036456
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        cases:
+        - case_id: 'true'
+          conditions:
+          - comparison_operator: '='
+            id: if-redline-cond-1
+            value: '1'
+            varType: number
+            variable_selector:
+            - normalize_node
+            - code_redline_flag
+          id: 'true'
+          logical_operator: and
+        desc: 命中明显违规诉求时直接固定拒答，避免再走模型与检索。
+        selected: false
+        title: 是否命中红线
+        type: if-else
+      height: 168
+      id: if_redline
+      position:
+        x: 684
+        y: 420
+      positionAbsolute:
+        x: 684
+        y: 420
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "def main(cleaned_input: str = \"\", question_type_pre: str = \"\",\
+          \ scene_tag_pre: str = \"\", code_redline_reason: str = \"\", hit_terms:\
+          \ str = \"\") -> dict:\n    import json\n    reply_script = \"这个说法我不能直接帮你这么表达。更稳妥的做法是回到材质依据、证书信息、门店规则和真实卖点上，我可以马上帮你改成合规又自然的话术。\"\
+          \n    followup_question = \"你把顾客真实顾虑发我，比如嫌贵、质疑真假、问售后或犹豫不下单，我直接给你能说出口的版本。\"\
+          \n    payload = {\n        \"reply_script\": reply_script,\n        \"compliance_tip\"\
+          : \"禁止编造材质、证书、政策或保值升值承诺，必须以实物、证书和门店规则为准。\",\n        \"risk_level\": \"\
+          high\",\n        \"question_type\": question_type_pre or \"通用咨询\",\n   \
+          \     \"scene_tag\": scene_tag_pre or \"门店接待\",\n        \"knowledge_points\"\
+          : [\"红线拦截\", \"合规拒答\"],\n        \"followup_question\": followup_question,\n\
+          \        \"confidence_level\": \"high\",\n        \"answer_mode\": \"refusal\"\
+          ,\n        \"refuse_flag\": \"yes\",\n        \"knowledge_hit\": \"no\"\
+          ,\n        \"hit_strategy\": \"refusal\",\n        \"problem_note\": code_redline_reason\
+          \ or hit_terms or \"命中违规诉求\",\n        \"raw_output\": json.dumps({\n  \
+          \          \"reason\": code_redline_reason,\n            \"hit_terms\":\
+          \ hit_terms,\n            \"cleaned_input\": cleaned_input\n        }, ensure_ascii=False)\n\
+          \    }\n    return payload\n"
+        code_language: python3
+        desc: 固定拒答输出，避免红线分支再走模型。
+        outputs:
+          answer_mode:
+            type: string
+          compliance_tip:
+            type: string
+          confidence_level:
+            type: string
+          followup_question:
+            type: string
+          hit_strategy:
+            type: string
+          knowledge_hit:
+            type: string
+          knowledge_points:
+            type: array[string]
+          problem_note:
+            type: string
+          question_type:
+            type: string
+          raw_output:
+            type: string
+          refuse_flag:
+            type: string
+          reply_script:
+            type: string
+          risk_level:
+            type: string
+          scene_tag:
+            type: string
+        selected: false
+        title: 红线拒答构造
+        type: code
+        variables:
+        - value_selector:
+          - normalize_node
+          - cleaned_input
+          variable: cleaned_input
+        - value_selector:
+          - normalize_node
+          - question_type_pre
+          variable: question_type_pre
+        - value_selector:
+          - normalize_node
+          - scene_tag_pre
+          variable: scene_tag_pre
+        - value_selector:
+          - normalize_node
+          - code_redline_reason
+          variable: code_redline_reason
+        - value_selector:
+          - normalize_node
+          - hit_terms
+          variable: hit_terms
+      height: 96
+      id: refusal_builder
+      position:
+        x: 1046
+        y: 165
+      positionAbsolute:
+        x: 1046
+        y: 165
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        dataset_ids:
+        - PdG1jr0RIaTHSDyvv4WMGGPcvZCFpMVcUkZTKmqgN/wASy0mtND7kzWk8GwBgYzN
+        desc: 使用提炼后的检索 query 做短上下文检索，减少误检。
+        multiple_retrieval_config:
+          reranking_enable: true
+          reranking_mode: reranking_model
+          reranking_model:
+            model: gte-rerank
+            provider: langgenius/tongyi/tongyi
+          top_k: 2
+        query_attachment_selector: []
+        query_variable_selector:
+        - intent_refine
+        - retrieval_query_refined
+        retrieval_mode: multiple
+        selected: false
+        title: 知识检索
+        type: knowledge-retrieval
+      height: 134
+      id: knowledge_node
+      position:
+        x: 1366
+        y: 495
+      positionAbsolute:
+        x: 1366
+        y: 495
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "def main(user_context: str = \"\", cleaned_input: str = \"\", intent_type_refined:\
+          \ str = \"\", scene_tag_refined: str = \"\", customer_focus: str = \"\"\
+          , emotion_state: str = \"\", reply_focus: str = \"\", retrieved_docs=None)\
+          \ -> dict:\n    import json\n\n    docs = retrieved_docs or []\n    blocks\
+          \ = []\n    points = []\n\n    for idx, doc in enumerate(docs[:2], 1):\n\
+          \        title = \"\"\n        content = \"\"\n        try:\n          \
+          \  if isinstance(doc, dict):\n                title = str(doc.get(\"title\"\
+          ) or doc.get(\"name\") or \"\").strip()\n                content = str(doc.get(\"\
+          content\") or doc.get(\"segment\") or doc.get(\"text\") or \"\").strip()\n\
+          \                if not content:\n                    metadata = doc.get(\"\
+          metadata\") or {}\n                    doc_metadata = metadata.get(\"doc_metadata\"\
+          ) or {}\n                    content = str(doc_metadata.get(\"content\"\
+          ) or \"\").strip()\n            else:\n                content = str(doc).strip()\n\
+          \        except Exception:\n            content = str(doc).strip()\n\n \
+          \       if content:\n            brief = content[:180]\n            block\
+          \ = f\"[知识片段{idx}]\"\n            if title:\n                block += f\"\
+          \\n标题：{title}\"\n                points.append(title)\n            block\
+          \ += f\"\\n内容：{brief}\"\n            blocks.append(block)\n\n    knowledge_hit\
+          \ = \"yes\" if blocks else \"no\"\n    kb_context = \"\\n\\n\".join(blocks)\n\
+          \    if not kb_context:\n        kb_context = \"未检索到强相关知识片段，请按珠宝门店通用稳妥说法生成。\"\
+          \n        if not points:\n            points = [\"知识未命中\", \"稳妥应答\"]\n\n\
+          \    intent_brief = f\"意图：{intent_type_refined or '通用咨询'}；关注点：{customer_focus\
+          \ or '顾客当前顾虑'}；情绪：{emotion_state or '待判断'}；回复重点：{reply_focus or '先回应顾虑再追问'}\"\
+          \n\n    return {\n        \"user_context_out\": user_context,\n        \"\
+          cleaned_input_out\": cleaned_input,\n        \"question_type_out\": intent_type_refined\
+          \ or \"通用咨询\",\n        \"scene_tag_out\": scene_tag_refined or \"门店接待\"\
+          ,\n        \"knowledge_hit\": knowledge_hit,\n        \"kb_context\": kb_context,\n\
+          \        \"knowledge_points_seed\": json.dumps(points[:3], ensure_ascii=False),\n\
+          \        \"intent_brief\": intent_brief,\n        \"reply_focus_out\": reply_focus\
+          \ or \"先回应顾虑再追问\"\n    }"
+        code_language: python3
+        desc: 把检索结果压缩成极少上下文，并补充意图摘要给主 LLM。
+        outputs:
+          cleaned_input_out:
+            type: string
+          intent_brief:
+            type: string
+          kb_context:
+            type: string
+          knowledge_hit:
+            type: string
+          knowledge_points_seed:
+            type: string
+          question_type_out:
+            type: string
+          reply_focus_out:
+            type: string
+          scene_tag_out:
+            type: string
+          user_context_out:
+            type: string
+        selected: false
+        title: 知识结果整理
+        type: code
+        variables:
+        - value_selector:
+          - normalize_node
+          - user_context
+          variable: user_context
+        - value_selector:
+          - normalize_node
+          - cleaned_input
+          variable: cleaned_input
+        - value_selector:
+          - intent_refine
+          - intent_type_refined
+          variable: intent_type_refined
+        - value_selector:
+          - intent_refine
+          - scene_tag_refined
+          variable: scene_tag_refined
+        - value_selector:
+          - intent_refine
+          - customer_focus
+          variable: customer_focus
+        - value_selector:
+          - intent_refine
+          - emotion_state
+          variable: emotion_state
+        - value_selector:
+          - intent_refine
+          - reply_focus
+          variable: reply_focus
+        - value_selector:
+          - knowledge_node
+          - result
+          variable: retrieved_docs
+      height: 96
+      id: knowledge_normalize
+      position:
+        x: 1708
+        y: 506
+      positionAbsolute:
+        x: 1708
+        y: 506
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        desc: 唯一 LLM 节点，只负责把当前顾客原话变成可直接复述的话术。
+        model:
+          completion_params:
+            max_tokens: 220
+            temperature: 0.1
+          mode: chat
+          name: qwen-flash
+          provider: langgenius/tongyi/tongyi
+        prompt_template:
+        - id: reply-llm-system
+          role: system
+          text: "你不是培训教练，不是客服前台，不是讲解员。你就是珠宝门店一线导购本人。\n\n你的唯一任务：\n根据顾客刚刚说的这句话，直接生成“导购下一句该怎么回”。\n\
+            \n硬性要求：\n1. 只回复顾客当前这句话，不能换话题，不能写分析建议。\n2. 禁止输出“针对这个场景/可以先/再从/最后/建议你”这类培训口吻。\n\
+            3. 禁止输出欢迎语、寒暄、开场白，除非顾客主动问候。\n4. reply_script 必须像真实门店销售当场会说的话，口语化、自然、简短，控制在\
+            \ 35~80 字。\n5. followup_question 必须是顺势追问顾客的一句话，控制在 8~18 字。\n6. 如果知识命中，就吸收知识里的有效信息；如果知识未命中，也必须基于珠宝门店通用销售逻辑生成，不允许拒答。\n\
+            7. 先接住顾客情绪或顾虑，再轻推进，不要生硬跳转。\n8. 严禁绝对化承诺、保值升值承诺、虚假最低价、伪造证书或材质结论。\n\n你只输出极简\
+            \ JSON：\n{\n  \"reply_script\": \"\",\n  \"followup_question\": \"\"\n\
+            }"
+        - id: reply-llm-user
+          role: user
+          text: '【顾客原话】
+
+            {{#knowledge_normalize.cleaned_input_out#}}
+
+
+            【意图提炼】
+
+            {{#knowledge_normalize.intent_brief#}}
+
+
+            【知识是否命中】
+
+            {{#knowledge_normalize.knowledge_hit#}}
+
+
+            【可用知识】
+
+            {{#knowledge_normalize.kb_context#}}
+
+
+            请直接输出导购下一句回应的 JSON。'
+        selected: false
+        title: 极速话术生成
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 132
+      id: reply_llm
+      position:
+        x: 2050
+        y: 488
+      positionAbsolute:
+        x: 2050
+        y: 488
+      selected: true
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "def main(llm_text: str = \"\", question_type_out: str = \"\", scene_tag_out:\
+          \ str = \"\", knowledge_hit_in: str = \"\", knowledge_points_seed: str =\
+          \ \"\", reply_focus_out: str = \"\") -> dict:\n    import json\n    import\
+          \ re\n\n    def extract_json(text: str):\n        raw = str(text or \"\"\
+          ).strip()\n        if not raw:\n            return {}\n        raw = re.sub(r\"\
+          ^```json\\s*\", \"\", raw, flags=re.I)\n        raw = re.sub(r\"^```\\s*\"\
+          , \"\", raw)\n        raw = re.sub(r\"\\s*```$\", \"\", raw)\n        m\
+          \ = re.search(r\"\\{[\\s\\S]*\\}\", raw)\n        if m:\n            raw\
+          \ = m.group(0)\n        try:\n            data = json.loads(raw)\n     \
+          \       return data if isinstance(data, dict) else {}\n        except Exception:\n\
+          \            return {}\n\n    def s(v, d=\"\"):\n        txt = str(v if\
+          \ v is not None else d).strip()\n        return txt if txt else d\n\n  \
+          \  def parse_seed(seed: str):\n        try:\n            data = json.loads(seed\
+          \ or \"[]\")\n            if isinstance(data, list):\n                out\
+          \ = [str(x).strip() for x in data if str(x).strip()]\n                return\
+          \ out[:4] if out else [\"现场应答\", \"合规表达\"]\n        except Exception:\n\
+          \            pass\n        return [\"现场应答\", \"合规表达\"]\n\n    data = extract_json(llm_text)\n\
+          \    kh = s(knowledge_hit_in, \"no\").lower()\n    if kh not in {\"yes\"\
+          , \"no\"}:\n        kh = \"no\"\n\n    reply_script = s(data.get(\"reply_script\"\
+          ), \"我理解您的顾虑，这个问题我们可以结合实物细节和门店保障一起看，我给您说得更直白一点。\")\n    followup_question\
+          \ = s(data.get(\"followup_question\"), \"您更在意价格还是佩戴感觉？\")\n\n    return\
+          \ {\n        \"reply_script\": reply_script,\n        \"compliance_tip\"\
+          : \"避免绝对化承诺，涉及材质、证书、价格和售后时以门店规则为准。\",\n        \"risk_level\": \"low\" if\
+          \ kh == \"yes\" else \"medium\",\n        \"question_type\": s(question_type_out,\
+          \ \"通用咨询\"),\n        \"scene_tag\": s(scene_tag_out, \"门店接待\"),\n     \
+          \   \"knowledge_points\": parse_seed(knowledge_points_seed),\n        \"\
+          followup_question\": followup_question,\n        \"confidence_level\": \"\
+          high\" if kh == \"yes\" else \"medium\",\n        \"answer_mode\": \"knowledge\"\
+          \ if kh == \"yes\" else \"fallback\",\n        \"refuse_flag\": \"no\",\n\
+          \        \"knowledge_hit\": kh,\n        \"hit_strategy\": \"direct\" if\
+          \ kh == \"yes\" else \"fallback\",\n        \"problem_note\": s(reply_focus_out,\
+          \ \"\"),\n        \"raw_output\": str(llm_text or \"\")\n    }"
+        code_language: python3
+        desc: 只解析 reply_script / followup_question，其余字段由代码稳定补齐。
+        outputs:
+          answer_mode:
+            type: string
+          compliance_tip:
+            type: string
+          confidence_level:
+            type: string
+          followup_question:
+            type: string
+          hit_strategy:
+            type: string
+          knowledge_hit:
+            type: string
+          knowledge_points:
+            type: array[string]
+          problem_note:
+            type: string
+          question_type:
+            type: string
+          raw_output:
+            type: string
+          refuse_flag:
+            type: string
+          reply_script:
+            type: string
+          risk_level:
+            type: string
+          scene_tag:
+            type: string
+        selected: false
+        title: 结果解析与兜底
+        type: code
+        variables:
+        - value_selector:
+          - reply_llm
+          - text
+          variable: llm_text
+        - value_selector:
+          - knowledge_normalize
+          - question_type_out
+          variable: question_type_out
+        - value_selector:
+          - knowledge_normalize
+          - scene_tag_out
+          variable: scene_tag_out
+        - value_selector:
+          - knowledge_normalize
+          - knowledge_hit
+          variable: knowledge_hit_in
+        - value_selector:
+          - knowledge_normalize
+          - knowledge_points_seed
+          variable: knowledge_points_seed
+        - value_selector:
+          - knowledge_normalize
+          - reply_focus_out
+          variable: reply_focus_out
+      height: 112
+      id: reply_parser
+      position:
+        x: 2392
+        y: 514
+      positionAbsolute:
+        x: 2392
+        y: 514
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        desc: ''
+        outputs:
+        - value_selector:
+          - reply_parser
+          - reply_script
+          variable: reply_script
+        - value_selector:
+          - reply_parser
+          - compliance_tip
+          variable: compliance_tip
+        - value_selector:
+          - reply_parser
+          - risk_level
+          variable: risk_level
+        - value_selector:
+          - reply_parser
+          - question_type
+          variable: question_type
+        - value_selector:
+          - reply_parser
+          - scene_tag
+          variable: scene_tag
+        - value_selector:
+          - reply_parser
+          - knowledge_points
+          variable: knowledge_points
+        - value_selector:
+          - reply_parser
+          - followup_question
+          variable: followup_question
+        - value_selector:
+          - reply_parser
+          - confidence_level
+          variable: confidence_level
+        - value_selector:
+          - reply_parser
+          - answer_mode
+          variable: answer_mode
+        - value_selector:
+          - reply_parser
+          - refuse_flag
+          variable: refuse_flag
+        - value_selector:
+          - reply_parser
+          - knowledge_hit
+          variable: knowledge_hit
+        - value_selector:
+          - reply_parser
+          - hit_strategy
+          variable: hit_strategy
+        - value_selector:
+          - reply_parser
+          - problem_note
+          variable: problem_note
+        - value_selector:
+          - reply_parser
+          - raw_output
+          variable: raw_output
+        selected: false
+        title: 结束-正常回复
+        type: end
+      height: 426
+      id: end_reply
+      position:
+        x: 2734
+        y: 341
+      positionAbsolute:
+        x: 2734
+        y: 341
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        desc: ''
+        outputs:
+        - value_selector:
+          - refusal_builder
+          - reply_script
+          variable: reply_script
+        - value_selector:
+          - refusal_builder
+          - compliance_tip
+          variable: compliance_tip
+        - value_selector:
+          - refusal_builder
+          - risk_level
+          variable: risk_level
+        - value_selector:
+          - refusal_builder
+          - question_type
+          variable: question_type
+        - value_selector:
+          - refusal_builder
+          - scene_tag
+          variable: scene_tag
+        - value_selector:
+          - refusal_builder
+          - knowledge_points
+          variable: knowledge_points
+        - value_selector:
+          - refusal_builder
+          - followup_question
+          variable: followup_question
+        - value_selector:
+          - refusal_builder
+          - confidence_level
+          variable: confidence_level
+        - value_selector:
+          - refusal_builder
+          - answer_mode
+          variable: answer_mode
+        - value_selector:
+          - refusal_builder
+          - refuse_flag
+          variable: refuse_flag
+        - value_selector:
+          - refusal_builder
+          - knowledge_hit
+          variable: knowledge_hit
+        - value_selector:
+          - refusal_builder
+          - hit_strategy
+          variable: hit_strategy
+        - value_selector:
+          - refusal_builder
+          - problem_note
+          variable: problem_note
+        - value_selector:
+          - refusal_builder
+          - raw_output
+          variable: raw_output
+        selected: false
+        title: 结束-红线拒答
+        type: end
+      height: 426
+      id: end_refusal
+      position:
+        x: 1388
+        y: 0
+      positionAbsolute:
+        x: 1388
+        y: 0
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "def main(cleaned_input: str = \"\", question_type_pre: str = \"\",\
+          \ scene_tag_pre: str = \"\") -> dict:\n    import re\n\n    text = str(cleaned_input\
+          \ or \"\").strip()\n    raw = text\n\n    price_patterns = [r\"贵\", r\"\
+          便宜\", r\"多少钱\", r\"价格\", r\"打折\", r\"优惠\", r\"活动\", r\"值不值\", r\"划算\", r\"\
+          差不多\", r\"网上\", r\"别家\", r\"比价\", r\"贵这么多\"]\n    style_patterns = [r\"\
+          没感觉\", r\"没有感觉\", r\"没有情绪价值\", r\"显老\", r\"土\", r\"不好看\", r\"不日常\", r\"\
+          不好搭\", r\"不适合\", r\"不喜欢\", r\"夸张\"]\n    hesitate_patterns = [r\"再看看\",\
+          \ r\"考虑\", r\"回去商量\", r\"先看看\", r\"下次再来\", r\"没想好\", r\"再说吧\", r\"暂时\"]\n\
+          \    trust_patterns = [r\"真假\", r\"保真\", r\"证书\", r\"靠谱吗\", r\"可信\", r\"\
+          材质\", r\"纯度\", r\"是不是金\", r\"是不是钻\", r\"鉴定\"]\n    aftersale_patterns =\
+          \ [r\"售后\", r\"保养\", r\"清洗\", r\"改圈\", r\"维修\", r\"退换\"]\n    gift_patterns\
+          \ = [r\"送人\", r\"送礼\", r\"送妈妈\", r\"送女朋友\", r\"求婚\", r\"纪念日\", r\"结婚\",\
+          \ r\"自己戴\", r\"佩戴\", r\"怎么选\"]\n\n    def hit(patterns):\n        return\
+          \ any(re.search(p, text, flags=re.I) for p in patterns)\n\n    intent_type\
+          \ = question_type_pre or \"通用咨询\"\n    scene_tag = scene_tag_pre or \"门店接待\"\
+          \n    emotion_state = \"平静\"\n    customer_focus = []\n    reply_focus =\
+          \ \"先顺着顾客当前顾虑回应，再给一个轻追问。\"\n\n    if hit(price_patterns):\n        intent_type\
+          \ = \"价格异议\"\n        scene_tag = \"异议处理\"\n        emotion_state = \"比较/怀疑\"\
+          \n        customer_focus += [\"价格对比\", \"值不值\", \"门店差异\"]\n        reply_focus\
+          \ = \"先认同比价和价格顾虑，再解释价值差异，不要空讲术语。\"\n    if hit(style_patterns):\n      \
+          \  intent_type = \"风格/感觉顾虑\"\n        scene_tag = \"产品推荐\"\n        emotion_state\
+          \ = \"无感/犹豫\"\n        customer_focus += [\"佩戴感觉\", \"风格适配\", \"情绪价值\"]\n\
+          \        reply_focus = \"先接住顾客的感觉，再转到风格、佩戴效果或纪念意义。\"\n    if hit(hesitate_patterns):\n\
+          \        intent_type = \"犹豫不决\"\n        scene_tag = \"成交推进\"\n        emotion_state\
+          \ = \"观望\"\n        customer_focus += [\"还没心动\", \"想再比较\", \"暂缓决策\"]\n \
+          \       if \"先接住顾客\" not in reply_focus:\n            reply_focus = \"先接住犹豫，再缩小选择或轻推进，不要硬逼单。\"\
+          \n    if hit(trust_patterns):\n        intent_type = \"真假/证书\"\n       \
+          \ scene_tag = \"信任建立\"\n        emotion_state = \"怀疑\"\n        customer_focus\
+          \ += [\"材质依据\", \"证书可信度\", \"门店保障\"]\n        reply_focus = \"先回应真假或证书顾虑，再给可验证的信息。\"\
+          \n    if hit(aftersale_patterns):\n        intent_type = \"售后咨询\"\n    \
+          \    scene_tag = \"售后解释\"\n        emotion_state = \"谨慎\"\n        customer_focus\
+          \ += [\"保养售后\", \"维修清洗\", \"门店规则\"]\n        reply_focus = \"先给清晰规则，再补一句稳妥说明。\"\
+          \n    if hit(gift_patterns):\n        if intent_type == \"通用咨询\":\n    \
+          \        intent_type = \"送礼/佩戴咨询\"\n            scene_tag = \"产品推荐\"\n \
+          \       if \"送礼场景\" not in customer_focus:\n            customer_focus +=\
+          \ [\"送礼场景\", \"佩戴对象\", \"使用场合\"]\n        if reply_focus == \"先顺着顾客当前顾虑回应，再给一个轻追问。\"\
+          :\n            reply_focus = \"先明确用途或对象，再顺势推荐。\"\n\n    # 默认兜底：尽量不要让 query\
+          \ 太泛\n    if not customer_focus:\n        customer_focus = [\"顾客原话\", \"\
+          当前顾虑\"]\n        emotion_state = \"待判断\"\n\n    # 去重\n    uniq = []\n  \
+          \  for item in customer_focus:\n        if item not in uniq:\n         \
+          \   uniq.append(item)\n    customer_focus = uniq[:4]\n\n    normalized_user_input\
+          \ = f\"顾客原话：{raw}；判断为：{intent_type}；主要关注：{'、'.join(customer_focus)}；情绪状态：{emotion_state}。\"\
+          \n    retrieval_query_refined = f\"珠宝门店 {intent_type} {scene_tag} {' '.join(customer_focus)}\
+          \ {raw}\"\n    if len(retrieval_query_refined) > 220:\n        retrieval_query_refined\
+          \ = retrieval_query_refined[:220]\n\n    return {\n        \"normalized_user_input\"\
+          : normalized_user_input,\n        \"intent_type_refined\": intent_type,\n\
+          \        \"scene_tag_refined\": scene_tag,\n        \"customer_focus\":\
+          \ \"、\".join(customer_focus),\n        \"emotion_state\": emotion_state,\n\
+          \        \"reply_focus\": reply_focus,\n        \"retrieval_query_refined\"\
+          : retrieval_query_refined\n    }"
+        code_language: python3
+        desc: 在检索前先把口语化原话提炼成意图、关注点和检索 query，避免主 LLM 答非所问。
+        outputs:
+          customer_focus:
+            type: string
+          emotion_state:
+            type: string
+          intent_type_refined:
+            type: string
+          normalized_user_input:
+            type: string
+          reply_focus:
+            type: string
+          retrieval_query_refined:
+            type: string
+          scene_tag_refined:
+            type: string
+        selected: false
+        title: 用户意图提炼与检索改写
+        type: code
+        variables:
+        - value_selector:
+          - normalize_node
+          - cleaned_input
+          variable: cleaned_input
+        - value_selector:
+          - normalize_node
+          - question_type_pre
+          variable: question_type_pre
+        - value_selector:
+          - normalize_node
+          - scene_tag_pre
+          variable: scene_tag_pre
+      height: 112
+      id: intent_refine
+      position:
+        x: 1046
+        y: 640
+      positionAbsolute:
+        x: 1046
+        y: 640
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    viewport:
+      x: -1865.1736624615787
+      y: 54.03477793214887
+      zoom: 0.8040888484979261
+  rag_pipeline_variables: []

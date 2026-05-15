@@ -1,0 +1,703 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>珠宝企培数智管家</title>
+<link rel="icon" type="image/svg+xml" href="/frontend/favicon.svg" />
+<script>
+  window.tailwind = window.tailwind || {};
+  window.tailwind.config = window.tailwind.config || {};
+  window.tailwind.config.darkMode = 'class';
+</script>
+<link rel="stylesheet" href="./vendor/tailwind/tailwind.frozen.css?v=20260420-v1" />
+<script src="./vendor/echarts/echarts.min.js?v=20260420-v1"></script>
+<link rel="stylesheet" href="./vendor/flatpickr/flatpickr.min.css?v=20260420-v1" />
+<link rel="stylesheet" href="./styles-digital-human.css?v=20260420-v1" />
+<link rel="stylesheet" href="./styles/stage-unlock.css?v=20260420-v1" />
+<link rel="stylesheet" href="./styles/radar-timeline.css?v=20260420-v1" />
+<link rel="stylesheet" href="./styles/agent-orchestration.css?v=20260420-v1" />
+<link rel="stylesheet" href="./styles/agent-activity.css?v=20260516-a3-compact" />
+</head>
+<body class="ios-ui">
+<script>
+(function(){
+  try {
+    var s = localStorage.getItem('theme_dark_v1');
+    var isDark = s === '1';
+    var root = document.documentElement;
+    if (root) {
+      root.classList.toggle('dark', isDark);
+      root.setAttribute('data-theme', isDark ? 'dark' : 'light');
+      root.style.colorScheme = isDark ? 'dark' : 'light';
+    }
+    document.body.classList.toggle('theme-dark', isDark);
+  } catch (e) {}
+})();
+</script>
+
+<!-- Toast -->
+<div id="toast" class="toast"></div>
+
+<!-- ==================== 登录视图（Apple 式极简居中 · #f5f5f7） ==================== -->
+<div id="view-login" class="login-shell fixed inset-0 z-[100] flex min-h-[100dvh] w-full flex-col items-center justify-center bg-[#f5f5f7] px-4 py-10">
+  <div class="w-full max-w-md">
+    <div class="rounded-3xl border border-gray-100 bg-white p-10 sm:p-12">
+      <div class="text-center">
+        <div class="mb-6 flex justify-center">
+          <svg class="h-16 w-16 shrink-0" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <defs>
+              <linearGradient id="lg-facet1" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#818cf8"/>
+                <stop offset="100%" stop-color="#6366f1"/>
+              </linearGradient>
+              <linearGradient id="lg-facet2" x1="1" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#a78bfa"/>
+                <stop offset="100%" stop-color="#7c3aed"/>
+              </linearGradient>
+              <linearGradient id="lg-shine" x1="0" y1="0" x2="0.5" y2="1">
+                <stop offset="0%" stop-color="#c4b5fd"/>
+                <stop offset="100%" stop-color="#7c3aed"/>
+              </linearGradient>
+            </defs>
+            <polygon points="32,4 56,24 32,32 8,24" fill="url(#lg-shine)" opacity="0.95"/>
+            <polygon points="8,24 32,32 32,60" fill="url(#lg-facet1)" opacity="0.95"/>
+            <polygon points="56,24 32,32 32,60" fill="url(#lg-facet2)" opacity="0.95"/>
+            <line x1="32" y1="4" x2="32" y2="60" stroke="#c4b5fd" stroke-width="0.5" opacity="0.4"/>
+            <line x1="8" y1="24" x2="32" y2="32" stroke="#e0e7ff" stroke-width="0.5" opacity="0.3"/>
+            <line x1="56" y1="24" x2="32" y2="32" stroke="#e0e7ff" stroke-width="0.5" opacity="0.3"/>
+            <circle cx="20" cy="16" r="1.5" fill="#e0e7ff" opacity="0.6"/>
+          </svg>
+        </div>
+        <h1 class="app-page-title">珠宝企培数智管家</h1>
+        <p class="mt-1 text-sm text-[#86868b]">Intelligent Training Platform</p>
+      </div>
+
+      <form onsubmit="login(event)" class="mt-10 space-y-5" autocomplete="on">
+        <div>
+          <label for="login-user" class="mb-2 block text-sm text-[#86868b]">账号</label>
+          <input
+            id="login-user"
+            name="username"
+            type="text"
+            class="block h-14 w-full rounded-xl border border-[#d2d2d7] bg-[#f5f5f7] px-4 text-[15px] text-[#1d1d1f] placeholder:text-[15px] placeholder:text-[#86868b] focus:border-[#0071e3] focus:outline-none focus:ring-4 focus:ring-[#0071e3]/20 focus:ring-offset-0"
+            placeholder="账号"
+            autocomplete="username"
+            required
+          />
+        </div>
+        <div>
+          <label for="login-pass" class="mb-2 block text-sm text-[#86868b]">密码</label>
+          <input
+            id="login-pass"
+            name="password"
+            type="password"
+            class="block h-14 w-full rounded-xl border border-[#d2d2d7] bg-[#f5f5f7] px-4 text-[15px] text-[#1d1d1f] placeholder:text-[15px] placeholder:text-[#86868b] focus:border-[#0071e3] focus:outline-none focus:ring-4 focus:ring-[#0071e3]/20 focus:ring-offset-0"
+            placeholder="密码"
+            autocomplete="current-password"
+            required
+          />
+        </div>
+        <button
+          id="login-btn"
+          type="submit"
+          class="mt-2 h-14 w-full rounded-full bg-[#0071e3] text-[15px] font-medium text-white hover:bg-[#0077ED] disabled:opacity-50"
+        >
+          登入系统
+        </button>
+      </form>
+
+      <p id="login-error" class="mt-6 text-center text-sm text-red-600 hidden"></p>
+    </div>
+    <p class="mt-8 text-center text-xs text-[#86868b]">
+      © 珠宝企培数智管家 · 内部使用 |
+      <a href="https://beian.miit.gov.cn/" target="_blank" rel="noreferrer">粤ICP备2026042285号-1</a>
+    </p>
+  </div>
+</div>
+
+<!-- ==================== 工作台视图 ==================== -->
+<div id="view-dashboard" class="workbench-ios fixed inset-0 hidden">
+  <button
+    type="button"
+    id="sidebar-mobile-trigger"
+    onclick="toggleSidebarCollapsed(event)"
+    class="sidebar-mobile-trigger hidden items-center justify-center outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF]/40"
+    aria-label="打开导航"
+    aria-expanded="false"
+  >
+    <span class="sidebar-hamburger" aria-hidden="true">
+      <span class="sidebar-hamburger-bar"></span>
+      <span class="sidebar-hamburger-bar"></span>
+      <span class="sidebar-hamburger-bar"></span>
+    </span>
+  </button>
+  <div id="sidebar-mobile-overlay" class="sidebar-mobile-overlay" onclick="closeSidebarMobile(event)" aria-hidden="true"></div>
+  <div class="flex h-full">
+
+    <!-- 左侧边栏（浅色 / 分组导航） -->
+    <aside id="sidebar" data-collapsed="false" data-mobile-open="false" class="sidebar sidebar-ios-panel shrink-0 flex flex-col h-full slide-in">
+      <div class="sidebar-header-row sidebar-header-minimal px-4 pt-4 pb-0 flex-shrink-0 flex items-start justify-between gap-3">
+        <div class="sidebar-brand-row min-w-0 flex-1 rounded-[22px] border border-white/70 bg-white/75 px-4 py-3 shadow-[0_10px_28px_rgba(15,23,42,0.05)] sidebar-collapse-hide">
+          <p class="text-[#1D1D1F] text-[16px] font-semibold leading-snug tracking-tight">数智管家</p>
+          <p class="text-[11px] text-[#86868B] mt-0.5 leading-relaxed">培训 · 考核 · 洞察</p>
+        </div>
+
+        <button
+          type="button"
+          id="sidebar-collapse-btn"
+          onclick="toggleSidebarCollapsed(event)"
+          class="sidebar-collapse-btn flex items-center justify-center outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF]/40 cursor-pointer transition-colors"
+          aria-label="收起侧边栏"
+          aria-expanded="true"
+        >
+          <span class="sidebar-hamburger" aria-hidden="true">
+            <span class="sidebar-hamburger-bar"></span>
+            <span class="sidebar-hamburger-bar"></span>
+            <span class="sidebar-hamburger-bar"></span>
+          </span>
+        </button>
+      </div>
+      <!-- 侧栏菜单项由 js/app.js 中 renderMenu() 注入，请勿在此处手写静态菜单 -->
+      <nav id="sidebar-menu" class="sidebar-nav-scroll flex-1 overflow-y-auto min-h-0 px-4 pb-6 pt-1"></nav>
+      <div class="sidebar-footer-row sidebar-footer-ios relative flex-shrink-0 px-4 pb-4 pt-2 mt-auto sidebar-collapse-hide">
+        <button type="button" id="profile-widget-btn" onclick="toggleProfilePopover(event)" class="sidebar-profile-card w-full p-2 rounded-xl hover:bg-black/[0.04] cursor-pointer transition-colors duration-200 flex items-center gap-2.5 text-left outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF]/30" aria-expanded="false" aria-haspopup="true">
+          <div id="avatar-letter" class="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-500 to-blue-400 text-white flex items-center justify-center text-xs font-medium shadow-sm flex-shrink-0">A</div>
+          <div class="min-w-0 flex-1 sidebar-collapse-hide">
+            <p id="profile-widget-name" class="text-[15px] font-semibold text-gray-900 truncate">用户</p>
+            <p id="profile-widget-sub" class="text-[13px] text-gray-500 truncate">角色</p>
+          </div>
+        </button>
+        <div id="profile-popover" class="hidden absolute bottom-full left-3 right-3 mb-2 z-[200] backdrop-blur-xl bg-white/90 shadow-xl rounded-xl border border-gray-100 py-1 overflow-hidden" role="menu">
+          <button type="button" class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-800 hover:bg-gray-50 transition-colors text-left" role="menuitem" onclick="closeProfilePopover(); openAccountModal();">
+            <svg class="w-4 h-4 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            账号设置
+          </button>
+          <!-- 用与微卡一致的中性风格替代“生硬红色退出按钮” -->
+          <button type="button" class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors text-left" role="menuitem" onclick="closeProfilePopover(); logout();">
+            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H6a2 2 0 01-2-2V7a2 2 0 012-2h5a2 2 0 012 2v1"/></svg>
+            退出登录
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <main class="workbench-main-ios flex-1 overflow-auto min-h-0 py-6 lg:py-8 bg-[#F2F2F7]">
+      <div id="content-area" class="w-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-10 2xl:px-14 ios-page-enter"></div>
+      <footer class="w-full max-w-[1600px] mx-auto px-4 pt-6 pb-4 text-center text-xs text-[#86868b] sm:px-6 lg:px-10 2xl:px-14">
+        © 珠宝企培数智管家 · 内部使用 |
+        <a href="https://beian.miit.gov.cn/" target="_blank" rel="noreferrer">粤ICP备2026042285号-1</a>
+      </footer>
+    </main>
+
+  </div>
+</div>
+
+<!-- ==================== 新增员工账号模态框 ==================== -->
+<div id="modal-add-user" class="ios-sheet-overlay hidden" data-align="center" onclick="if(event.target===this)closeModal()">
+  <div class="ios-sheet-card" onclick="event.stopPropagation()">
+    <div class="flex items-start justify-between gap-4 px-6 pt-6 pb-2">
+      <h3 class="text-lg font-semibold text-gray-900">新增员工账号</h3>
+      <button type="button" onclick="closeModal()" class="shrink-0 rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors" aria-label="关闭">
+        <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <form id="form-new-user" onsubmit="createUser(event)" class="px-6 pb-6" novalidate>
+      <p id="new-user-form-error" class="hidden rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 mb-4" role="alert"></p>
+      <div class="mb-10">
+        <p class="text-xs text-gray-400 font-medium tracking-wider mb-4">基础信息</p>
+        <div class="space-y-4">
+          <div>
+            <label for="new-username" class="block text-sm text-gray-600 mb-1">用户名 / 登录账号 <span class="text-red-500" aria-hidden="true">*</span></label>
+            <input id="new-username" type="text" autocomplete="username" maxlength="32" inputmode="verbatim" aria-required="true" aria-describedby="new-user-form-error" oninput="clearNewUserFormError()" class="w-full border border-gray-200 rounded-lg bg-white px-3 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none" placeholder="3～32 位字母、数字、下划线或短横线" />
+          </div>
+          <div>
+            <div class="flex items-center justify-between gap-3 mb-1">
+              <label for="new-password" class="text-sm text-gray-600">初始密码 <span class="text-red-500" aria-hidden="true">*</span></label>
+              <button type="button" onclick="fillRandomNewUserPassword()" class="text-sm text-blue-600 hover:text-blue-700 hover:underline shrink-0 font-normal cursor-pointer">随机生成</button>
+            </div>
+            <div class="relative">
+              <input id="new-password" type="password" autocomplete="new-password" minlength="8" maxlength="128" aria-required="true" oninput="clearNewUserFormError()" class="w-full border border-gray-200 rounded-lg bg-white pl-3 pr-11 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none" placeholder="至少 8 位" />
+              <button type="button" id="btn-toggle-new-password" onclick="togglePasswordFieldVisibility('new-password', this)" class="absolute right-1.5 top-1/2 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors" aria-label="显示密码" title="显示/隐藏密码">
+                <span data-pw-toggle="visible" class="inline-flex text-gray-500"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></span>
+                <span data-pw-toggle="hidden" class="hidden inline-flex text-gray-500"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/></svg></span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mb-6">
+        <p class="text-xs text-gray-400 font-medium tracking-wider mb-4">员工档案</p>
+        <div class="space-y-4">
+          <div>
+            <label for="new-employee-name" class="block text-sm text-gray-600 mb-1">员工姓名 <span class="text-red-500" aria-hidden="true">*</span></label>
+            <input id="new-employee-name" type="text" maxlength="64" aria-required="true" oninput="clearNewUserFormError()" class="w-full border border-gray-200 rounded-lg bg-white px-3 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none" placeholder="与列表主标题一致" />
+            <p class="text-xs text-gray-400 mt-1">创建成功后系统将自动分配专属工号 (如 EMP00042)</p>
+          </div>
+          <div class="relative z-[60]">
+            <span id="new-store-field-label" class="block text-sm text-gray-600 mb-1">归属门店 <span class="text-red-500" aria-hidden="true">*</span></span>
+            <input type="hidden" id="new-store" value="" autocomplete="off" />
+            <button type="button" id="new-store-trigger" onclick="toggleUserStoreDropdown('new')" class="flex w-full items-center justify-between gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-left text-sm text-gray-900 transition-all duration-200 hover:border-gray-300 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500/50 disabled:cursor-not-allowed disabled:opacity-60" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="new-store-field-label" data-state="closed">
+              <span id="new-store-text" class="truncate text-gray-900">加载门店列表…</span>
+              <svg class="store-chevron h-5 w-5 shrink-0 text-gray-400 transition-transform duration-200" data-state="closed" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+            </button>
+            <div id="new-store-listbox" role="listbox" aria-labelledby="new-store-field-label" class="hidden z-50 max-h-56 overflow-y-auto rounded-xl border border-gray-100 bg-white py-1 shadow-lg shadow-black/5"></div>
+          </div>
+          <div class="relative z-10 isolate">
+            <span id="new-role-label" class="block text-sm text-gray-600 mb-1">员工角色 <span class="text-red-500" aria-hidden="true">*</span></span>
+            <input type="hidden" id="new-role" value="trainee" autocomplete="off" />
+            <button type="button" id="new-role-trigger" onclick="toggleUserRoleDropdown('new')" class="flex w-full items-center justify-between gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-left text-sm text-gray-900 transition-all duration-200 hover:border-gray-300 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500/50" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="new-role-label" data-state="closed">
+              <span id="new-role-text" class="truncate">导购</span>
+              <svg class="role-chevron h-5 w-5 shrink-0 text-gray-400 transition-transform duration-200" data-state="closed" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+            </button>
+            <div id="new-role-listbox" role="listbox" aria-labelledby="new-role-label" class="hidden z-50 rounded-xl border border-gray-100 bg-white py-1 shadow-lg shadow-black/5"></div>
+          </div>
+          <div>
+            <label for="new-phone" class="block text-sm text-gray-600 mb-1">手机号</label>
+            <input id="new-phone" type="tel" maxlength="32" autocomplete="off" class="w-full border border-gray-200 rounded-lg bg-white px-3 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none" placeholder="可选" />
+          </div>
+          <div class="relative z-10 isolate">
+            <span id="new-mentor-label" class="block text-sm text-gray-600 mb-1">带教人</span>
+            <button type="button" id="new-mentor-trigger" onclick="toggleUserMentorDropdown('new')" class="flex w-full items-center justify-between gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-left text-sm text-gray-900 transition-all duration-200 hover:border-gray-300 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500/50 disabled:cursor-not-allowed disabled:opacity-60" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="new-mentor-label" data-state="closed">
+              <span id="new-mentor-text" class="truncate text-gray-400">请先选择门店</span>
+              <svg class="mentor-chevron h-5 w-5 shrink-0 text-gray-400 transition-transform duration-200" data-state="closed" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+            </button>
+            <div id="new-mentor-listbox" role="listbox" aria-labelledby="new-mentor-label" class="hidden z-50 rounded-xl border border-gray-100 bg-white py-1 shadow-lg shadow-black/5"></div>
+            <select id="new-mentor-name" onchange="clearNewUserFormError()" class="hidden" tabindex="-1" aria-hidden="true">
+              <option value="">请先选择门店</option>
+            </select>
+            <p class="text-xs text-gray-400 mt-1">仅显示同门店员工，管理者可直接选择</p>
+          </div>
+        </div>
+      </div>
+      <div class="flex justify-end gap-3 pt-6 border-t border-gray-100">
+        <button type="button" onclick="closeModal()" class="px-5 py-2.5 rounded-lg text-sm font-medium bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors">取消</button>
+        <button type="submit" class="px-5 py-2.5 rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors">确认创建</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ==================== 门店管理（iOS 分组列表风格） ==================== -->
+<div id="modal-stores" class="ios-sheet-overlay hidden" data-align="center" onclick="if(event.target===this)closeStoresModal()">
+  <div class="ios-sheet-card ios-ui" onclick="event.stopPropagation()">
+    <header class="relative flex shrink-0 items-center justify-between border-b border-[#E5E5EA]/90 bg-white px-3 py-3">
+      <button type="button" onclick="closeStoresModal()" class="min-w-[56px] rounded-lg px-2 py-1.5 text-left text-[17px] font-normal leading-[22px] text-[#007AFF] transition-colors hover:opacity-80">取消</button>
+      <h3 class="ios-list-title pointer-events-none absolute left-1/2 top-1/2 max-w-[60%] -translate-x-1/2 -translate-y-1/2 truncate text-center">门店管理</h3>
+      <button type="button" id="btn-store-modal-save" onclick="handleSave()" class="min-w-[56px] rounded-lg px-2 py-1.5 text-right text-[17px] font-semibold leading-[22px] text-[#007AFF] transition-colors hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-40">保存</button>
+    </header>
+    <div class="min-h-0 flex-1 overflow-y-auto bg-[#F2F2F7] px-4 py-3">
+      <div id="stores-list-body"></div>
+      <p id="store-form-error" class="ios-list-body mt-2 hidden text-center font-normal text-[#FF3B30]" role="alert"></p>
+      <button type="button" id="btn-store-modal-add" onclick="handleAddStore()" class="mt-3 hidden min-h-[48px] w-full rounded-xl bg-white px-4 py-3.5 text-center text-[17px] font-medium leading-[22px] text-[#007AFF] transition-colors hover:bg-[#F2F2F7] active:bg-gray-50">+ 新增门店</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 编辑员工账号（与新增弹窗字段、样式对齐） ==================== -->
+<div id="modal-edit-user" class="ios-sheet-overlay hidden" data-align="center" onclick="if(event.target===this)closeEditModal()">
+  <div class="ios-sheet-card" onclick="event.stopPropagation()">
+    <div class="flex items-start justify-between gap-4 px-6 pt-6 pb-2">
+      <h3 class="text-lg font-semibold text-gray-900">编辑员工账号</h3>
+      <button type="button" onclick="closeEditModal()" class="shrink-0 rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors" aria-label="关闭">
+        <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <form id="form-edit-user" onsubmit="submitEditUser(event)" class="px-6 pb-6" novalidate>
+      <input type="hidden" id="edit-user-id" />
+      <p id="edit-user-form-error" class="hidden rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 mb-4" role="alert"></p>
+      <div class="mb-10">
+        <p class="text-xs text-gray-400 font-medium tracking-wider mb-4">基础信息</p>
+        <div class="space-y-4">
+          <div>
+            <label for="edit-username" class="block text-sm text-gray-600 mb-1">用户名 / 登录账号</label>
+            <input id="edit-username" type="text" autocomplete="username" readonly class="w-full border border-gray-200 rounded-lg bg-white px-3 py-2.5 text-sm text-gray-600 cursor-not-allowed focus:outline-none" />
+            <p class="text-xs text-gray-400 mt-1">登录账号创建后不可修改</p>
+          </div>
+          <div>
+            <div class="flex items-center justify-between gap-3 mb-1">
+              <label for="edit-password" class="text-sm text-gray-600">新密码</label>
+              <button type="button" onclick="fillRandomEditPassword()" class="text-sm text-blue-600 hover:text-blue-700 hover:underline shrink-0 font-normal cursor-pointer">随机生成</button>
+            </div>
+            <div class="relative">
+              <input id="edit-password" type="password" autocomplete="new-password" maxlength="128" oninput="clearEditUserFormError()" class="w-full border border-gray-200 rounded-lg bg-white pl-3 pr-11 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none" placeholder="留空则不修改密码" />
+              <button type="button" id="btn-toggle-edit-password" onclick="togglePasswordFieldVisibility('edit-password', this)" class="absolute right-1.5 top-1/2 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors" aria-label="显示密码" title="显示/隐藏密码">
+                <span data-pw-toggle="visible" class="inline-flex text-gray-500"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></span>
+                <span data-pw-toggle="hidden" class="hidden inline-flex text-gray-500"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/></svg></span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mb-6">
+        <p class="text-xs text-gray-400 font-medium tracking-wider mb-4">员工档案</p>
+        <div class="space-y-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="min-w-0">
+              <label for="edit-displayname" class="block text-sm text-gray-600 mb-1">员工姓名 <span class="text-red-500" aria-hidden="true">*</span></label>
+              <input id="edit-displayname" type="text" maxlength="64" required oninput="clearEditUserFormError()" class="w-full border border-gray-200 rounded-lg bg-white px-3 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none" placeholder="与列表主标题一致" />
+            </div>
+            <div class="min-w-0">
+              <span class="block text-sm text-gray-600 mb-1">员工工号</span>
+              <div id="edit-emp-no" class="flex items-center min-h-[42px] px-3 py-2.5 rounded-lg border border-gray-200 bg-white text-sm text-gray-800 font-mono">—</div>
+              <p class="text-xs text-gray-400 mt-1">与人员列表「工号」列一致</p>
+            </div>
+          </div>
+          <div class="relative z-[60]">
+            <span id="edit-store-field-label" class="block text-sm text-gray-600 mb-1">归属门店 <span class="text-red-500" aria-hidden="true">*</span></span>
+            <input type="hidden" id="edit-store" value="" autocomplete="off" />
+            <button type="button" id="edit-store-trigger" onclick="toggleUserStoreDropdown('edit')" class="flex w-full items-center justify-between gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-left text-sm text-gray-900 transition-all duration-200 hover:border-gray-300 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500/50 disabled:cursor-not-allowed disabled:opacity-60" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="edit-store-field-label" data-state="closed">
+              <span id="edit-store-text" class="truncate text-gray-900">加载门店列表…</span>
+              <svg class="store-chevron h-5 w-5 shrink-0 text-gray-400 transition-transform duration-200" data-state="closed" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+            </button>
+            <div id="edit-store-listbox" role="listbox" aria-labelledby="edit-store-field-label" class="hidden z-50 max-h-56 overflow-y-auto rounded-xl border border-gray-100 bg-white py-1 shadow-lg shadow-black/5"></div>
+          </div>
+          <div class="relative z-10 isolate">
+            <span id="edit-role-label" class="block text-sm text-gray-600 mb-1">员工角色 <span class="text-red-500" aria-hidden="true">*</span></span>
+            <input type="hidden" id="edit-role" value="trainee" autocomplete="off" />
+            <button type="button" id="edit-role-trigger" onclick="toggleUserRoleDropdown('edit')" class="flex w-full items-center justify-between gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-left text-sm text-gray-900 transition-all duration-200 hover:border-gray-300 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500/50" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="edit-role-label" data-state="closed">
+              <span id="edit-role-text" class="truncate">导购</span>
+              <svg class="role-chevron h-5 w-5 shrink-0 text-gray-400 transition-transform duration-200" data-state="closed" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+            </button>
+            <div id="edit-role-listbox" role="listbox" aria-labelledby="edit-role-label" class="hidden z-50 rounded-xl border border-gray-100 bg-white py-1 shadow-lg shadow-black/5"></div>
+          </div>
+          <div>
+            <label for="edit-phone" class="block text-sm text-gray-600 mb-1">手机号</label>
+            <input id="edit-phone" type="tel" maxlength="32" autocomplete="off" class="w-full border border-gray-200 rounded-lg bg-white px-3 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none" placeholder="可选" />
+          </div>
+          <div class="relative z-10 isolate">
+            <span id="edit-mentor-label" class="block text-sm text-gray-600 mb-1">带教人</span>
+            <button type="button" id="edit-mentor-trigger" onclick="toggleUserMentorDropdown('edit')" class="flex w-full items-center justify-between gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-left text-sm text-gray-900 transition-all duration-200 hover:border-gray-300 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500/50 disabled:cursor-not-allowed disabled:opacity-60" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="edit-mentor-label" data-state="closed">
+              <span id="edit-mentor-text" class="truncate text-gray-400">请先选择门店</span>
+              <svg class="mentor-chevron h-5 w-5 shrink-0 text-gray-400 transition-transform duration-200" data-state="closed" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+            </button>
+            <div id="edit-mentor-listbox" role="listbox" aria-labelledby="edit-mentor-label" class="hidden z-50 rounded-xl border border-gray-100 bg-white py-1 shadow-lg shadow-black/5"></div>
+            <select id="edit-mentor-name" onchange="clearEditUserFormError()" class="hidden" tabindex="-1" aria-hidden="true">
+              <option value="">请先选择门店</option>
+            </select>
+            <p class="text-xs text-gray-400 mt-1">仅显示同门店员工，切换门店后会自动刷新候选人</p>
+          </div>
+        </div>
+      </div>
+      <div class="flex justify-end gap-3 pt-6 border-t border-gray-100">
+        <button type="button" onclick="closeEditModal()" class="px-5 py-2.5 rounded-lg text-sm font-medium bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors">取消</button>
+        <button type="submit" class="px-5 py-2.5 rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors">保存</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ==================== 员工角色（与新增/编辑员工弹窗样式统一） ==================== -->
+<div id="modal-personnel-roles" class="ios-sheet-overlay hidden" data-align="center" onclick="if(event.target===this)closePersonnelRolesModal()">
+  <div class="ios-sheet-card" onclick="event.stopPropagation()">
+    <!-- 头部 -->
+    <div class="flex items-start justify-between gap-4 px-6 pt-6 pb-2">
+      <div>
+        <h3 class="text-lg font-semibold text-gray-900">员工角色</h3>
+        <p class="mt-1 text-xs text-gray-400">查看各角色说明与人数；管理员可新增、编辑或删除自定义角色</p>
+      </div>
+      <div class="flex items-center gap-1 shrink-0">
+        <button type="button" id="personnel-roles-btn-add" onclick="personnelRolesToggleAddForm();return false;" class="hidden text-sm font-medium text-blue-600 hover:text-blue-700 px-3 py-1.5 rounded-lg hover:bg-blue-50 transition-colors">+ 新增</button>
+        <button type="button" onclick="closePersonnelRolesModal()" class="shrink-0 rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors" aria-label="关闭">
+          <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+    </div>
+    <!-- 内容 -->
+    <div class="px-6 pb-6">
+      <p id="personnel-roles-modal-error" class="hidden rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 mb-4" role="alert"></p>
+      <div id="personnel-roles-modal-body" class="min-h-[3rem]"></div>
+      <!-- 编辑器 -->
+      <div id="personnel-roles-editor-wrap" class="personnel-roles-editor-wrap mt-4">
+        <p class="text-xs text-gray-400 font-medium tracking-wider mb-4" id="personnel-roles-editor-title">新增角色</p>
+        <div class="space-y-4">
+          <div>
+            <label for="personnel-roles-e-key" class="block text-sm text-gray-600 mb-1">角色标识 <span class="text-red-500" aria-hidden="true">*</span></label>
+            <input id="personnel-roles-e-key" type="text" maxlength="48" autocomplete="off" class="w-full border border-gray-200 rounded-lg bg-white px-3 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none font-mono" placeholder="如 senior_sa" />
+            <p class="text-xs text-gray-400 mt-1">2～48 位：小写字母开头，仅小写、数字、下划线</p>
+          </div>
+          <div>
+            <label for="personnel-roles-e-name" class="block text-sm text-gray-600 mb-1">展示名称 <span class="text-red-500" aria-hidden="true">*</span></label>
+            <input id="personnel-roles-e-name" type="text" maxlength="64" class="w-full border border-gray-200 rounded-lg bg-white px-3 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none" placeholder="列表与下拉中显示的名称" />
+          </div>
+          <div>
+            <label for="personnel-roles-e-desc" class="block text-sm text-gray-600 mb-1">说明</label>
+            <textarea id="personnel-roles-e-desc" rows="2" maxlength="500" class="w-full border border-gray-200 rounded-lg bg-white px-3 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none resize-none" placeholder="可选，用于备注职责或权限范围"></textarea>
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label for="personnel-roles-e-sort" class="block text-sm text-gray-600 mb-1">排序</label>
+              <input id="personnel-roles-e-sort" type="number" value="0" step="1" class="w-full border border-gray-200 rounded-lg bg-white px-3 py-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none" />
+            </div>
+            <div class="flex items-end justify-between pb-1">
+              <span class="text-sm text-gray-600" id="personnel-roles-e-mgr-caption">店长可分配此角色</span>
+              <label class="pr-ios-toggle shrink-0 cursor-pointer" for="personnel-roles-e-mgr">
+                <input type="checkbox" id="personnel-roles-e-mgr" role="switch" class="pr-ios-toggle-input" checked onchange="this.setAttribute('aria-checked', this.checked ? 'true' : 'false');" aria-checked="true" aria-labelledby="personnel-roles-e-mgr-caption" />
+                <span class="pr-ios-toggle-pill" aria-hidden="true"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="flex justify-end gap-3 pt-6 border-t border-gray-100">
+          <button type="button" onclick="personnelRolesCancelEditor()" class="px-5 py-2.5 rounded-lg text-sm font-medium bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors">取消</button>
+          <button type="button" id="personnel-roles-e-save" onclick="personnelRolesSubmitEditorWrapper()" class="px-5 py-2.5 rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors disabled:opacity-50">保存</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 账号与安全（个人中心） ==================== -->
+<div id="modal-account-settings" class="ios-sheet-overlay hidden" data-align="center" onclick="if(event.target===this)closeAccountModal()" aria-modal="true" role="dialog">
+  <div class="ios-sheet-card ios-ui" onclick="event.stopPropagation()">
+    <div class="border-b border-[#E5E5EA]/80 px-8 pb-4 pt-8 text-center">
+      <h2 class="text-lg font-semibold tracking-tight text-[#1D1D1F]">账号与安全</h2>
+      <p class="mt-1 text-xs text-[#86868B]">管理显示名称、联系方式与登录密码</p>
+    </div>
+    <form id="account-settings-form" onsubmit="submitAccountSettings(event)" class="px-8 py-6 pb-8">
+      <div class="mb-8 flex flex-col items-center">
+        <div class="group relative cursor-pointer rounded-full" onclick="document.getElementById('acc-display-name').focus();" title="在下方修改姓名">
+          <div id="acc-modal-avatar" class="flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-tr from-[#007AFF] to-[#5AC8FA] text-2xl font-semibold text-white shadow-md">U</div>
+          <div class="absolute inset-0 flex items-center justify-center rounded-full bg-black/0 transition-colors duration-200 group-hover:bg-black/40">
+            <span class="text-xs font-medium text-white opacity-0 transition-opacity group-hover:opacity-100">编辑</span>
+          </div>
+        </div>
+      </div>
+      <div class="space-y-0 rounded-2xl bg-[#F2F2F7] p-4">
+        <div class="flex items-center justify-between gap-4 border-b border-[#E5E5EA]/90 py-3">
+          <label for="acc-display-name" class="shrink-0 text-sm text-[#86868B]">姓名</label>
+          <input id="acc-display-name" type="text" autocomplete="name" class="min-w-0 flex-1 bg-transparent text-right text-sm text-[#1D1D1F] placeholder:text-[#C7C7CC] transition-colors focus:text-[#007AFF] focus:outline-none" placeholder="显示名称" />
+        </div>
+        <div class="flex items-center justify-between gap-4 border-b border-[#E5E5EA]/90 py-3">
+          <span class="shrink-0 text-sm text-[#86868B]">登录账号</span>
+          <input id="acc-username" type="text" readonly class="min-w-0 flex-1 cursor-default bg-transparent text-right text-sm text-[#86868B]" />
+        </div>
+        <div class="flex items-center justify-between gap-4 border-b border-[#E5E5EA]/90 py-3">
+          <span class="shrink-0 text-sm text-[#86868B]">门店 / 工号</span>
+          <input id="acc-store-id" type="text" readonly class="min-w-0 flex-1 cursor-default bg-transparent text-right text-sm text-[#86868B]" />
+        </div>
+        <div class="flex items-center justify-between gap-4 border-b border-[#E5E5EA]/90 py-3">
+          <label for="acc-phone" class="shrink-0 text-sm text-[#86868B]">手机号</label>
+          <input id="acc-phone" type="tel" autocomplete="tel" inputmode="tel" class="min-w-0 flex-1 bg-transparent text-right text-sm text-[#1D1D1F] placeholder:text-[#C7C7CC] transition-colors focus:text-[#007AFF] focus:outline-none" placeholder="选填" />
+        </div>
+        <div class="flex items-center justify-between gap-4 border-b border-[#E5E5EA]/90 py-3">
+          <label for="acc-old-password" class="shrink-0 text-sm text-[#86868B]">旧密码</label>
+          <input id="acc-old-password" type="password" autocomplete="current-password" class="min-w-0 flex-1 bg-transparent text-right text-sm text-[#1D1D1F] placeholder:text-[#C7C7CC] transition-colors focus:text-[#007AFF] focus:outline-none" placeholder="修改密码时必填" />
+        </div>
+        <div class="flex items-center justify-between gap-4 py-3">
+          <label for="acc-password" class="shrink-0 text-sm text-[#86868B]">新密码</label>
+          <input id="acc-password" type="password" autocomplete="new-password" class="min-w-0 flex-1 bg-transparent text-right text-sm text-[#1D1D1F] placeholder:text-[#C7C7CC] transition-colors focus:text-[#007AFF] focus:outline-none" placeholder="留空则不修改" />
+        </div>
+      </div>
+      <div class="mt-8 flex justify-end gap-3">
+        <button type="button" onclick="closeAccountModal()" class="rounded-full px-4 py-2 text-sm font-medium text-[#86868B] transition-colors hover:bg-[#F2F2F7]">取消</button>
+        <button type="submit" id="acc-save-btn" class="rounded-full bg-[#007AFF] px-6 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:brightness-105 disabled:opacity-50">保存更改</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="./vendor/flatpickr/flatpickr.min.js?v=20260420-v1"></script>
+<script src="./vendor/flatpickr/l10n/zh.js?v=20260420-v1"></script>
+<!-- 样式必须在 Tailwind CDN 注入之后加载：先侧栏修正，再全站 styles，最后内联兜底在岗助手 -->
+<link rel="stylesheet" href="./sidebar-nav.css?v=20260420-v1" />
+<link rel="stylesheet" href="./styles.css?v=20260420-v1" />
+<link rel="stylesheet" href="./styles/employee-journey.css?v=20260516-v1" />
+<style id="assistant-on-duty-inline">
+/* 内联兜底：确保压过 Tailwind 运行时注入（与外链顺序无关时仍生效） */
+#content-area .assistant-cc-page {
+  background-color: transparent;
+}
+#content-area .assistant-cc-page .assistant-cc-page-header {
+  margin-top: 64px !important;
+  margin-bottom: 48px !important;
+}
+#content-area .assistant-cc-page .assistant-cc-glass {
+  background: rgba(255, 255, 255, 0.92) !important;
+  border: none !important;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.04) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+  backdrop-filter: blur(20px) saturate(180%) !important;
+}
+#content-area .assistant-cc-page .assistant-cc-result-card--reply.assistant-cc-glass {
+  border-top: 1px solid rgba(0, 122, 255, 0.22) !important;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.04), inset 0 1px 0 0 rgba(0, 122, 255, 0.18) !important;
+}
+#content-area .assistant-cc-page .assistant-spotlight-field {
+  border: none !important;
+  border-radius: 22px;
+  overflow: hidden;
+}
+#content-area .assistant-cc-page textarea.assistant-spotlight-input {
+  resize: none !important;
+  background-color: rgba(0, 0, 0, 0.025) !important;
+}
+#content-area .assistant-cc-page button.assistant-btn-secondary {
+  background-color: rgba(0, 0, 0, 0.06) !important;
+  color: #3a3a3c !important;
+  border: none !important;
+  border-radius: 9999px !important;
+  font-weight: 600 !important;
+  padding: 0.45rem 1rem !important;
+}
+#content-area .assistant-cc-page button.assistant-btn-secondary:hover:not(:disabled) {
+  background-color: rgba(0, 0, 0, 0.09) !important;
+  color: #1d1d1f !important;
+}
+#content-area .assistant-cc-page .assistant-cc-input-card.assistant-cc-glass:focus-within {
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.08), 0 8px 24px rgba(0, 122, 255, 0.08), 0 0 0 1px rgba(0, 122, 255, 0.14) !important;
+  background: #fafafa !important;
+}
+#content-area .assistant-cc-page .assistant-cc-result-card.assistant-cc-glass {
+  min-height: 280px !important;
+}
+/* 新版在岗助手（oj-assistant）：与主区域灰底融合，空状态可读 */
+#content-area .oj-assistant-page.assistant-cc-page {
+  background-color: transparent !important;
+}
+#content-area .oj-assistant-page .assistant-cc-empty-title {
+  font-size: 15px !important;
+  font-weight: 500 !important;
+  color: #86868b !important;
+}
+#content-area .oj-assistant-page .assistant-cc-empty-desc {
+  font-size: 14px !important;
+  line-height: 1.65 !important;
+  color: #86868b !important;
+  opacity: 0.92 !important;
+}
+/* 在岗助手：加载条不使用转圈图标，保持纯文字 */
+#content-area .oj-assistant-page .demo-spinner {
+  display: none !important;
+}
+/* 在岗助手对话输入：避免全局样式把 textarea 压成单行不可见 */
+#content-area .oj-assistant-page textarea#assistant-scene-input.assistant-scene-textarea {
+  display: block !important;
+  width: 100% !important;
+  min-height: 1.5rem !important;
+  field-sizing: content;
+}
+</style>
+<style id="assistant-on-duty-inline-dark">
+/* 深色模式：覆盖在岗助手内联样式 */
+body.theme-dark #content-area .assistant-cc-page .assistant-cc-glass {
+  background: rgba(44, 44, 46, 0.92) !important;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15) !important;
+}
+body.theme-dark #content-area .assistant-cc-page .assistant-cc-result-card--reply.assistant-cc-glass {
+  border-top: 1px solid rgba(0, 122, 255, 0.3) !important;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15), inset 0 1px 0 0 rgba(0, 122, 255, 0.22) !important;
+}
+body.theme-dark #content-area .assistant-cc-page textarea.assistant-spotlight-input {
+  background-color: rgba(255, 255, 255, 0.06) !important;
+  color: #f5f5f7;
+}
+body.theme-dark #content-area .assistant-cc-page button.assistant-btn-secondary {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  color: #c7c7cc !important;
+}
+body.theme-dark #content-area .assistant-cc-page button.assistant-btn-secondary:hover:not(:disabled) {
+  background-color: rgba(255, 255, 255, 0.12) !important;
+  color: #f5f5f7 !important;
+}
+body.theme-dark #content-area .assistant-cc-page .assistant-cc-input-card.assistant-cc-glass:focus-within {
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.25), 0 8px 24px rgba(0, 122, 255, 0.1), 0 0 0 1px rgba(0, 122, 255, 0.2) !important;
+  background: rgba(44, 44, 46, 0.96) !important;
+}
+body.theme-dark #content-area .oj-assistant-page .assistant-cc-empty-title {
+  color: #98989d !important;
+}
+body.theme-dark #content-area .oj-assistant-page .assistant-cc-empty-desc {
+  color: #636366 !important;
+}
+</style>
+<script src="js/date-range-calendar.js?v=20260420-v1"></script>
+<script src="js/stage-unlock.js?v=20260420-v1"></script>
+<script src="js/radar-timeline.js?v=20260420-v1"></script>
+<script src="js/employee-journey.js?v=20260516-v1"></script>
+<script src="js/agent-orchestration.js?v=20260420-v1"></script>
+<script src="js/agent-activity.js?v=20260516-a3-compact"></script>
+<script src="js/knowledge-feedback.js?v=20260516-v1"></script>
+<script src="js/app.js?v=20260420-v1"></script>
+<!-- 3D Digital Human: importmap for Three.js ES modules -->
+<script type="importmap">
+{
+  "imports": {
+    "three": "./vendor/three/three.module.js",
+    "three/addons/": "./vendor/three/examples/jsm/"
+  }
+}
+</script>
+<script type="module" src="./js/digital-human.js?v=20260420-v1"></script>
+<script>
+(function () {
+  // app.js 语法异常时，提供最小登录兜底，确保可登录继续使用。
+  if (typeof window.login === 'function') return;
+
+  var API_BASE = '';
+  try {
+    var custom = localStorage.getItem('API_BASE');
+    if (custom) API_BASE = custom;
+    else if (window.location.protocol === 'file:') API_BASE = 'http://127.0.0.1:8000';
+  } catch (e) {}
+
+  function setError(msg) {
+    var el = document.getElementById('login-error');
+    if (!el) return;
+    if (!msg) {
+      el.classList.add('hidden');
+      el.textContent = '';
+      return;
+    }
+    el.textContent = msg;
+    el.classList.remove('hidden');
+  }
+
+  window.login = async function (ev) {
+    if (ev && ev.preventDefault) ev.preventDefault();
+    setError('');
+    var userEl = document.getElementById('login-user');
+    var passEl = document.getElementById('login-pass');
+    var btnEl = document.getElementById('login-btn');
+    var username = String((userEl && userEl.value) || '').trim();
+    var password = String((passEl && passEl.value) || '');
+    if (!username || !password) {
+      setError('请输入账号和密码');
+      return;
+    }
+
+    if (btnEl) {
+      btnEl.disabled = true;
+      btnEl.textContent = '登录中...';
+    }
+    try {
+      var res = await fetch((API_BASE || '') + '/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: username, password: password }),
+      });
+      var data = await res.json();
+      if (!res.ok || !data || Number(data.code) !== 200) {
+        throw new Error((data && (data.message || data.detail)) || '登录失败');
+      }
+      var payload = data.data || {};
+      var token = payload.access_token || payload.token || '';
+      if (!token) throw new Error('登录失败：未返回 token');
+      localStorage.setItem('token', token);
+      localStorage.setItem('username', payload.username || username);
+      localStorage.setItem('displayName', payload.display_name || payload.username || username);
+      localStorage.setItem('role', payload.role || 'trainee');
+      window.location.href = '/frontend/#on_duty_assistant';
+    } catch (e) {
+      setError((e && e.message) || '登录失败');
+    } finally {
+      if (btnEl) {
+        btnEl.disabled = false;
+        btnEl.textContent = '登录系统';
+      }
+    }
+  };
+})();
+</script>
+</body>
+</html>

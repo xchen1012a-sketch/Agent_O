@@ -1,0 +1,809 @@
+app:
+  description: 标准试卷考试｜WF13：标准出卷工作流（任务描述转试卷 JSON，可直接用于后端落库与后续人工审核）
+  icon: "📄"
+  icon_background: '#E8F3FF'
+  icon_type: emoji
+  mode: workflow
+  name: 标准试卷生成工作流
+  use_icon_as_answer_icon: false
+dependencies:
+- current_identifier: null
+  type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: langgenius/tongyi:0.1.32@20a5454088fa017b72490e1cbaeebff21094d11b13e41197591734d1c08cdbb5
+    version: null
+kind: app
+version: 0.6.0
+workflow:
+  conversation_variables: []
+  environment_variables: []
+  features:
+    file_upload:
+      enabled: false
+      allowed_file_extensions: [.JPG, .JPEG, .PNG, .GIF, .WEBP, .SVG]
+      allowed_file_types: [image]
+      allowed_file_upload_methods: [local_file, remote_url]
+      fileUploadConfig:
+        attachment_image_file_size_limit: 2
+        audio_file_size_limit: 50
+        batch_count_limit: 5
+        file_size_limit: 15
+        file_upload_limit: 20
+        image_file_batch_limit: 10
+        image_file_size_limit: 10
+        single_chunk_attachment_limit: 10
+        video_file_size_limit: 100
+        workflow_file_upload_limit: 10
+      image:
+        enabled: false
+        number_limits: 3
+        transfer_methods: [local_file, remote_url]
+      number_limits: 3
+    opening_statement: ''
+    retriever_resource:
+      enabled: false
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions: []
+    suggested_questions_after_answer:
+      enabled: false
+    text_to_speech:
+      enabled: false
+      language: ''
+      voice: ''
+  graph:
+    edges:
+    - data: {isInIteration: false, isInLoop: false, sourceType: start, targetType: code}
+      id: start-to-precheck
+      source: paper_gen_start
+      sourceHandle: source
+      target: paper_precheck
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data: {isInIteration: false, isInLoop: false, sourceType: code, targetType: if-else}
+      id: precheck-to-if-valid
+      source: paper_precheck
+      sourceHandle: source
+      target: if_input_valid
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data: {isInIteration: false, isInLoop: false, sourceType: if-else, targetType: llm}
+      id: if-valid-to-llm
+      source: if_input_valid
+      sourceHandle: 'true'
+      target: paper_llm
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data: {isInIteration: false, isInLoop: false, sourceType: llm, targetType: code}
+      id: llm-to-normalize
+      source: paper_llm
+      sourceHandle: source
+      target: paper_normalize
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data: {isInIteration: false, isInLoop: false, sourceType: code, targetType: end}
+      id: normalize-to-end-success
+      source: paper_normalize
+      sourceHandle: source
+      target: end_success
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data: {isInIteration: false, isInLoop: false, sourceType: if-else, targetType: code}
+      id: if-invalid-to-builder
+      source: if_input_valid
+      sourceHandle: 'false'
+      target: invalid_builder
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data: {isInIteration: false, isInLoop: false, sourceType: code, targetType: end}
+      id: invalid-to-end
+      source: invalid_builder
+      sourceHandle: source
+      target: end_invalid
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    nodes:
+    - data:
+        desc: 接收标准试卷生成请求，输出结构化 paper_config_json
+        selected: false
+        title: 开始
+        type: start
+        variables:
+        - {label: 任务名称, max_length: 128, options: [], required: true, type: text-input, variable: task_name}
+        - {label: 任务描述, max_length: 3000, options: [], required: false, type: paragraph, variable: task_desc}
+        - label: 难度
+          max_length: 32
+          options: [easy, standard, hard]
+          required: false
+          type: select
+          variable: difficulty
+        - {label: 题目数量, max_length: 32, options: [], required: false, type: number, variable: question_count}
+        - {label: 题型配比JSON, max_length: 1000, options: [], required: false, type: paragraph, variable: question_mix}
+        - {label: 及格线, max_length: 32, options: [], required: false, type: number, variable: pass_score}
+      height: 208
+      id: paper_gen_start
+      position: {x: 12, y: 240}
+      positionAbsolute: {x: 12, y: 240}
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: |-
+          import json
+
+          def _safe_text(v, default=""):
+              if v is None:
+                  return default
+              s = str(v).strip()
+              return s if s else default
+
+          def _clamp_int(v, default, lo, hi):
+              try:
+                  n = int(round(float(v)))
+              except Exception:
+                  n = int(default)
+              return max(lo, min(hi, n))
+
+          def _clamp_float(v, default, lo, hi):
+              try:
+                  n = float(v)
+              except Exception:
+                  n = float(default)
+              return max(lo, min(hi, n))
+
+          def _parse_mix(raw):
+              if isinstance(raw, dict):
+                  data = raw
+              else:
+                  text = _safe_text(raw)
+                  if not text:
+                      return {}
+                  try:
+                      data = json.loads(text)
+                  except Exception:
+                      return {}
+              if not isinstance(data, dict):
+                  return {}
+              result = {}
+              for key in ("single", "multiple", "judge", "short"):
+                  try:
+                      result[key] = max(0, int(round(float(data.get(key, 0)))))
+                  except Exception:
+                      result[key] = 0
+              return result
+
+          def _default_mix(total, difficulty):
+              if difficulty == "easy":
+                  weights = {"single": 0.5, "multiple": 0.15, "judge": 0.2, "short": 0.15}
+              elif difficulty == "hard":
+                  weights = {"single": 0.25, "multiple": 0.25, "judge": 0.15, "short": 0.35}
+              else:
+                  weights = {"single": 0.4, "multiple": 0.2, "judge": 0.2, "short": 0.2}
+
+              base = {k: int(total * v) for k, v in weights.items()}
+              used = sum(base.values())
+              order = sorted(weights.keys(), key=lambda k: weights[k], reverse=True)
+              idx = 0
+              while used < total:
+                  base[order[idx % len(order)]] += 1
+                  used += 1
+                  idx += 1
+              while used > total:
+                  for k in order[::-1]:
+                      if base[k] > 0 and used > total:
+                          base[k] -= 1
+                          used -= 1
+              return base
+
+          def _normalize_mix(mix, total, difficulty):
+              if not mix or sum(mix.values()) <= 0:
+                  return _default_mix(total, difficulty)
+              counts = {k: max(0, int(mix.get(k, 0))) for k in ("single", "multiple", "judge", "short")}
+              current = sum(counts.values())
+              if current == total:
+                  return counts
+              if current == 0:
+                  return _default_mix(total, difficulty)
+              scaled = {k: int((v / current) * total) for k, v in counts.items()}
+              used = sum(scaled.values())
+              order = sorted(counts.keys(), key=lambda k: counts[k], reverse=True)
+              idx = 0
+              while used < total:
+                  scaled[order[idx % len(order)]] += 1
+                  used += 1
+                  idx += 1
+              while used > total:
+                  for k in order[::-1]:
+                      if scaled[k] > 0 and used > total:
+                          scaled[k] -= 1
+                          used -= 1
+              return scaled
+
+          def _extract_focus(task_name, task_desc):
+              text = " ".join([_safe_text(task_name), _safe_text(task_desc)]).lower()
+              focus = []
+              rules = [
+                  ("产品知识", ["产品", "材质", "工艺", "证书", "黄金", "k金", "钻石", "翡翠"]),
+                  ("合规表达", ["合规", "禁语", "红线", "承诺", "保值", "升值"]),
+                  ("销售沟通", ["销售", "接待", "沟通", "成交", "连带", "客单"]),
+                  ("异议处理", ["异议", "嫌贵", "犹豫", "真假", "比较", "先看看"]),
+              ]
+              for label, keywords in rules:
+                  if any(k.lower() in text for k in keywords):
+                      focus.append(label)
+              return focus or ["产品知识", "合规表达", "销售沟通", "异议处理"]
+
+          def _mix_summary_text(mix):
+              labels = {"single": "单选", "multiple": "多选", "judge": "判断", "short": "简答"}
+              return "；".join(f"{labels[k]} {int(v)} 题" for k, v in mix.items())
+
+          def main(task_name: str = "", task_desc: str = "", difficulty: str = "standard", question_count = 20, question_mix = "", pass_score = 85) -> dict:
+              task_name_text = _safe_text(task_name)
+              task_desc_text = _safe_text(task_desc)
+              difficulty_text = _safe_text(difficulty, "standard").lower()
+              if difficulty_text not in {"easy", "standard", "hard"}:
+                  difficulty_text = "standard"
+              total = _clamp_int(question_count, 10, 4, 30)
+              pass_line = _clamp_float(pass_score, 85.0, 0.0, 100.0)
+              mix = _normalize_mix(_parse_mix(question_mix), total, difficulty_text)
+              focus = _extract_focus(task_name_text, task_desc_text)
+              is_valid = 1 if task_name_text else 0
+              invalid_reason = "" if is_valid else "缺少 task_name，无法生成标准试卷。"
+              request_card = (
+                  f"任务名称：{task_name_text or '未提供'}\n"
+                  f"任务描述：{task_desc_text or '未提供'}\n"
+                  f"难度：{difficulty_text}\n"
+                  f"题目总数：{total}\n"
+                  f"及格线：{pass_line:.1f}\n"
+                  f"题型配比：{_mix_summary_text(mix)}\n"
+                  f"重点考察：{'、'.join(focus)}"
+              )
+              return {
+                  "is_valid": is_valid,
+                  "invalid_reason": invalid_reason,
+                  "task_name": task_name_text,
+                  "task_desc": task_desc_text,
+                  "difficulty": difficulty_text,
+                  "question_count": total,
+                  "pass_score": round(pass_line, 1),
+                  "question_mix_json": json.dumps(mix, ensure_ascii=False),
+                  "mix_summary_text": _mix_summary_text(mix),
+                  "focus_modules_json": json.dumps(focus, ensure_ascii=False),
+                  "request_card": request_card,
+              }
+        code_language: python3
+        desc: 标准化输入并固定题型配比
+        outputs:
+          difficulty: {type: string}
+          focus_modules_json: {type: string}
+          invalid_reason: {type: string}
+          is_valid: {type: number}
+          mix_summary_text: {type: string}
+          pass_score: {type: number}
+          question_count: {type: number}
+          question_mix_json: {type: string}
+          request_card: {type: string}
+          task_desc: {type: string}
+          task_name: {type: string}
+        selected: false
+        title: 输入预处理
+        type: code
+        variables:
+        - {value_selector: [paper_gen_start, task_name], variable: task_name}
+        - {value_selector: [paper_gen_start, task_desc], variable: task_desc}
+        - {value_selector: [paper_gen_start, difficulty], variable: difficulty}
+        - {value_selector: [paper_gen_start, question_count], variable: question_count}
+        - {value_selector: [paper_gen_start, question_mix], variable: question_mix}
+        - {value_selector: [paper_gen_start, pass_score], variable: pass_score}
+      height: 80
+      id: paper_precheck
+      position: {x: 326, y: 240}
+      positionAbsolute: {x: 326, y: 240}
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        cases:
+        - case_id: 'true'
+          conditions:
+          - comparison_operator: '>'
+            id: valid-cond
+            value: '0'
+            varType: number
+            variable_selector: [paper_precheck, is_valid]
+          id: 'true'
+          logical_operator: and
+        desc: 任务名称有效则进入 AI 出卷，否则走无效输入分支
+        selected: false
+        title: 是否有效
+        type: if-else
+      height: 126
+      id: if_input_valid
+      position: {x: 642, y: 240}
+      positionAbsolute: {x: 642, y: 240}
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        desc: 基于任务信息生成严格 JSON 试卷草稿
+        model:
+          completion_params:
+            temperature: 0.2
+            max_tokens: 8192
+          mode: chat
+          name: qwen-plus
+          provider: langgenius/tongyi/tongyi
+        prompt_template:
+        - id: paper-system
+          role: system
+          text: |-
+            你是“珠宝企业培训智能体系统”的标准试卷出题引擎。
+
+            你的任务是为珠宝门店培训/考核场景生成一份“标准试卷草稿 JSON”。
+
+            重要约束：
+            1. 只输出 JSON，不要 markdown，不要解释，不要代码块。
+            2. 题目必须围绕珠宝门店培训、产品知识、合规表达、销售沟通、异议处理等业务场景。
+            3. 必须严格满足上游给定的题目总数与题型配比。
+            4. 单选题、多选题必须提供 4 个选项 A/B/C/D。
+            5. 判断题必须提供 2 个选项 A/B，其中 A=正确，B=错误。
+            6. 简答题不要提供 options，必须提供 3~5 个关键词 keywords。
+            7. 题目描述应考试化、明确、可评分，不要口语化闲聊。
+            8. 不要编造企业内部制度、价格承诺、保值升值承诺、绝对化话术。
+            9. answer 字段必须可直接用于阅卷：
+               - single: "A"
+               - multiple: ["A","C"]
+               - judge: "A" 或 "B"
+               - short: 可留空，由 keywords 承担评分依据
+            10. 每道题都要带 analysis，简要说明出题意图或得分点。
+
+            严格输出 JSON Schema：
+            {
+              "exam_title": "",
+              "instructions": "",
+              "review_points": [""],
+              "questions": [
+                {
+                  "type": "single | multiple | judge | short",
+                  "title": "",
+                  "options": [
+                    {"value": "A", "label": ""},
+                    {"value": "B", "label": ""},
+                    {"value": "C", "label": ""},
+                    {"value": "D", "label": ""}
+                  ],
+                  "answer": "A",
+                  "keywords": [""],
+                  "analysis": ""
+                }
+              ]
+            }
+        - id: paper-user
+          role: user
+          text: |-
+            请根据以下出卷请求生成严格 JSON：
+
+            {{#paper_precheck.request_card#}}
+
+            补充要求：
+            - 题目总数必须等于 {{#paper_precheck.question_count#}}
+            - 题型配比必须严格满足：{{#paper_precheck.mix_summary_text#}}
+            - 及格线仅用于试卷元数据，不需要你判断是否通过
+            - 如果 task_desc 信息不足，也要给出稳妥的珠宝门店通用试卷
+            - 优先覆盖：{{#paper_precheck.focus_modules_json#}}
+        selected: false
+        title: AI出卷
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 132
+      id: paper_llm
+      position: {x: 962, y: 140}
+      positionAbsolute: {x: 962, y: 140}
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: |-
+          import json
+          import re
+
+          def _safe_text(v, default=""):
+              if v is None:
+                  return default
+              s = str(v).strip()
+              return s if s else default
+
+          def _safe_float(v, default=0.0):
+              try:
+                  return float(v)
+              except Exception:
+                  return float(default)
+
+          def _safe_int(v, default=0):
+              try:
+                  return int(round(float(v)))
+              except Exception:
+                  return int(default)
+
+          def _parse_json_obj(text):
+              raw = _safe_text(text)
+              if not raw:
+                  return {}
+              raw = re.sub(r"<think>[\s\S]*?</think>", "", raw, flags=re.I)
+              raw = re.sub(r"^```json\s*", "", raw, flags=re.I)
+              raw = re.sub(r"^```\s*", "", raw)
+              raw = re.sub(r"\s*```$", "", raw)
+              raw = raw.strip()
+              try:
+                  obj = json.loads(raw)
+                  return obj if isinstance(obj, dict) else {}
+              except Exception:
+                  pass
+              m = re.search(r"\{[\s\S]*\}", raw)
+              if m:
+                  try:
+                      obj = json.loads(m.group(0))
+                      return obj if isinstance(obj, dict) else {}
+                  except Exception:
+                      pass
+              return {}
+
+          def _default_options(question_type):
+              if question_type == "judge":
+                  return [{"value": "A", "label": "正确"}, {"value": "B", "label": "错误"}]
+              return [
+                  {"value": "A", "label": "选项A"},
+                  {"value": "B", "label": "选项B"},
+                  {"value": "C", "label": "选项C"},
+                  {"value": "D", "label": "选项D"},
+              ]
+
+          def _extract_focus(task_name, task_desc):
+              text = " ".join([_safe_text(task_name), _safe_text(task_desc)]).lower()
+              focus = []
+              rules = [
+                  ("产品知识", ["产品", "材质", "工艺", "证书", "黄金", "k金", "钻石", "翡翠"]),
+                  ("合规表达", ["合规", "禁语", "红线", "承诺", "保值", "升值"]),
+                  ("销售沟通", ["销售", "接待", "沟通", "成交", "连带", "客单"]),
+                  ("异议处理", ["异议", "嫌贵", "犹豫", "真假", "比较", "先看看"]),
+              ]
+              for label, keywords in rules:
+                  if any(k.lower() in text for k in keywords):
+                      focus.append(label)
+              return focus or ["产品知识", "合规表达", "销售沟通", "异议处理"]
+
+          def _type_sequence(mix):
+              order = []
+              for key in ("single", "multiple", "judge", "short"):
+                  order.extend([key] * max(0, _safe_int(mix.get(key, 0), 0)))
+              return order
+
+          def _fallback_question(q_type, idx, focus):
+              theme = focus[(idx - 1) % len(focus)] if focus else "门店通用能力"
+              if q_type == "single":
+                  return {
+                      "type": "single",
+                      "title": f"关于“{theme}”的标准做法，下列哪项更合适？",
+                      "options": [
+                          {"value": "A", "label": f"符合{theme}标准要求的做法"},
+                          {"value": "B", "label": "存在表述不完整的做法"},
+                          {"value": "C", "label": "容易引发误解的做法"},
+                          {"value": "D", "label": "与规范不一致的做法"},
+                      ],
+                      "answer": "A",
+                      "keywords": [],
+                      "analysis": f"考查员工对{theme}基本规范的识别能力。",
+                  }
+              if q_type == "multiple":
+                  return {
+                      "type": "multiple",
+                      "title": f"围绕“{theme}”，以下哪些做法更符合门店培训要求？",
+                      "options": [
+                          {"value": "A", "label": "先确认顾客需求再给建议"},
+                          {"value": "B", "label": "直接使用绝对化承诺促成成交"},
+                          {"value": "C", "label": "结合产品事实做清晰说明"},
+                          {"value": "D", "label": "忽略顾客疑虑并强推成交"},
+                      ],
+                      "answer": ["A", "C"],
+                      "keywords": [],
+                      "analysis": f"考查{theme}场景下的正误区分与组合判断。",
+                  }
+              if q_type == "judge":
+                  return {
+                      "type": "judge",
+                      "title": f"在“{theme}”场景中，只要能成交，就可以使用无法核实的绝对化承诺。",
+                      "options": [{"value": "A", "label": "正确"}, {"value": "B", "label": "错误"}],
+                      "answer": "B",
+                      "keywords": [],
+                      "analysis": "考查合规表达与风险识别意识。",
+                  }
+              return {
+                  "type": "short",
+                  "title": f"请结合“{theme}”说明你会如何向顾客进行规范表达，并列出至少 3 个关键点。",
+                  "options": [],
+                  "answer": "",
+                  "keywords": [theme, "需求确认", "事实说明", "合规表达"],
+                  "analysis": f"考查{theme}主题下的结构化表达与关键点覆盖情况。",
+              }
+
+          def _normalize_options(q_type, raw_options):
+              if q_type == "short":
+                  return []
+              labels = ["A", "B"] if q_type == "judge" else ["A", "B", "C", "D"]
+              options = raw_options if isinstance(raw_options, list) else []
+              result = []
+              for idx, code in enumerate(labels):
+                  item = options[idx] if idx < len(options) and isinstance(options[idx], dict) else {}
+                  label = _safe_text(item.get("label"))
+                  if not label:
+                      label = "正确" if q_type == "judge" and code == "A" else ("错误" if q_type == "judge" else f"选项{code}")
+                  result.append({"value": code, "label": label})
+              return result
+
+          def _normalize_answer(q_type, raw_answer):
+              if q_type == "single":
+                  ans = _safe_text(raw_answer, "A").upper()
+                  return ans if ans in {"A", "B", "C", "D"} else "A"
+              if q_type == "multiple":
+                  arr = [str(x).strip().upper() for x in raw_answer] if isinstance(raw_answer, list) else []
+                  arr = [x for x in arr if x in {"A", "B", "C", "D"}]
+                  arr = list(dict.fromkeys(arr))
+                  return arr if len(arr) >= 2 else ["A", "C"]
+              if q_type == "judge":
+                  ans = _safe_text(raw_answer, "B").upper()
+                  return ans if ans in {"A", "B"} else "B"
+              return ""
+
+          def _normalize_keywords(raw_keywords, focus):
+              arr = raw_keywords if isinstance(raw_keywords, list) else []
+              result = [str(x).strip() for x in arr if str(x).strip()]
+              if len(result) >= 3:
+                  return result[:5]
+              for item in focus + ["需求确认", "事实说明", "合规表达", "成交推进"]:
+                  if item not in result:
+                      result.append(item)
+                  if len(result) >= 4:
+                      break
+              return result[:5]
+
+          def _score_distribution(total):
+              base = 100 // total
+              remainder = 100 % total
+              return [base + (1 if i < remainder else 0) for i in range(total)]
+
+          def main(task_name: str = "", task_desc: str = "", difficulty: str = "standard", question_count = 20, pass_score = 85, question_mix_json: str = "", raw_output: str = "") -> dict:
+              obj = _parse_json_obj(raw_output)
+              mix = _parse_json_obj(question_mix_json)
+              focus = _extract_focus(task_name, task_desc)
+              source_questions = obj.get("questions") if isinstance(obj.get("questions"), list) else []
+              exam_title = _safe_text(obj.get("exam_title"), f"{task_name} 标准试卷")
+              instructions = _safe_text(obj.get("instructions"), "请在规定时间内完成全部题目，客观题按标准答案作答，简答题需覆盖关键得分点并保持表达规范。")
+              review_points = [str(x).strip() for x in (obj.get("review_points") if isinstance(obj.get("review_points"), list) else []) if str(x).strip()][:6]
+              if not review_points:
+                  review_points = focus[:4]
+              sequence = _type_sequence(mix)
+              scores = _score_distribution(len(sequence))
+              questions = []
+              for idx, q_type in enumerate(sequence, start=1):
+                  raw_item = source_questions[idx - 1] if idx - 1 < len(source_questions) and isinstance(source_questions[idx - 1], dict) else {}
+                  if _safe_text(raw_item.get("type")).lower() != q_type:
+                      raw_item = _fallback_question(q_type, idx, focus)
+                  title = _safe_text(raw_item.get("title")) or _fallback_question(q_type, idx, focus)["title"]
+                  options = _normalize_options(q_type, raw_item.get("options"))
+                  answer = _normalize_answer(q_type, raw_item.get("answer"))
+                  keywords = _normalize_keywords(raw_item.get("keywords"), focus) if q_type == "short" else []
+                  analysis = _safe_text(raw_item.get("analysis"), "用于考查关键业务知识点与规范表达。")
+                  questions.append({
+                      "id": f"q{idx}",
+                      "type": q_type,
+                      "title": title,
+                      "score": scores[idx - 1],
+                      "options": options,
+                      "answer": answer,
+                      "keywords": keywords,
+                      "analysis": analysis,
+                  })
+              answer_key = {}
+              for item in questions:
+                  answer_key[item["id"]] = item["keywords"] if item["type"] == "short" else item["answer"]
+              paper = {
+                  "exam_title": exam_title,
+                  "instructions": instructions,
+                  "questions": questions,
+                  "answer_key": answer_key,
+                  "pass_score": round(_safe_float(pass_score, 85.0), 1),
+                  "difficulty": difficulty,
+                  "review_points": review_points,
+              }
+              summary = f"已生成《{exam_title}》，共 {len(questions)} 题，题型配比：单选 {mix.get('single', 0)} / 多选 {mix.get('multiple', 0)} / 判断 {mix.get('judge', 0)} / 简答 {mix.get('short', 0)}。"
+              return {
+                  "workflow_status": "success",
+                  "generation_status": "generated",
+                  "paper_version": 1,
+                  "exam_title": exam_title,
+                  "instructions": instructions,
+                  "question_count_final": len(questions),
+                  "question_mix_json": json.dumps(mix, ensure_ascii=False),
+                  "review_points_json": json.dumps(review_points, ensure_ascii=False),
+                  "answer_key_json": json.dumps(answer_key, ensure_ascii=False),
+                  "pass_score_final": round(_safe_float(pass_score, 85.0), 1),
+                  "paper_summary": summary,
+                  "paper_config_json": json.dumps(paper, ensure_ascii=False),
+                  "raw_output": _safe_text(raw_output),
+              }
+        code_language: python3
+        desc: 解析 LLM 输出并强制修正为后端可落库的试卷 JSON
+        outputs:
+          answer_key_json: {type: string}
+          exam_title: {type: string}
+          generation_status: {type: string}
+          instructions: {type: string}
+          paper_config_json: {type: string}
+          paper_summary: {type: string}
+          paper_version: {type: number}
+          pass_score_final: {type: number}
+          question_count_final: {type: number}
+          question_mix_json: {type: string}
+          raw_output: {type: string}
+          review_points_json: {type: string}
+          workflow_status: {type: string}
+        selected: false
+        title: 结果规范化
+        type: code
+        variables:
+        - {value_selector: [paper_precheck, task_name], variable: task_name}
+        - {value_selector: [paper_precheck, task_desc], variable: task_desc}
+        - {value_selector: [paper_precheck, difficulty], variable: difficulty}
+        - {value_selector: [paper_precheck, question_count], variable: question_count}
+        - {value_selector: [paper_precheck, pass_score], variable: pass_score}
+        - {value_selector: [paper_precheck, question_mix_json], variable: question_mix_json}
+        - {value_selector: [paper_llm, text], variable: raw_output}
+      height: 80
+      id: paper_normalize
+      position: {x: 1286, y: 140}
+      positionAbsolute: {x: 1286, y: 140}
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: |-
+          def _safe_text(v, default=""):
+              if v is None:
+                  return default
+              s = str(v).strip()
+              return s if s else default
+
+          def main(invalid_reason: str = "") -> dict:
+              return {
+                  "workflow_status": "invalid",
+                  "generation_status": "invalid",
+                  "paper_version": 0,
+                  "exam_title": "",
+                  "instructions": "",
+                  "question_count_final": 0,
+                  "question_mix_json": "{}",
+                  "review_points_json": "[]",
+                  "answer_key_json": "{}",
+                  "pass_score_final": 0,
+                  "paper_summary": _safe_text(invalid_reason, "输入无效，未生成试卷。"),
+                  "paper_config_json": "",
+                  "raw_output": "",
+                  "invalid_reason": _safe_text(invalid_reason, "输入无效，未生成试卷。"),
+              }
+        code_language: python3
+        desc: 无效输入兜底
+        outputs:
+          answer_key_json: {type: string}
+          exam_title: {type: string}
+          generation_status: {type: string}
+          instructions: {type: string}
+          invalid_reason: {type: string}
+          paper_config_json: {type: string}
+          paper_summary: {type: string}
+          paper_version: {type: number}
+          pass_score_final: {type: number}
+          question_count_final: {type: number}
+          question_mix_json: {type: string}
+          raw_output: {type: string}
+          review_points_json: {type: string}
+          workflow_status: {type: string}
+        selected: false
+        title: 无效输入兜底
+        type: code
+        variables:
+        - {value_selector: [paper_precheck, invalid_reason], variable: invalid_reason}
+      height: 80
+      id: invalid_builder
+      position: {x: 968, y: 400}
+      positionAbsolute: {x: 968, y: 400}
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        desc: 输出标准出卷结果
+        outputs:
+        - {value_selector: [paper_normalize, workflow_status], variable: workflow_status}
+        - {value_selector: [paper_normalize, generation_status], variable: generation_status}
+        - {value_selector: [paper_normalize, paper_version], variable: paper_version}
+        - {value_selector: [paper_normalize, exam_title], variable: exam_title}
+        - {value_selector: [paper_normalize, instructions], variable: instructions}
+        - {value_selector: [paper_normalize, question_count_final], variable: question_count_final}
+        - {value_selector: [paper_normalize, question_mix_json], variable: question_mix_json}
+        - {value_selector: [paper_normalize, review_points_json], variable: review_points_json}
+        - {value_selector: [paper_normalize, answer_key_json], variable: answer_key_json}
+        - {value_selector: [paper_normalize, pass_score_final], variable: pass_score_final}
+        - {value_selector: [paper_normalize, paper_summary], variable: paper_summary}
+        - {value_selector: [paper_normalize, paper_config_json], variable: paper_config_json}
+        - {value_selector: [paper_normalize, raw_output], variable: raw_output}
+        selected: false
+        title: 结束-成功
+        type: end
+      height: 348
+      id: end_success
+      position: {x: 1610, y: 140}
+      positionAbsolute: {x: 1610, y: 140}
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        desc: 输出无效输入说明
+        outputs:
+        - {value_selector: [invalid_builder, workflow_status], variable: workflow_status}
+        - {value_selector: [invalid_builder, generation_status], variable: generation_status}
+        - {value_selector: [invalid_builder, paper_version], variable: paper_version}
+        - {value_selector: [invalid_builder, exam_title], variable: exam_title}
+        - {value_selector: [invalid_builder, instructions], variable: instructions}
+        - {value_selector: [invalid_builder, question_count_final], variable: question_count_final}
+        - {value_selector: [invalid_builder, question_mix_json], variable: question_mix_json}
+        - {value_selector: [invalid_builder, review_points_json], variable: review_points_json}
+        - {value_selector: [invalid_builder, answer_key_json], variable: answer_key_json}
+        - {value_selector: [invalid_builder, pass_score_final], variable: pass_score_final}
+        - {value_selector: [invalid_builder, paper_summary], variable: paper_summary}
+        - {value_selector: [invalid_builder, paper_config_json], variable: paper_config_json}
+        - {value_selector: [invalid_builder, raw_output], variable: raw_output}
+        - {value_selector: [invalid_builder, invalid_reason], variable: invalid_reason}
+        selected: false
+        title: 结束-无效输入
+        type: end
+      height: 376
+      id: end_invalid
+      position: {x: 1290, y: 400}
+      positionAbsolute: {x: 1290, y: 400}
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    viewport:
+      x: -45
+      y: 34
+      zoom: 0.9
+  rag_pipeline_variables: []

@@ -1,0 +1,719 @@
+app:
+  description: 考试中心｜WF11：动态盲盒考核 Chatflow（计划对齐版，严格结束词、盲盒专用收口、评分JSON归一化、完整闭环）
+  icon: 🧪
+  icon_background: '#FFEAD5'
+  mode: advanced-chat
+  name: 动态考核对话工作流
+  use_icon_as_answer_icon: false
+dependencies:
+- current_identifier: null
+  type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: langgenius/tongyi:0.1.32@20a5454088fa017b72490e1cbaeebff21094d11b13e41197591734d1c08cdbb5
+    version: null
+kind: app
+version: 0.6.0
+workflow:
+  conversation_variables: []
+  environment_variables: []
+  features:
+    file_upload:
+      allowed_file_extensions:
+      - .JPG
+      - .JPEG
+      - .PNG
+      - .GIF
+      - .WEBP
+      - .SVG
+      allowed_file_types:
+      - image
+      allowed_file_upload_methods:
+      - local_file
+      - remote_url
+      enabled: false
+      fileUploadConfig:
+        attachment_image_file_size_limit: 2
+        audio_file_size_limit: 50
+        batch_count_limit: 5
+        file_size_limit: 15
+        file_upload_limit: 20
+        image_file_batch_limit: 10
+        image_file_size_limit: 10
+        single_chunk_attachment_limit: 10
+        video_file_size_limit: 100
+        workflow_file_upload_limit: 10
+      image:
+        enabled: false
+        number_limits: 3
+        transfer_methods:
+        - local_file
+        - remote_url
+      number_limits: 3
+    opening_statement: ''
+    retriever_resource:
+      enabled: false
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions: []
+    suggested_questions_after_answer:
+      enabled: false
+    text_to_speech:
+      enabled: false
+      language: ''
+      voice: ''
+  graph:
+    edges:
+    - data:
+        isInIteration: false
+        sourceType: start
+        targetType: code
+      id: start-precheck
+      source: start
+      sourceHandle: source
+      target: wf11_precheck
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: code
+        targetType: if-else
+      id: precheck-route
+      source: wf11_precheck
+      sourceHandle: source
+      target: wf11_route
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: if-else
+        targetType: llm
+      id: route-continue
+      source: wf11_route
+      sourceHandle: 'false'
+      target: wf11_examiner
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: llm
+        targetType: answer
+      id: examiner-answer
+      source: wf11_examiner
+      sourceHandle: source
+      target: wf11_answer_continue
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: if-else
+        targetType: llm
+      id: route-scorer
+      source: wf11_route
+      sourceHandle: 'true'
+      target: wf11_scorer
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: llm
+        targetType: code
+      id: wf11_scorer-wf11_normalize_score_json
+      source: wf11_scorer
+      sourceHandle: source
+      target: wf11_normalize_score_json
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: code
+        targetType: answer
+      id: wf11_normalize_score_json-wf11_answer_finish
+      source: wf11_normalize_score_json
+      sourceHandle: source
+      target: wf11_answer_finish
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    nodes:
+    - data:
+        desc: 考试中心盲盒考核入口；对齐 assessment/start｜chat｜finish 链路，保留盲盒考试主输入并支持后端可选元数据。
+        selected: false
+        title: 开始
+        type: start
+        variables:
+        - label: 任务ID（可选）
+          max_length: 64
+          options: []
+          required: false
+          type: text-input
+          variable: task_id
+        - label: 考核记录ID（可选）
+          max_length: 64
+          options: []
+          required: false
+          type: text-input
+          variable: assessment_record_id
+        - label: 用户ID（可选）
+          max_length: 64
+          options: []
+          required: false
+          type: text-input
+          variable: user_id
+        - label: 任务名称
+          max_length: 128
+          options: []
+          required: false
+          type: text-input
+          variable: task_name
+        - label: 顾客/考官人设
+          max_length: 3000
+          options: []
+          required: false
+          type: paragraph
+          variable: customer_persona
+        - label: 及格线
+          max_length: 32
+          options: []
+          required: false
+          type: number
+          variable: pass_score
+        - label: 考试模式（可选，默认 ai_blind_box_exam）
+          max_length: 64
+          options:
+          - ai_blind_box_exam
+          - paper_exam
+          required: false
+          type: select
+          variable: exam_mode
+        - label: 考试时长分钟（可选）
+          max_length: 32
+          options: []
+          required: false
+          type: number
+          variable: duration_minutes
+        - label: 分数可见性（可选）
+          max_length: 32
+          options:
+          - public
+          - hidden
+          required: false
+          type: select
+          variable: score_visibility
+        - label: 开考提示文案（可选）
+          max_length: 1000
+          options: []
+          required: false
+          type: paragraph
+          variable: started_notice_text
+        - label: 交卷提示文案（可选）
+          max_length: 1000
+          options: []
+          required: false
+          type: paragraph
+          variable: submitted_notice_text
+        height: 483
+      height: 213
+      id: start
+      position:
+        x: 30
+        y: 260
+      positionAbsolute:
+        x: 30
+        y: 260
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "def main(\n    task_id=\"\",\n    assessment_record_id=\"\",\n    user_id=\"\",\n    task_name=\"\",\n    customer_persona=\"\",\n    pass_score=85,\n    exam_mode=\"\",\n    duration_minutes=0,\n    score_visibility=\"\",\n    started_notice_text=\"\",\n    submitted_notice_text=\"\",\n    user_query=\"\",\n    **kwargs\n):\n    import re\n    import json\n\n    def clean(v):\n        return str(v or \"\").replace(\"\\r\\n\", \"\\n\").replace(\"\\r\", \"\\n\").strip()\n\n    def safe_int(v, default=0):\n        try:\n            return int(round(float(v)))\n        except Exception:\n            return default\n\n    def normalize_enum(v, allowed, default):\n        low = clean(v).lower()\n        return low if low in allowed else default\n\n    task_label = clean(task_name) or \"珠宝门店正式考核\"\n    persona_text = clean(customer_persona) or \"你是珠宝门店正式考试中的高要求顾客/考官。\"\n    normalized_query = re.sub(r\"\\s+\", \" \", clean(user_query)).strip()\n\n    task_id_out = clean(task_id)\n\
+          \    assessment_record_id_out = clean(assessment_record_id)\n    user_id_out = clean(user_id)\n    started_notice_text_out = clean(started_notice_text)\n    submitted_notice_text_out = clean(submitted_notice_text)\n\n    pass_score_num = max(0, min(100, safe_int(pass_score, 85)))\n    duration_minutes_out = max(0, min(300, safe_int(duration_minutes, 60)))\n    if duration_minutes_out == 0:\n        duration_minutes_out = 60\n\n    exam_mode_out = normalize_enum(exam_mode, {\"ai_blind_box_exam\", \"paper_exam\"}, \"ai_blind_box_exam\")\n    score_visibility_out = normalize_enum(score_visibility, {\"public\", \"hidden\"}, \"public\")\n\n    opening_patterns = [\n        r\"^$\",\n        r\"^开始$\",\n        r\"^开始考试$\",\n        r\"^开始考核$\",\n        r\"^准备好了$\",\n        r\"^可以开始了$\",\n        r\"^开始吧$\",\n        r\"^来吧$\",\n        r\"^ok$\",\n        r\"^好的$\",\n    ]\n    current_input_type = \"answer\"\n    for p in opening_patterns:\n        if re.search(p, normalized_query,\
+          \ flags=re.I):\n            current_input_type = \"opening\"\n            break\n\n    strict_finish_phrases = {\n        \"结束考试\",\n        \"提交试卷\",\n        \"交卷\",\n        \"结束考核\",\n    }\n\n    finish_flag = 0\n    finish_reason = \"\"\n    if normalized_query in strict_finish_phrases:\n        finish_flag = 1\n        finish_reason = \"命中明确交卷指令\"\n\n    if finish_flag == 0:\n        strong_intent_patterns = [\n            r\"^(我要)?结束考试[。！! ]*$\",\n            r\"^(我要)?提交试卷[。！! ]*$\",\n            r\"^(我要)?交卷[。！! ]*$\",\n            r\"^(我要)?结束考核[。！! ]*$\",\n        ]\n        for p in strong_intent_patterns:\n            if re.search(p, normalized_query):\n                finish_flag = 1\n                finish_reason = \"命中强结束意图\"\n                break\n\n    redline_patterns = [\n        (r\"保值|升值|一定升值|绝对保值|包你升值\", \"保值升值承诺\"),\n        (r\"全国最低价|全网最低价|最低价\", \"最低价承诺\"),\n        (r\"100%真|绝对保真|百分百真\", \"绝对保真\"),\n        (r\"假一赔十\", \"夸大售后承诺\"),\n        (r\"闭眼买\",\
+          \ \"绝对化推荐\"),\n        (r\"稳赚不赔|稳赚\", \"收益承诺\"),\n        (r\"永不褪色|绝不会褪色\", \"绝对化质量承诺\"),\n        (r\"国家级证书|官方内部渠道保证\", \"无法核实背书\"),\n    ]\n\n    hit_tags = []\n    for pattern, label in redline_patterns:\n        if re.search(pattern, normalized_query):\n            hit_tags.append(label)\n\n    emotion_flag = 1 if re.search(r\"别买了|爱买不买|随便你|不买拉倒|你有病\", normalized_query) else 0\n    off_topic_flag = 1 if re.search(r\"写代码|做网站|股票|赌博|彩票|政治|总统|明星八卦\", normalized_query, flags=re.I) else 0\n\n    redline_flag = 1 if hit_tags else 0\n    redline_hits = json.dumps(hit_tags, ensure_ascii=False)\n\n    workflow_mode_hint = \"blind_box_supported\"\n    if exam_mode_out != \"ai_blind_box_exam\":\n        workflow_mode_hint = \"wf11_is_for_blind_box_exam_only\"\n\n    return {\n        \"task_id_out\": task_id_out,\n        \"assessment_record_id_out\": assessment_record_id_out,\n        \"user_id_out\": user_id_out,\n        \"task_label\": task_label,\n        \"persona_text\": persona_text,\n\
+          \        \"normalized_query\": normalized_query,\n        \"current_input_type\": current_input_type,\n        \"finish_flag\": finish_flag,\n        \"finish_reason\": finish_reason,\n        \"pass_score_num\": pass_score_num,\n        \"exam_mode_out\": exam_mode_out,\n        \"duration_minutes_out\": duration_minutes_out,\n        \"score_visibility_out\": score_visibility_out,\n        \"started_notice_text_out\": started_notice_text_out,\n        \"submitted_notice_text_out\": submitted_notice_text_out,\n        \"redline_flag\": redline_flag,\n        \"redline_hits\": redline_hits,\n        \"emotion_flag\": emotion_flag,\n        \"off_topic_flag\": off_topic_flag,\n        \"workflow_mode_hint\": workflow_mode_hint,\n    }\n"
+        code_language: python3
+        desc: 标准化考试输入与后端元数据，严格识别结束词，并补充红线/跑题/情绪化表达识别。
+        outputs:
+          task_id_out:
+            type: string
+          assessment_record_id_out:
+            type: string
+          user_id_out:
+            type: string
+          task_label:
+            type: string
+          persona_text:
+            type: string
+          normalized_query:
+            type: string
+          current_input_type:
+            type: string
+          finish_flag:
+            type: number
+          finish_reason:
+            type: string
+          pass_score_num:
+            type: number
+          exam_mode_out:
+            type: string
+          duration_minutes_out:
+            type: number
+          score_visibility_out:
+            type: string
+          started_notice_text_out:
+            type: string
+          submitted_notice_text_out:
+            type: string
+          redline_flag:
+            type: number
+          redline_hits:
+            type: string
+          emotion_flag:
+            type: number
+          off_topic_flag:
+            type: number
+          workflow_mode_hint:
+            type: string
+        selected: false
+        title: 消息预处理
+        type: code
+        variables:
+        - value_selector:
+          - start
+          - task_id
+          variable: task_id
+        - value_selector:
+          - start
+          - assessment_record_id
+          variable: assessment_record_id
+        - value_selector:
+          - start
+          - user_id
+          variable: user_id
+        - value_selector:
+          - start
+          - task_name
+          variable: task_name
+        - value_selector:
+          - start
+          - customer_persona
+          variable: customer_persona
+        - value_selector:
+          - start
+          - pass_score
+          variable: pass_score
+        - value_selector:
+          - start
+          - exam_mode
+          variable: exam_mode
+        - value_selector:
+          - start
+          - duration_minutes
+          variable: duration_minutes
+        - value_selector:
+          - start
+          - score_visibility
+          variable: score_visibility
+        - value_selector:
+          - start
+          - started_notice_text
+          variable: started_notice_text
+        - value_selector:
+          - start
+          - submitted_notice_text
+          variable: submitted_notice_text
+        - value_selector:
+          - sys
+          - query
+          variable: user_query
+      height: 96
+      id: wf11_precheck
+      position:
+        x: 360
+        y: 260
+      positionAbsolute:
+        x: 360
+        y: 260
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        cases:
+        - case_id: 'true'
+          conditions:
+          - comparison_operator: '='
+            id: wf11-route-cond-1
+            value: '1'
+            varType: number
+            variable_selector:
+            - wf11_precheck
+            - finish_flag
+          id: 'true'
+          logical_operator: and
+        desc: 结束指令进入最终评分；否则进入考官继续追问
+        selected: false
+        title: 是否进入结束评分
+        type: if-else
+      height: 168
+      id: wf11_route
+      position:
+        x: 690
+        y: 260
+      positionAbsolute:
+        x: 690
+        y: 260
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        desc: 继续追问分支；严格维持盲盒顾客/考官角色，高压真实，不给答案，不提前评分。
+        memory:
+          query_prompt_template: '{{#sys.query#}}'
+          role_prefix:
+            assistant: ''
+            user: ''
+          window:
+            enabled: true
+            size: 20
+        model:
+          completion_params:
+            temperature: 0.4
+          mode: chat
+          name: qwen-plus
+          provider: langgenius/tongyi/tongyi
+        prompt_template:
+        - edition_type: basic
+          id: wf11-examiner-system
+          role: system
+          text: '你是珠宝门店正式考试中的对抗式考官，扮演高要求顾客或门店场景提出者。
+
+
+            【考试任务】
+
+            {{#wf11_precheck.task_label#}}
+
+
+            【顾客/考官人设】
+
+            {{#wf11_precheck.persona_text#}}
+
+
+            【考试元数据】
+
+            exam_mode={{#wf11_precheck.exam_mode_out#}}
+
+            duration_minutes={{#wf11_precheck.duration_minutes_out#}}
+
+            score_visibility={{#wf11_precheck.score_visibility_out#}}
+
+            workflow_mode_hint={{#wf11_precheck.workflow_mode_hint#}}
+
+
+            【当前用户输入】
+
+            {{#wf11_precheck.normalized_query#}}
+
+
+            【当前输入类型】
+
+            {{#wf11_precheck.current_input_type#}}
+
+
+            【当前轮次】
+
+            {{#sys.dialogue_count#}}
+
+
+            【风险识别结果】
+
+            redline_flag={{#wf11_precheck.redline_flag#}}
+
+            redline_hits={{#wf11_precheck.redline_hits#}}
+
+            emotion_flag={{#wf11_precheck.emotion_flag#}}
+
+            off_topic_flag={{#wf11_precheck.off_topic_flag#}}
+
+
+            你的任务：
+
+            1. 你只能扮演顾客/考官，持续围绕当前考试任务追问考生。
+
+            2. 每轮只追 1 个核心问题，不要同时抛多个问题。
+
+            3. 不给提示、不泄露标准答案、不提前评分。
+
+            4. 输出必须是自然中文，只输出顾客这一轮要说的话，不要输出 JSON、标题、解析。
+
+            5. 保持高压但真实，像门店里有顾虑、会质疑、会反问的顾客，不要像吵架，也不要像系统广播。
+
+            6. 回复控制在 1~3 句，短一些，像真实口语。
+
+
+            核心规则：
+
+            - WF11 是盲盒考试工作流。即使 exam_mode 传错，也仍按盲盒顾客/考官方式继续，不要讨论系统配置。
+
+            - 如果当前输入为空，或 current_input_type=opening，直接进入当前场景，给出第一轮顾客问题。
+
+            - 如果考生回答正常，就继续围绕价格、材质、证书、售后、购买理由、成交推进中的一个点追问。
+
+            - 如果考生回答含糊，就要求其讲清楚依据或做法。
+
+            - 如果考生绕开问题、答非所问、突然说与销售考试无关的话题，你不要跟着跑题，也不要吵架，只需以顾客身份自然地把话题拉回当前顾虑。
+
+            - 如果考生出现绝对化承诺、夸大宣传、最低价承诺、保值升值暗示、材质或证书表达不当、无法核实的售后保证，你必须继续追问或质疑。
+
+            - 当 redline_flag=1 时，优先围绕 redline_hits 中的风险点追问。
+
+            - 当 emotion_flag=1 时，你不要和他争辩，也不要上情绪，只继续以顾客身份把问题拉回“值不值、依据是什么、为什么值得买”。
+
+            - 当 off_topic_flag=1 时，不评价、不嘲讽、不争辩，只自然地把问题拉回当前顾客异议。
+
+
+            追问方向优先级：
+
+            1. 当前人设最核心顾虑
+
+            2. 价格异议
+
+            3. 材质真假
+
+            4. 证书依据
+
+            5. 售后承诺
+
+            6. 购买理由
+
+            7. 成交推进
+
+
+            表达风格要求：
+
+            - 真实顾客口吻
+
+            - 可以质疑、犹豫、比较、反问
+
+            - 不要辱骂
+
+            - 不要重复上一轮原话
+
+            - 不要脱离当前考试场景
+
+            - 顾客可以强势、怀疑、反问，但整体要克制；重点是持续逼考生解释清楚，而不是单纯发脾气。'
+        - edition_type: basic
+          id: wf11-examiner-user
+          role: user
+          text: 请只输出考官本轮要说的话。
+        selected: false
+        title: 对抗考官
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 88
+      id: wf11_examiner
+      position:
+        x: 1040
+        y: 120
+      positionAbsolute:
+        x: 1040
+        y: 120
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        answer: '{{#wf11_examiner.text#}}'
+        desc: 继续考试分支直接返回考官追问
+        selected: false
+        title: 继续追问输出
+        type: answer
+        variables: []
+      height: 103
+      id: wf11_answer_continue
+      position:
+        x: 1380
+        y: 120
+      positionAbsolute:
+        x: 1380
+        y: 120
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        desc: 结束分支；严格 JSON 评分，按 pass_score 与红线规则统一输出，并补充维度分与风险标签。
+        memory:
+          query_prompt_template: '{{#sys.query#}}'
+          role_prefix:
+            assistant: ''
+            user: ''
+          window:
+            enabled: true
+            size: 30
+        model:
+          completion_params:
+            temperature: 0.2
+          mode: chat
+          name: qwen-plus
+          provider: langgenius/tongyi/tongyi
+        prompt_template:
+        - edition_type: basic
+          id: wf11-scorer-system
+          role: system
+          text: "你是珠宝门店正式考试评分官。\n\n你将基于整段对话记忆，对考生表现做最终评分。\n\n当前考试任务：\n{{#wf11_precheck.task_label#}}\n\n当前顾客/考官人设：\n{{#wf11_precheck.persona_text#}}\n\n当前及格线：\n{{#wf11_precheck.pass_score_num#}}\n\n考试元数据：\n- exam_mode={{#wf11_precheck.exam_mode_out#}}\n- duration_minutes={{#wf11_precheck.duration_minutes_out#}}\n- score_visibility={{#wf11_precheck.score_visibility_out#}}\n- finish_reason={{#wf11_precheck.finish_reason#}}\n\n红线识别结果：\n- redline_flag={{#wf11_precheck.redline_flag#}}\n- redline_hits={{#wf11_precheck.redline_hits#}}\n\n你必须只输出一个严格 JSON 对象。\n不要输出 markdown，不要输出解释，不要输出多余文字，不要输出代码块。\n\n评分要求：\n1. 重点看：需求洞察、专业准确、异议处理、成交推进、表达自然、合规安全。\n2. 如果出现保值升值承诺、最低价承诺、绝对保真、假一赔十、闭眼买、稳赚不赔、绝对化质量承诺，必须扣分。\n3. 若命中红线表达：\n   - risk_level 不能低于 medium\n   - weak_dimension 优先考虑“合规表达”\n   - problem_points 必须写具体风险点\n   - risk_tags 至少包含 1 个与风险相关的标签\n4. score 必须是 0~100 的整数。\n5. is_pass 必须严格按及格线判断：\n   - score >= pass_score_num 才能为 1\n   - 否则为 0\n6. examiner_comment 不少于 30 字。\n7. 输出字段必须完整，不能缺省，problem_points 与 risk_tags\
+            \ 必须是数组。\n8. dimension_scores 必须包含 6 个维度，分值为 0~100 整数。\n\n严格输出：\n{\n  \"is_finished\": true,\n  \"score\": 0,\n  \"is_pass\": 0,\n  \"reason\": \"\",\n  \"examiner_comment\": \"\",\n  \"risk_level\": \"low\",\n  \"weak_dimension\": \"\",\n  \"problem_points\": [],\n  \"improvement_advice\": \"\",\n  \"risk_tags\": [],\n  \"dimension_scores\": {\n    \"需求洞察\": 0,\n    \"专业准确\": 0,\n    \"异议处理\": 0,\n    \"成交推进\": 0,\n    \"表达自然\": 0,\n    \"合规安全\": 0\n  }\n}"
+        - edition_type: basic
+          id: wf11-scorer-user
+          role: user
+          text: 请根据整段对话给出最终评分，只返回 JSON。
+        selected: false
+        title: 最终评分官
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 88
+      id: wf11_scorer
+      position:
+        x: 1040
+        y: 430
+      positionAbsolute:
+        x: 1040
+        y: 430
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        answer: '{{#wf11_normalize_score_json.normalized_json#}}'
+        desc: 结束考试分支直接返回严格 JSON 字符串
+        selected: false
+        title: 最终评分输出
+        type: answer
+        variables: []
+      height: 103
+      id: wf11_answer_finish
+      position:
+        x: 2394
+        y: 120
+      positionAbsolute:
+        x: 2394
+        y: 120
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "import json\nimport re\n\ndef _strip_code_fence(text: str) -> str:\n    raw = str(text or \"\").strip()\n    raw = re.sub(r\"<think>[\\s\\S]*?</think>\", \"\", raw, flags=re.I)\n    raw = re.sub(r\"^```json\\s*\", \"\", raw, flags=re.I)\n    raw = re.sub(r\"^```\\s*\", \"\", raw)\n    raw = re.sub(r\"\\s*```$\", \"\", raw)\n    return raw.strip()\n\ndef _extract_json(text: str) -> dict:\n    raw = _strip_code_fence(text)\n    if not raw:\n        return {}\n    try:\n        data = json.loads(raw)\n        return data if isinstance(data, dict) else {}\n    except Exception:\n        pass\n    m = re.search(r\"\\{[\\s\\S]*\\}\", raw)\n    if m:\n        try:\n            data = json.loads(m.group(0))\n            return data if isinstance(data, dict) else {}\n        except Exception:\n            pass\n    return {}\n\ndef _safe_int(v, default=0, low=None, high=None):\n    try:\n        n = int(round(float(v)))\n    except Exception:\n        n = default\n    if low is not\
+          \ None:\n        n = max(low, n)\n    if high is not None:\n        n = min(high, n)\n    return n\n\ndef _safe_text(v, default=\"\"):\n    s = str(v or \"\").strip()\n    return s if s else default\n\ndef _safe_list(v):\n    if isinstance(v, list):\n        return [str(x).strip() for x in v if str(x).strip()]\n    if isinstance(v, str) and v.strip():\n        return [v.strip()]\n    return []\n\ndef _parse_redline_hits(v):\n    raw = str(v or \"\").strip()\n    if not raw:\n        return []\n    try:\n        data = json.loads(raw)\n        if isinstance(data, list):\n            return [str(x).strip() for x in data if str(x).strip()]\n    except Exception:\n        pass\n    return [raw]\n\ndef _normalize_risk_level(v):\n    s = str(v or \"\").strip().lower()\n    return s if s in {\"low\", \"medium\", \"high\"} else \"medium\"\n\ndef _normalize_dimension_scores(v):\n    default_keys = [\"需求洞察\", \"专业准确\", \"异议处理\", \"成交推进\", \"表达自然\", \"合规安全\"]\n    data = v if isinstance(v,\
+          \ dict) else {}\n    out = {}\n    for k in default_keys:\n        out[k] = _safe_int(data.get(k, 60), 60, 0, 100)\n    return out\n\ndef main(\n    llm_text=\"\",\n    pass_score_num=85,\n    redline_flag=0,\n    redline_hits=\"\",\n    finish_reason=\"\",\n    exam_mode_out=\"ai_blind_box_exam\",\n    duration_minutes_out=60,\n    score_visibility_out=\"public\",\n    task_id_out=\"\",\n    assessment_record_id_out=\"\",\n    user_id_out=\"\",\n    submitted_notice_text_out=\"\",\n    started_notice_text_out=\"\",\n    dialogue_count=0\n) -> dict:\n    pass_line = _safe_int(pass_score_num, 85, 0, 100)\n    redline_flag = 1 if _safe_int(redline_flag, 0) >= 1 else 0\n    parsed_redline_hits = _parse_redline_hits(redline_hits)\n    data = _extract_json(llm_text)\n\n    score = _safe_int(data.get(\"score\"), 60, 0, 100)\n    is_pass = 1 if score >= pass_line else 0\n    risk_level = _normalize_risk_level(data.get(\"risk_level\"))\n    weak_dimension = _safe_text(data.get(\"weak_dimension\"\
+          ), \"综合表达\")\n    problem_points = _safe_list(data.get(\"problem_points\"))[:5]\n    risk_tags = _safe_list(data.get(\"risk_tags\"))[:5]\n    improvement_advice = _safe_text(data.get(\"improvement_advice\"), \"建议补强异议处理、合规表达与成交推进。\")\n    dimension_scores = _normalize_dimension_scores(data.get(\"dimension_scores\"))\n\n    if redline_flag == 1:\n        if risk_level == \"low\":\n            risk_level = \"medium\"\n        if weak_dimension in {\"\", \"综合表达\"}:\n            weak_dimension = \"合规表达\"\n        for item in parsed_redline_hits:\n            if item and item not in problem_points:\n                problem_points.append(item)\n            if item and item not in risk_tags:\n                risk_tags.append(item)\n        problem_points = problem_points[:5]\n        risk_tags = risk_tags[:5]\n        if \"合规\" not in improvement_advice:\n            improvement_advice = \"建议专项补训合规表达、风险话术识别与高压异议处理。\"\n        dimension_scores[\"合规安全\"] = min(dimension_scores[\"合规安全\"],\
+          \ 65)\n\n    reason = _safe_text(data.get(\"reason\"), \"评分结果已生成。\")\n    examiner_comment = _safe_text(\n        data.get(\"examiner_comment\") or data.get(\"comment\") or data.get(\"message\"),\n        \"本次考试已结束，请结合得分与评语做后续复盘。\"\n    )\n    if len(examiner_comment) < 20:\n        examiner_comment = f\"本次盲盒考试得分为{score}分，整体风险等级为{risk_level}，主要薄弱项为{weak_dimension}，建议结合问题点进行复盘与针对性补训。\"\n\n    payload = {\n        \"is_finished\": True,\n        \"submit_action\": \"finish_blind_box_exam\",\n        \"submit_status\": \"submitted\",\n        \"score\": score,\n        \"is_pass\": is_pass,\n        \"reason\": reason,\n        \"examiner_comment\": examiner_comment,\n        \"pass_flag\": is_pass,\n        \"pass_score_line\": pass_line,\n        \"risk_level\": risk_level,\n        \"weak_dimension\": weak_dimension,\n        \"problem_points\": problem_points,\n        \"improvement_advice\": improvement_advice,\n        \"risk_tags\": risk_tags,\n        \"dimension_scores\"\
+          : dimension_scores,\n        \"finish_reason\": _safe_text(finish_reason, \"考试结束\"),\n        \"exam_mode\": _safe_text(exam_mode_out, \"ai_blind_box_exam\"),\n        \"duration_minutes\": _safe_int(duration_minutes_out, 60, 1, 300),\n        \"score_visibility\": _safe_text(score_visibility_out, \"public\"),\n        \"task_id\": _safe_text(task_id_out, \"\"),\n        \"assessment_record_id\": _safe_text(assessment_record_id_out, \"\"),\n        \"user_id\": _safe_text(user_id_out, \"\"),\n        \"started_notice_text\": _safe_text(started_notice_text_out, \"\"),\n        \"submitted_notice_text\": _safe_text(submitted_notice_text_out, \"\"),\n        \"redline_flag\": redline_flag,\n        \"redline_hits\": parsed_redline_hits,\n        \"dialogue_rounds_estimate\": _safe_int(dialogue_count, 0, 0, 999)\n    }\n\n    normalized_json = json.dumps(payload, ensure_ascii=False)\n    return {\"normalized_json\": normalized_json}\n"
+        code_language: python3
+        desc: 对评分官输出做 JSON 提取、容错、字段补齐与计划对齐，避免交卷解析失败。
+        outputs:
+          normalized_json:
+            type: string
+        selected: false
+        title: 评分JSON归一化
+        type: code
+        variables:
+        - value_selector:
+          - wf11_scorer
+          - text
+          variable: llm_text
+        - value_selector:
+          - wf11_precheck
+          - pass_score_num
+          variable: pass_score_num
+        - value_selector:
+          - wf11_precheck
+          - redline_flag
+          variable: redline_flag
+        - value_selector:
+          - wf11_precheck
+          - redline_hits
+          variable: redline_hits
+        - value_selector:
+          - wf11_precheck
+          - finish_reason
+          variable: finish_reason
+        - value_selector:
+          - wf11_precheck
+          - exam_mode_out
+          variable: exam_mode_out
+        - value_selector:
+          - wf11_precheck
+          - duration_minutes_out
+          variable: duration_minutes_out
+        - value_selector:
+          - wf11_precheck
+          - score_visibility_out
+          variable: score_visibility_out
+        - value_selector:
+          - wf11_precheck
+          - task_id_out
+          variable: task_id_out
+        - value_selector:
+          - wf11_precheck
+          - assessment_record_id_out
+          variable: assessment_record_id_out
+        - value_selector:
+          - wf11_precheck
+          - user_id_out
+          variable: user_id_out
+        - value_selector:
+          - wf11_precheck
+          - submitted_notice_text_out
+          variable: submitted_notice_text_out
+        - value_selector:
+          - wf11_precheck
+          - started_notice_text_out
+          variable: started_notice_text_out
+        - value_selector:
+          - sys
+          - dialogue_count
+          variable: dialogue_count
+      height: 96
+      id: wf11_normalize_score_json
+      position:
+        x: 2052
+        y: 120
+      positionAbsolute:
+        x: 2052
+        y: 120
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    viewport:
+      x: 48.6
+      y: 40.2
+      zoom: 0.85
+  rag_pipeline_variables: []

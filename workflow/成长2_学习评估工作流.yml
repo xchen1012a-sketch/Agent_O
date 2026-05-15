@@ -1,0 +1,1066 @@
+app:
+  description: 成长计划模块｜工作流2：学习结果评估与补学建议（计划书改造版）
+  icon: 🤖
+  icon_background: '#D9F7BE'
+  mode: workflow
+  name: 成长学习评估工作流
+  use_icon_as_answer_icon: false
+dependencies:
+- current_identifier: null
+  type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: langgenius/tongyi:0.1.32@20a5454088fa017b72490e1cbaeebff21094d11b13e41197591734d1c08cdbb5
+    version: null
+kind: app
+version: 0.6.0
+workflow:
+  conversation_variables: []
+  environment_variables: []
+  features:
+    file_upload:
+      allowed_file_extensions:
+      - .JPG
+      - .JPEG
+      - .PNG
+      - .GIF
+      - .WEBP
+      - .SVG
+      allowed_file_types:
+      - image
+      allowed_file_upload_methods:
+      - local_file
+      - remote_url
+      enabled: false
+      fileUploadConfig:
+        attachment_image_file_size_limit: 2
+        audio_file_size_limit: 50
+        batch_count_limit: 5
+        file_size_limit: 15
+        file_upload_limit: 20
+        image_file_batch_limit: 10
+        image_file_size_limit: 10
+        single_chunk_attachment_limit: 10
+        video_file_size_limit: 100
+        workflow_file_upload_limit: 10
+      image:
+        enabled: false
+        number_limits: 3
+        transfer_methods:
+        - local_file
+        - remote_url
+      number_limits: 3
+    opening_statement: ''
+    retriever_resource:
+      enabled: true
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions: []
+    suggested_questions_after_answer:
+      enabled: false
+    text_to_speech:
+      enabled: false
+      language: ''
+      voice: ''
+  graph:
+    edges:
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: start
+        targetType: code
+      id: start_node-source-normalize_result-target
+      source: start_node
+      sourceHandle: source
+      target: normalize_result
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: end
+      id: format_output-source-end_node-target
+      source: format_output
+      sourceHandle: source
+      target: end_node
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: llm
+      id: normalize_result-source-knowledge_precheck-target
+      source: normalize_result
+      sourceHandle: source
+      target: knowledge_precheck
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: llm
+        targetType: code
+      id: knowledge_precheck-source-knowledge_precheck_parse-target
+      source: knowledge_precheck
+      sourceHandle: source
+      target: knowledge_precheck_parse
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: knowledge-retrieval
+      id: knowledge_precheck_parse-source-knowledge_retrieval-target
+      source: knowledge_precheck_parse
+      sourceHandle: source
+      target: knowledge_retrieval
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: knowledge-retrieval
+        targetType: code
+      id: knowledge_retrieval-source-knowledge_hit_check-target
+      source: knowledge_retrieval
+      sourceHandle: source
+      target: knowledge_hit_check
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: if-else
+      id: knowledge_hit_check-source-knowledge_hit_if-target
+      source: knowledge_hit_check
+      sourceHandle: source
+      target: knowledge_hit_if
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: if-else
+        targetType: code
+      id: knowledge_hit_if-true-build_context-target
+      source: knowledge_hit_if
+      sourceHandle: 'true'
+      target: build_context
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: if-else
+        targetType: llm
+      id: knowledge_hit_if-false-fallback_evaluate-target
+      source: knowledge_hit_if
+      sourceHandle: 'false'
+      target: fallback_evaluate
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: llm
+      id: build_context-source-evaluate_result-target
+      source: build_context
+      sourceHandle: source
+      target: evaluate_result
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: llm
+        targetType: code
+      id: evaluate_result-source-merge_eval_result-target
+      source: evaluate_result
+      sourceHandle: source
+      target: merge_eval_result
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: llm
+        targetType: code
+      id: fallback_evaluate-source-merge_eval_result-target
+      source: fallback_evaluate
+      sourceHandle: source
+      target: merge_eval_result
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: code
+      id: merge_eval_result-source-format_output-target
+      source: merge_eval_result
+      sourceHandle: source
+      target: format_output
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    nodes:
+    - data:
+        desc: 接收成长计划模块单题或模块学习结果
+        selected: false
+        title: 开始
+        type: start
+        variables:
+        - label: 用户ID
+          max_length: 64
+          options: []
+          required: true
+          type: text-input
+          variable: user_id
+        - label: 调用来源 source
+          max_length: 64
+          options: []
+          required: false
+          type: text-input
+          variable: source
+        - label: 链路追踪ID trace_id
+          max_length: 128
+          options: []
+          required: false
+          type: text-input
+          variable: trace_id
+        - label: 成长计划ID plan_id
+          max_length: 64
+          options: []
+          required: false
+          type: text-input
+          variable: plan_id
+        - label: 阶段号 stage_no
+          max_length: 32
+          options:
+          - '1'
+          - '2'
+          required: false
+          type: select
+          variable: stage_no
+        - label: 学习模块编码
+          max_length: 64
+          options: []
+          required: true
+          type: text-input
+          variable: module_code
+        - label: 学习模块名称
+          max_length: 100
+          options: []
+          required: true
+          type: text-input
+          variable: module_name
+        - label: 题目内容
+          max_length: 3000
+          options: []
+          required: true
+          type: paragraph
+          variable: question_text
+        - label: 员工作答内容
+          max_length: 5000
+          options: []
+          required: true
+          type: paragraph
+          variable: user_answer
+        - label: 标准答案 / 参考答案
+          max_length: 5000
+          options: []
+          required: true
+          type: paragraph
+          variable: standard_answer
+        - label: 知识标签 knowledge_tag
+          max_length: 200
+          options: []
+          required: true
+          type: text-input
+          variable: knowledge_tag
+        - label: 当前能力画像
+          max_length: 3000
+          options: []
+          required: false
+          type: paragraph
+          variable: current_profile
+        - label: 当前能力分
+          max_length: 1000
+          options: []
+          required: false
+          type: paragraph
+          variable: current_scores
+      height: 560
+      id: start_node
+      position:
+        x: 0
+        y: 0
+      positionAbsolute:
+        x: 0
+        y: 0
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "import json\nimport re\n\n\ndef _clean(v, default='未提供'):\n    if v is None:\n        return default\n    s = str(v).strip()\n    return s if s else default\n\n\ndef _safe_source(v: str) -> str:\n    s = str(v or '').strip()\n    return s if s else 'fastapi'\n\n\ndef _safe_trace(v: str) -> str:\n    s = str(v or '').strip()\n    return s if s else 'trace_growth_evaluate_auto'\n\n\ndef parse_scores(text: str):\n    defaults = {'产品知识': 70, '合规表达': 70, '销售沟通': 70, '客户应答': 70}\n    raw = str(text or '').strip()\n    if not raw:\n        return defaults.copy()\n    result = defaults.copy()\n    for k, v in re.findall(r'(产品知识|合规表达|销售沟通|客户应答)\\s*[:：]?\\s*(-?\\d{1,3})', raw):\n        try:\n            result[k] = max(0, min(100, int(v)))\n        except Exception:\n            pass\n    return result\n\n\ndef _tokenize(text: str):\n    words = re.split(r\"[\\s，,。；;、：:（）()【】\\[\\]“”/\\\\|]+\", str(text or ''))\n    return [w.strip().lower() for w in words if len(w.strip()) >= 2]\n\n\ndef base_score(user_answer: str, standard_answer: str):\n    ua = str(user_answer or '').strip()\n    sa = str(standard_answer or '').strip()\n    if not ua:\n        return 0\n    ua_tokens = _tokenize(ua)\n    sa_tokens = _tokenize(sa)\n    overlap = 0\n    for tk in sa_tokens[:20]:\n        if tk in ua_tokens or tk in ua.lower():\n            overlap += 1\n    length_bonus = 0\n    if len(ua) >= 20:\n        length_bonus += 10\n    if len(ua) >= 50:\n        length_bonus += 10\n    if len(ua) >= 100:\n        length_bonus += 5\n    score = 35 + min(40, overlap * 5) + length_bonus\n    return max(0, min(100, int(score)))\n\n\ndef mastery_from_score(score: int) -> str:\n    if score >= 85:\n        return '掌握较好'\n    if score >= 70:\n        return '基本掌握'\n    if score >= 50:\n        return '部分掌握'\n    return '未掌握'\n\n\ndef infer_weak_dimension(knowledge_tag: str, module_name: str, question_text: str) -> str:\n    text = ' '.join([str(knowledge_tag or ''), str(module_name or ''), str(question_text or '')]).lower()\n    if any(k in text for k in ['合规', '禁语', '红线', '承诺', '保值', '升值']):\n        return '合规表达'\n    if any(k in text for k in ['异议', '犹豫', '嫌贵', '成交', '接待', '沟通']):\n        return '销售沟通'\n    if any(k in text for k in ['应答', '真假', '证书', '材质', '售后']):\n        return '客户应答'\n    return '产品知识'\n\n\ndef main(\n    user_id: str = '',\n    source: str = '',\n    trace_id: str = '',\n    plan_id: str = '',\n    stage_no: str = '',\n    module_code: str = '',\n    module_name: str = '',\n    question_text: str = '',\n    user_answer: str = '',\n    standard_answer: str = '',\n    knowledge_tag: str = '',\n    current_profile: str = '',\n    current_scores: str = ''\n) -> dict:\n    user_id = _clean(user_id, 'UNKNOWN_USER')\n    source = _safe_source(source)\n    trace_id = _safe_trace(trace_id)\n    plan_id = _clean(plan_id)\n    stage_no = str(stage_no or '').strip() or '1'\n    if stage_no not in {'1', '2'}:\n        stage_no = '1'\n    module_code = _clean(module_code)\n    module_name = _clean(module_name)\n    question_text = _clean(question_text)\n    user_answer = str(user_answer or '').strip()\n    standard_answer = _clean(standard_answer)\n    knowledge_tag = _clean(knowledge_tag)\n    current_profile = _clean(current_profile)\n    current_scores = str(current_scores or '').strip()\n\n    parsed_scores = parse_scores(current_scores)\n    answer_score_init = base_score(user_answer, standard_answer)\n    mastery_level_init = mastery_from_score(answer_score_init)\n    weak_dimension_guess = infer_weak_dimension(knowledge_tag, module_name, question_text)\n\n    normalized_answer = {\n        'user_id': user_id,\n        'source': source,\n        'trace_id': trace_id,\n        'plan_id': plan_id,\n        'stage_no': stage_no,\n        'module_code': module_code,\n        'module_name': module_name,\n        'question_text': question_text,\n        'user_answer': user_answer,\n        'standard_answer': standard_answer,\n        'knowledge_tag': knowledge_tag,\n        'current_profile': current_profile,\n        'current_scores': parsed_scores,\n        'answer_score_init': answer_score_init,\n        'mastery_level_init': mastery_level_init,\n        'weak_dimension_guess': weak_dimension_guess,\n    }\n\n    profile_input = f\"\"\"【链路信息】\nuser_id：{user_id}\nsource：{source}\ntrace_id：{trace_id}\nplan_id：{plan_id}\nstage_no：{stage_no}\n\n【模块信息】\nmodule_code：{module_code}\nmodule_name：{module_name}\nknowledge_tag：{knowledge_tag}\n\n【题目信息】\n题目：{question_text}\n员工答案：{user_answer if user_answer else '未作答'}\n标准答案：{standard_answer}\n\n【当前画像】\n{current_profile}\n\n【当前能力分】\n- 产品知识：{parsed_scores['产品知识']}\n- 合规表达：{parsed_scores['合规表达']}\n- 销售沟通：{parsed_scores['销售沟通']}\n- 客户应答：{parsed_scores['客户应答']}\n\n【规则初评】\n基础分数预估：{answer_score_init}\n掌握等级预估：{mastery_level_init}\n薄弱维度猜测：{weak_dimension_guess}\n\"\"\"\n\n    retrieval_query = (\n        f\"珠宝培训 学习结果评估 模块 {module_name} 标签 {knowledge_tag} 阶段 {stage_no} \"\n        f\"题目 {question_text} 标准答案 {standard_answer}\"\n    )\n\n    fallback_knowledge = \"\"\"【学习评估兜底原则】\n1. 本流负责单个学习任务的结果评估，不做训练周期推进。\n2. 评估必须给出：答题结论、掌握程度、薄弱维度、补学建议、模块推荐。\n3. 补学建议要具体到“先补什么、再练什么、如何验证”，不能只写空泛鼓励。\n4. 能力调整建议必须保守，单次波动不宜过大。\n5. 输出要适合后端落库和前端直接展示。\"\"\"\n\n    return {\n        'normalized_answer': json.dumps(normalized_answer, ensure_ascii=False),\n        'profile_input': profile_input,\n        'retrieval_query': retrieval_query,\n        'fallback_knowledge': fallback_knowledge,\n        'answer_score_init': answer_score_init,\n        'mastery_level_init': mastery_level_init,\n        'weak_dimension_guess': weak_dimension_guess,\n        'current_scores_json': json.dumps(parsed_scores, ensure_ascii=False)\n    }\n"
+        code_language: python3
+        desc: 统一答题文本、做基础分数预估，并输出结构化学习结果输入。
+        outputs:
+          normalized_answer:
+            children: null
+            type: string
+          profile_input:
+            children: null
+            type: string
+          retrieval_query:
+            children: null
+            type: string
+          fallback_knowledge:
+            children: null
+            type: string
+          answer_score_init:
+            children: null
+            type: number
+          mastery_level_init:
+            children: null
+            type: string
+          weak_dimension_guess:
+            children: null
+            type: string
+          current_scores_json:
+            children: null
+            type: string
+        selected: false
+        title: 结果规范化与初评
+        type: code
+        variables:
+        - value_selector:
+          - start_node
+          - user_id
+          variable: user_id
+        - value_selector:
+          - start_node
+          - source
+          variable: source
+        - value_selector:
+          - start_node
+          - trace_id
+          variable: trace_id
+        - value_selector:
+          - start_node
+          - plan_id
+          variable: plan_id
+        - value_selector:
+          - start_node
+          - stage_no
+          variable: stage_no
+        - value_selector:
+          - start_node
+          - module_code
+          variable: module_code
+        - value_selector:
+          - start_node
+          - module_name
+          variable: module_name
+        - value_selector:
+          - start_node
+          - question_text
+          variable: question_text
+        - value_selector:
+          - start_node
+          - user_answer
+          variable: user_answer
+        - value_selector:
+          - start_node
+          - standard_answer
+          variable: standard_answer
+        - value_selector:
+          - start_node
+          - knowledge_tag
+          variable: knowledge_tag
+        - value_selector:
+          - start_node
+          - current_profile
+          variable: current_profile
+        - value_selector:
+          - start_node
+          - current_scores
+          variable: current_scores
+      height: 96
+      id: normalize_result
+      position:
+        x: 342
+        y: 125
+      positionAbsolute:
+        x: 342
+        y: 125
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        desc: 判断是否需要知识增强，并输出更稳的检索 query。
+        memory:
+          role_prefix:
+            assistant: ''
+            user: ''
+          window:
+            enabled: false
+            size: 10
+        model:
+          completion_params:
+            temperature: 0.1
+            max_tokens: 320
+          mode: chat
+          name: qwen-plus
+          provider: langgenius/tongyi/tongyi
+        prompt_template:
+        - id: precheck-system
+          role: system
+          text: "你是“成长学习评估工作流”的知识检索预判节点。\n\n任务：\n1. 判断本题是否需要调用知识库补充评分上下文。\n2. 生成更适合命中的检索 query。\n3. 给出最核心知识焦点和未命中兜底方向。\n\n只输出 JSON，不要解释，不要代码块。\n\nJSON Schema：\n{\n  \"retrieval_needed\": \"yes | no\",\n  \"optimized_query\": \"\",\n  \"knowledge_focus\": \"\",\n  \"precheck_reason\": \"\",\n  \"fallback_hint\": \"\"\n}"
+        - id: precheck-user
+          role: user
+          text: '请对以下学习结果输入做检索前预判：
+
+
+            【学习结果输入】
+
+            {{#normalize_result.profile_input#}}
+
+
+            【原始检索查询】
+
+            {{#normalize_result.retrieval_query#}}
+
+
+            【兜底原则】
+
+            {{#normalize_result.fallback_knowledge#}}'
+        selected: false
+        title: 知识检索预判
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 148
+      id: knowledge_precheck
+      position:
+        x: 684
+        y: 99
+      positionAbsolute:
+        x: 684
+        y: 99
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "import json\nimport re\n\n\ndef _extract_json(text: str) -> dict:\n    raw = str(text or '').strip()\n    raw = re.sub(r'^```json\\s*', '', raw, flags=re.I)\n    raw = re.sub(r'^```\\s*', '', raw)\n    raw = re.sub(r'\\s*```$', '', raw)\n    if not raw:\n        return {}\n    try:\n        data = json.loads(raw)\n        return data if isinstance(data, dict) else {}\n    except Exception:\n        pass\n    m = re.search(r'\\{[\\s\\S]*\\}', raw)\n    if m:\n        try:\n            data = json.loads(m.group(0))\n            return data if isinstance(data, dict) else {}\n        except Exception:\n            pass\n    return {}\n\n\ndef _safe_text(v, default=''):\n    if v is None:\n        return default\n    s = str(v).strip()\n    return s if s else default\n\n\ndef main(llm_text: str = '', retrieval_query: str = '', weak_dimension_guess: str = '', module_name: str = '', knowledge_tag: str = '', question_text: str = '', standard_answer: str = '') -> dict:\n    data = _extract_json(llm_text)\n    retrieval_needed = _safe_text(data.get('retrieval_needed'), 'yes').lower()\n    if retrieval_needed not in {'yes', 'no'}:\n        retrieval_needed = 'yes'\n    default_query = f\"珠宝培训 学习评估 模块 {module_name} 标签 {knowledge_tag} 维度 {weak_dimension_guess} 题目 {question_text} 标准答案 {standard_answer}\"\n    optimized_query = _safe_text(data.get('optimized_query'), '') or _safe_text(retrieval_query, default_query)\n    knowledge_focus = _safe_text(data.get('knowledge_focus'), weak_dimension_guess or knowledge_tag or module_name)\n    precheck_reason = _safe_text(data.get('precheck_reason'), '已采用默认检索预判。')\n    fallback_hint = _safe_text(data.get('fallback_hint'), '若未命中，则基于标准答案、知识标签和通用培训原则做保守评估。')\n    return {\n        'retrieval_needed': retrieval_needed,\n        'optimized_query': optimized_query,\n        'knowledge_focus': knowledge_focus,\n        'precheck_reason': precheck_reason,\n        'fallback_hint': fallback_hint\n    }\n"
+        code_language: python3
+        desc: 将检索前预判结果解析成可执行检索关键词和兜底提示。
+        outputs:
+          retrieval_needed:
+            children: null
+            type: string
+          optimized_query:
+            children: null
+            type: string
+          knowledge_focus:
+            children: null
+            type: string
+          precheck_reason:
+            children: null
+            type: string
+          fallback_hint:
+            children: null
+            type: string
+        selected: false
+        title: 预判结果解析
+        type: code
+        variables:
+        - value_selector:
+          - knowledge_precheck
+          - text
+          variable: llm_text
+        - value_selector:
+          - normalize_result
+          - retrieval_query
+          variable: retrieval_query
+        - value_selector:
+          - normalize_result
+          - weak_dimension_guess
+          variable: weak_dimension_guess
+        - value_selector:
+          - start_node
+          - module_name
+          variable: module_name
+        - value_selector:
+          - start_node
+          - knowledge_tag
+          variable: knowledge_tag
+        - value_selector:
+          - start_node
+          - question_text
+          variable: question_text
+        - value_selector:
+          - start_node
+          - standard_answer
+          variable: standard_answer
+      height: 96
+      id: knowledge_precheck_parse
+      position:
+        x: 1026
+        y: 125
+      positionAbsolute:
+        x: 1026
+        y: 125
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        dataset_ids:
+        - PdG1jr0RIaTHSDyvv4WMGGPcvZCFpMVcUkZTKmqgN/wASy0mtND7kzWk8GwBgYzN
+        desc: 先经过LLM预判后，再使用优化查询检索成长计划专用知识库
+        multiple_retrieval_config:
+          reranking_enable: true
+          reranking_mode: reranking_model
+          reranking_model:
+            model: gte-rerank
+            provider: langgenius/tongyi/tongyi
+          top_k: 5
+        query_attachment_selector: []
+        query_variable_selector:
+        - knowledge_precheck_parse
+        - optimized_query
+        retrieval_mode: multiple
+        selected: false
+        title: 知识检索
+        type: knowledge-retrieval
+      height: 134
+      id: knowledge_retrieval
+      position:
+        x: 1368
+        y: 106
+      positionAbsolute:
+        x: 1368
+        y: 106
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "import json\n\n\ndef _safe_text(v, default=''):\n    if v is None:\n        return default\n    s = str(v).strip()\n    return s if s else default\n\n\ndef main(normalized_answer: str = '', profile_input: str = '', answer_score_init = 0, mastery_level_init: str = '', weak_dimension_guess: str = '', knowledge_focus: str = '', precheck_reason: str = '', knowledge_blocks_text: str = '', knowledge_hit_count = 0, hit_reason: str = '') -> dict:\n    context_pack = f\"\"\"【标准化学习结果】\n{normalized_answer}\n\n【展示卡片】\n{profile_input}\n\n【规则初评】\n- 基础分数预估：{answer_score_init}\n- 初始掌握等级：{mastery_level_init}\n- 初始薄弱维度：{weak_dimension_guess}\n\n【知识检索预判】\n- 核心知识焦点：{knowledge_focus}\n- 预判原因：{precheck_reason}\n\n【知识检索结果】\n- 命中数量：{knowledge_hit_count}\n- 命中判断：{hit_reason}\n\n【知识片段】\n{knowledge_blocks_text}\n\"\"\"\n    return {\n        'context_pack': context_pack,\n        'retrieved_count': int(knowledge_hit_count or 0)\n    }\n"
+        code_language: python3
+        desc: 把知识片段整理成评分上下文，供评估节点使用。
+        outputs:
+          context_pack:
+            children: null
+            type: string
+          retrieved_count:
+            children: null
+            type: number
+        selected: false
+        title: 检索结果整合
+        type: code
+        variables:
+        - value_selector:
+          - normalize_result
+          - normalized_answer
+          variable: normalized_answer
+        - value_selector:
+          - normalize_result
+          - profile_input
+          variable: profile_input
+        - value_selector:
+          - normalize_result
+          - answer_score_init
+          variable: answer_score_init
+        - value_selector:
+          - normalize_result
+          - mastery_level_init
+          variable: mastery_level_init
+        - value_selector:
+          - normalize_result
+          - weak_dimension_guess
+          variable: weak_dimension_guess
+        - value_selector:
+          - knowledge_precheck_parse
+          - knowledge_focus
+          variable: knowledge_focus
+        - value_selector:
+          - knowledge_precheck_parse
+          - precheck_reason
+          variable: precheck_reason
+        - value_selector:
+          - knowledge_hit_check
+          - knowledge_blocks_text
+          variable: knowledge_blocks_text
+        - value_selector:
+          - knowledge_hit_check
+          - knowledge_hit_count
+          variable: knowledge_hit_count
+        - value_selector:
+          - knowledge_hit_check
+          - hit_reason
+          variable: hit_reason
+      height: 112
+      id: build_context
+      position:
+        x: 2414
+        y: 134
+      positionAbsolute:
+        x: 2414
+        y: 134
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        desc: 对学习回答进行评分、评语和弱项分析。
+        memory:
+          role_prefix:
+            assistant: ''
+            user: ''
+          window:
+            enabled: false
+            size: 10
+        model:
+          completion_params:
+            temperature: 0.1
+            max_tokens: 1000
+          mode: chat
+          name: qwen-plus
+          provider: langgenius/tongyi/tongyi
+        prompt_template:
+        - id: eval-system
+          role: system
+          text: "你是“珠宝门店培训评估师”。\n当前为【知识增强评分分支】。\n\n任务：对单个学习任务结果进行评分、评语、弱项分析和补学建议，并输出严格 JSON。\n\n只输出 JSON，不要解释，不要 Markdown，不要代码块。\n\nJSON Schema：\n{\n  \"answer_score\": 0,\n  \"mastery_level\": \"未掌握 | 部分掌握 | 基本掌握 | 掌握较好\",\n  \"weak_dimension\": \"\",\n  \"evaluation_text\": \"\",\n  \"followup_suggestion\": \"\",\n  \"module_recommendation\": \"\",\n  \"is_effective_completion\": false,\n  \"ability_delta\": {\n    \"产品知识\": 0,\n    \"合规表达\": 0,\n    \"销售沟通\": 0,\n    \"客户应答\": 0\n  }\n}\n\n要求：\n1. 分数 0~100。\n2. weak_dimension 只能输出 1 个主要薄弱维度。\n3. followup_suggestion 需体现“先补什么、再练什么、如何验证”。\n4. module_recommendation 应该能直接给成长计划模块使用。\n5. ability_delta 单次调整范围控制在 -5 到 +5。"
+        - id: eval-user
+          role: user
+          text: '请根据以下上下文输出学习评估 JSON：
+
+
+            {{#build_context.context_pack#}}'
+        selected: false
+        title: 学习结果评估
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 132
+      id: evaluate_result
+      position:
+        x: 2754.756356338148
+        y: 125
+      positionAbsolute:
+        x: 2754.756356338148
+        y: 125
+      selected: true
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "import json\n\n\ndef _safe_text(v, default=''):\n    if v is None:\n        return default\n    s = str(v).strip()\n    return s if s else default\n\n\ndef main(final_result_json: str = '', normalized_answer: str = '', knowledge_hit: str = 'no', knowledge_source: str = 'llm_fallback') -> dict:\n    try:\n        result = json.loads(str(final_result_json or '{}'))\n        if not isinstance(result, dict):\n            result = {}\n    except Exception:\n        result = {}\n\n    try:\n        normalized_answer = json.loads(str(normalized_answer or '{}'))\n        if not isinstance(normalized_answer, dict):\n            normalized_answer = {}\n    except Exception:\n        normalized_answer = {}\n\n    answer_score = int(result.get('answer_score', 60))\n    mastery_level = _safe_text(result.get('mastery_level'), '部分掌握')\n    weak_dimension = _safe_text(result.get('weak_dimension'), '产品知识')\n    evaluation_text = _safe_text(result.get('evaluation_text'), '本题存在关键点遗漏，需要继续补学。')\n    followup_suggestion = _safe_text(result.get('followup_suggestion'), '先补相关知识点，再做同类题验证。')\n    module_recommendation = _safe_text(result.get('module_recommendation'), f'优先补学【{weak_dimension}】相关模块。')\n    is_effective_completion = bool(result.get('is_effective_completion', answer_score >= 60))\n\n    evaluation_markdown = f\"\"\"# 学习结果评估\n- 答题得分：{answer_score}\n- 掌握程度：{mastery_level}\n- 主要薄弱维度：{weak_dimension}\n- 评估结论：{evaluation_text}\n\n# 补学建议\n- {followup_suggestion}\n\n# 模块推荐\n- {module_recommendation}\n\n# 有效完成判断\n- {'是' if is_effective_completion else '否'}\n\"\"\"\n\n    workflow_result = {\n        'user_id': normalized_answer.get('user_id', ''),\n        'source': normalized_answer.get('source', ''),\n        'trace_id': normalized_answer.get('trace_id', ''),\n        'plan_id': normalized_answer.get('plan_id', ''),\n        'stage_no': normalized_answer.get('stage_no', ''),\n        'module_code': normalized_answer.get('module_code', ''),\n        'module_name': normalized_answer.get('module_name', ''),\n        'knowledge_tag': normalized_answer.get('knowledge_tag', ''),\n        'answer_score': answer_score,\n        'mastery_level': mastery_level,\n        'weak_dimension': weak_dimension,\n        'evaluation_text': evaluation_text,\n        'followup_suggestion': followup_suggestion,\n        'module_recommendation': module_recommendation,\n        'is_effective_completion': is_effective_completion,\n        'knowledge_hit': str(knowledge_hit or 'no'),\n        'knowledge_source': str(knowledge_source or 'llm_fallback'),\n        'ability_delta': result.get('ability_delta', {}),\n    }\n\n    return {\n        'final_markdown': evaluation_markdown,\n        'answer_score': answer_score,\n        'mastery_level': mastery_level,\n        'weak_dimension': weak_dimension,\n        'evaluation_text': evaluation_text,\n        'followup_suggestion': followup_suggestion,\n        'module_recommendation': module_recommendation,\n        'workflow_result': json.dumps(workflow_result, ensure_ascii=False)\n    }\n"
+        code_language: python3
+        desc: 构造后端落库可用 JSON，并输出前端展示字段。
+        outputs:
+          final_markdown:
+            children: null
+            type: string
+          answer_score:
+            children: null
+            type: number
+          mastery_level:
+            children: null
+            type: string
+          weak_dimension:
+            children: null
+            type: string
+          evaluation_text:
+            children: null
+            type: string
+          followup_suggestion:
+            children: null
+            type: string
+          module_recommendation:
+            children: null
+            type: string
+          workflow_result:
+            children: null
+            type: string
+        selected: false
+        title: 结果后处理
+        type: code
+        variables:
+        - value_selector:
+          - merge_eval_result
+          - final_result_json
+          variable: final_result_json
+        - value_selector:
+          - normalize_result
+          - normalized_answer
+          variable: normalized_answer
+        - value_selector:
+          - knowledge_hit_check
+          - knowledge_hit_text
+          variable: knowledge_hit
+        - value_selector:
+          - merge_eval_result
+          - knowledge_source
+          variable: knowledge_source
+      height: 96
+      id: format_output
+      position:
+        x: 3460
+        y: 158
+      positionAbsolute:
+        x: 3460
+        y: 158
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        desc: 返回学习评估和结构化结果
+        outputs:
+        - value_selector:
+          - format_output
+          - final_markdown
+          variable: evaluation_markdown
+        - value_selector:
+          - format_output
+          - answer_score
+          variable: answer_score
+        - value_selector:
+          - format_output
+          - mastery_level
+          variable: mastery_level
+        - value_selector:
+          - format_output
+          - weak_dimension
+          variable: weak_dimension
+        - value_selector:
+          - format_output
+          - evaluation_text
+          variable: evaluation_text
+        - value_selector:
+          - format_output
+          - followup_suggestion
+          variable: followup_suggestion
+        - value_selector:
+          - format_output
+          - module_recommendation
+          variable: module_recommendation
+        - value_selector:
+          - format_output
+          - workflow_result
+          variable: workflow_result
+        - value_selector:
+          - format_output
+          - workflow_result
+          variable: output_meta
+        selected: false
+        title: 结束
+        type: end
+      height: 116
+      id: end_node
+      position:
+        x: 3802
+        y: 148
+      positionAbsolute:
+        x: 3802
+        y: 148
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "import json\nimport re\n\n\ndef _safe_text(v, default=''):\n    if v is None:\n        return default\n    s = str(v).strip()\n    return s if s else default\n\n\ndef _extract_keywords(text: str):\n    raw = re.split(r\"[\\s，,。；;、：:（）()【】\\[\\]“”/\\\\|]+\", str(text or '').lower())\n    stop = {'珠宝', '培训', '学习', '评估', '模块', '标准', '答案', '题目', '员工', '阶段'}\n    return [w for w in raw if len(w) >= 2 and w not in stop]\n\n\ndef main(retrieval_needed: str = 'yes', fallback_hint: str = '', retrieved_docs=None, question_text: str = '', knowledge_tag: str = '', standard_answer: str = '') -> dict:\n    docs = retrieved_docs or []\n    blocks = []\n    effective_count = 0\n    total_len = 0\n    merged_text = ''\n    for idx, doc in enumerate(docs[:4], 1):\n        title = ''\n        content = ''\n        if isinstance(doc, dict):\n            title = str(doc.get('title') or doc.get('name') or '')\n            content = str(doc.get('content') or doc.get('segment') or doc.get('text') or '')\n            if not content:\n                metadata = doc.get('metadata') or {}\n                doc_meta = metadata.get('doc_metadata') or {}\n                content = str(doc_meta.get('content') or '')\n        else:\n            content = str(doc or '')\n        title = title.strip()\n        content = content.strip()\n        if content:\n            effective_count += 1\n            total_len += len(content)\n            merged_text += ' ' + content.lower()\n        block = f\"[知识片段{idx}]\"\n        if title:\n            block += f\"\\n标题：{title}\"\n        if content:\n            block += f\"\\n内容：{content}\"\n        blocks.append(block)\n\n    if str(retrieval_needed or 'yes').lower() == 'no':\n        knowledge_hit = 0\n        hit_reason = '预判为无需检索，直接走通用评估兜底。'\n    else:\n        kws = _extract_keywords(question_text) + _extract_keywords(knowledge_tag) + _extract_keywords(standard_answer)\n        overlap = sum(1 for kw in kws[:15] if kw in merged_text)\n        if effective_count >= 2 and total_len >= 180 and overlap >= 1:\n            knowledge_hit = 1\n            hit_reason = f'命中 {effective_count} 条有效知识片段，且与题目存在关键词交集。'\n        elif effective_count >= 1 and total_len >= 90:\n            knowledge_hit = 0\n            hit_reason = '命中片段较弱，未达到知识增强阈值，转入兜底建议。'\n        else:\n            knowledge_hit = 0\n            hit_reason = '知识片段不足，转入兜底建议。'\n\n    return {\n        'knowledge_hit': knowledge_hit,\n        'knowledge_hit_text': 'yes' if knowledge_hit == 1 else 'no',\n        'knowledge_hit_count': effective_count,\n        'knowledge_blocks_text': '\\n\\n'.join(blocks) if blocks else '未命中有效知识片段。',\n        'hit_reason': hit_reason,\n        'fallback_hint_out': _safe_text(fallback_hint, '若未命中，则按标准答案和通用培训原则保守评估。')\n    }\n"
+        code_language: python3
+        desc: 判断知识检索质量，命中才进入知识增强评分。
+        outputs:
+          knowledge_hit:
+            children: null
+            type: number
+          knowledge_hit_text:
+            children: null
+            type: string
+          knowledge_hit_count:
+            children: null
+            type: number
+          knowledge_blocks_text:
+            children: null
+            type: string
+          hit_reason:
+            children: null
+            type: string
+          fallback_hint_out:
+            children: null
+            type: string
+        selected: false
+        title: 知识命中判断
+        type: code
+        variables:
+        - value_selector:
+          - knowledge_precheck_parse
+          - retrieval_needed
+          variable: retrieval_needed
+        - value_selector:
+          - knowledge_precheck_parse
+          - fallback_hint
+          variable: fallback_hint
+        - value_selector:
+          - knowledge_retrieval
+          - result
+          variable: retrieved_docs
+        - value_selector:
+          - start_node
+          - question_text
+          variable: question_text
+        - value_selector:
+          - start_node
+          - knowledge_tag
+          variable: knowledge_tag
+        - value_selector:
+          - start_node
+          - standard_answer
+          variable: standard_answer
+      height: 96
+      id: knowledge_hit_check
+      position:
+        x: 1710
+        y: 125
+      positionAbsolute:
+        x: 1710
+        y: 125
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        cases:
+        - case_id: 'true'
+          conditions:
+          - comparison_operator: '='
+            id: khit-cond-1
+            value: '1'
+            varType: number
+            variable_selector:
+            - knowledge_hit_check
+            - knowledge_hit
+          id: 'true'
+          logical_operator: and
+        desc: 命中知识库走评估主分支，未命中走LLM兜底分支
+        selected: false
+        title: 是否命中知识库
+        type: if-else
+      height: 168
+      id: knowledge_hit_if
+      position:
+        x: 2052
+        y: 89
+      positionAbsolute:
+        x: 2052
+        y: 89
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        desc: 知识未命中时按通用原则给出保守评估。
+        memory:
+          role_prefix:
+            assistant: ''
+            user: ''
+          window:
+            enabled: false
+            size: 10
+        model:
+          completion_params:
+            temperature: 0.1
+            max_tokens: 1000
+          mode: chat
+          name: qwen-plus
+          provider: langgenius/tongyi/tongyi
+        prompt_template:
+        - id: fallback-system
+          role: system
+          text: '你是“珠宝门店培训评估师”。
+
+            当前为【知识库未命中兜底分支】。
+
+
+            任务：在不伪造知识库来源的前提下，基于题目、用户答案、标准答案、知识标签与通用培训原则做保守评估，并输出严格 JSON。
+
+
+            只输出 JSON，不要解释，不要 Markdown，不要代码块。
+
+
+            JSON Schema 与知识增强分支完全一致。
+
+
+            要求：
+
+            1. 不得写成“根据知识库”。
+
+            2. 补学建议要保守但可执行。
+
+            3. ability_delta 单次调整范围控制在 -5 到 +5。'
+        - id: fallback-user
+          role: user
+          text: '请基于以下输入输出学习评估 JSON：
+
+
+            {{#normalize_result.profile_input#}}
+
+
+            【检索前预判】
+
+            - 是否建议检索：{{#knowledge_precheck_parse.retrieval_needed#}}
+
+            - 核心知识焦点：{{#knowledge_precheck_parse.knowledge_focus#}}
+
+            - 预判理由：{{#knowledge_precheck_parse.precheck_reason#}}
+
+
+            【未命中原因】
+
+            {{#knowledge_hit_check.hit_reason#}}
+
+
+            【兜底提示】
+
+            {{#knowledge_hit_check.fallback_hint_out#}}'
+        selected: false
+        title: LLM兜底建议
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 132
+      id: fallback_evaluate
+      position:
+        x: 2524
+        y: 336
+      positionAbsolute:
+        x: 2524
+        y: 336
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "import json\nimport re\n\n\ndef _extract_json(text: str) -> dict:\n    raw = str(text or '').strip()\n    raw = re.sub(r'^```json\\s*', '', raw, flags=re.I)\n    raw = re.sub(r'^```\\s*', '', raw)\n    raw = re.sub(r'\\s*```$', '', raw)\n    raw = re.sub(r'<think>[\\s\\S]*?</think>', '', raw, flags=re.I)\n    if not raw:\n        return {}\n    try:\n        data = json.loads(raw)\n        return data if isinstance(data, dict) else {}\n    except Exception:\n        pass\n    m = re.search(r'\\{[\\s\\S]*\\}', raw)\n    if m:\n        try:\n            data = json.loads(m.group(0))\n            return data if isinstance(data, dict) else {}\n        except Exception:\n            pass\n    return {}\n\n\ndef _clamp(n, low=-5, high=5):\n    try:\n        val = int(round(float(n)))\n    except Exception:\n        return 0\n    return max(low, min(high, val))\n\n\ndef _safe_text(v, default=''):\n    if v is None:\n        return default\n    s = str(v).strip()\n    return s if s else default\n\n\ndef _safe_score(v, default=60):\n    try:\n        return max(0, min(100, int(round(float(v)))))\n    except Exception:\n        return default\n\n\ndef main(eval_text_hit: str = '', eval_text_fallback: str = '', knowledge_hit: str = 'no', hit_retrieved_count = 0, fallback_hit_reason: str = '', answer_score_init = 60, mastery_level_init: str = '部分掌握', weak_dimension_guess: str = '产品知识') -> dict:\n    chosen_text = eval_text_hit if str(knowledge_hit or 'no').strip().lower() == 'yes' else eval_text_fallback\n    data = _extract_json(chosen_text)\n\n    answer_score = _safe_score(data.get('answer_score'), int(answer_score_init or 60)) if data else _safe_score(answer_score_init, 60)\n    if answer_score >= 85:\n        mastery_level = '掌握较好'\n    elif answer_score >= 70:\n        mastery_level = '基本掌握'\n    elif answer_score >= 50:\n        mastery_level = '部分掌握'\n    else:\n        mastery_level = '未掌握'\n    mastery_level = _safe_text(data.get('mastery_level') if data else '', mastery_level)\n    weak_dimension = _safe_text(data.get('weak_dimension') if data else '', weak_dimension_guess or '产品知识')\n    evaluation_text = _safe_text(data.get('evaluation_text') if data else '', '本题存在关键点遗漏，需要继续补学。')\n    followup_suggestion = _safe_text(data.get('followup_suggestion') if data else '', '先补相关知识点，再做1道同类题，最后复述标准表达。')\n    module_recommendation = _safe_text(data.get('module_recommendation') if data else '', f'优先补学【{weak_dimension}】相关模块。')\n    is_effective_completion = bool(data.get('is_effective_completion')) if data else (answer_score >= 60)\n    ability_delta = data.get('ability_delta') if data else {}\n    if not isinstance(ability_delta, dict):\n        ability_delta = {}\n    ability_delta_norm = {\n        '产品知识': _clamp(ability_delta.get('产品知识', 0)),\n        '合规表达': _clamp(ability_delta.get('合规表达', 0)),\n        '销售沟通': _clamp(ability_delta.get('销售沟通', 0)),\n        '客户应答': _clamp(ability_delta.get('客户应答', 0)),\n    }\n\n    final = {\n        'answer_score': answer_score,\n        'mastery_level': mastery_level,\n        'weak_dimension': weak_dimension,\n        'evaluation_text': evaluation_text,\n        'followup_suggestion': followup_suggestion,\n        'module_recommendation': module_recommendation,\n        'is_effective_completion': is_effective_completion,\n        'ability_delta': ability_delta_norm,\n        'knowledge_source': 'knowledge_base' if str(knowledge_hit or 'no').strip().lower() == 'yes' else 'llm_fallback',\n        'retrieved_count': int(hit_retrieved_count or 0) if str(knowledge_hit or 'no').strip().lower() == 'yes' else 0,\n        'fallback_hit_reason': _safe_text(fallback_hit_reason)\n    }\n    return {\n        'final_result_json': json.dumps(final, ensure_ascii=False),\n        'answer_score': answer_score,\n        'weak_dimension': weak_dimension,\n        'knowledge_source': final['knowledge_source'],\n        'retrieved_count': final['retrieved_count']\n    }\n"
+        code_language: python3
+        desc: 汇总主输出字段，统一评分格式和能力变化建议。
+        outputs:
+          final_result_json:
+            children: null
+            type: string
+          answer_score:
+            children: null
+            type: number
+          weak_dimension:
+            children: null
+            type: string
+          knowledge_source:
+            children: null
+            type: string
+          retrieved_count:
+            children: null
+            type: number
+        selected: false
+        title: 评估结果汇总
+        type: code
+        variables:
+        - value_selector:
+          - evaluate_result
+          - text
+          variable: eval_text_hit
+        - value_selector:
+          - fallback_evaluate
+          - text
+          variable: eval_text_fallback
+        - value_selector:
+          - knowledge_hit_check
+          - knowledge_hit_text
+          variable: knowledge_hit
+        - value_selector:
+          - build_context
+          - retrieved_count
+          variable: hit_retrieved_count
+        - value_selector:
+          - knowledge_hit_check
+          - hit_reason
+          variable: fallback_hit_reason
+        - value_selector:
+          - normalize_result
+          - answer_score_init
+          variable: answer_score_init
+        - value_selector:
+          - normalize_result
+          - mastery_level_init
+          variable: mastery_level_init
+        - value_selector:
+          - normalize_result
+          - weak_dimension_guess
+          variable: weak_dimension_guess
+      height: 96
+      id: merge_eval_result
+      position:
+        x: 3118
+        y: 158
+      positionAbsolute:
+        x: 3118
+        y: 158
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    viewport:
+      x: -2723.940552657358
+      y: 332.85769720942756
+      zoom: 0.8040888484979245
+  rag_pipeline_variables: []

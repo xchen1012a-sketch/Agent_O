@@ -1,0 +1,1558 @@
+app:
+  description: 实战陪练模块 - 工作流B：陪练结果评估工作流（模块归属/周期阶段对齐版）
+  icon: 🤖
+  icon_background: '#FFEAD5'
+  icon_type: emoji
+  mode: workflow
+  name: 实战结果评估工作流
+  use_icon_as_answer_icon: false
+dependencies:
+- current_identifier: null
+  type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: langgenius/tongyi:0.1.32@20a5454088fa017b72490e1cbaeebff21094d11b13e41197591734d1c08cdbb5
+    version: null
+kind: app
+version: 0.6.0
+workflow:
+  conversation_variables: []
+  environment_variables: []
+  features:
+    file_upload:
+      allowed_file_extensions:
+      - .JPG
+      - .JPEG
+      - .PNG
+      - .GIF
+      - .WEBP
+      - .SVG
+      allowed_file_types:
+      - image
+      allowed_file_upload_methods:
+      - local_file
+      - remote_url
+      enabled: false
+      fileUploadConfig:
+        attachment_image_file_size_limit: 2
+        audio_file_size_limit: 50
+        batch_count_limit: 5
+        file_size_limit: 15
+        file_upload_limit: 50
+        image_file_batch_limit: 10
+        image_file_size_limit: 10
+        single_chunk_attachment_limit: 10
+        video_file_size_limit: 100
+        workflow_file_upload_limit: 10
+      image:
+        enabled: false
+        number_limits: 3
+        transfer_methods:
+        - local_file
+        - remote_url
+      number_limits: 3
+    opening_statement: ''
+    retriever_resource:
+      enabled: false
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions: []
+    suggested_questions_after_answer:
+      enabled: false
+    text_to_speech:
+      enabled: false
+      language: ''
+      voice: ''
+  graph:
+    edges:
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: start
+        targetType: code
+      id: practice_eval_start-source-practice_eval_precheck-target
+      source: practice_eval_start
+      sourceHandle: source
+      target: practice_eval_precheck
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: if-else
+      id: practice_eval_precheck-source-practice_eval_if_valid-target
+      source: practice_eval_precheck
+      sourceHandle: source
+      target: practice_eval_if_valid
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: if-else
+        targetType: llm
+      id: practice_eval_if_valid-true-practice_eval_llm-target
+      source: practice_eval_if_valid
+      sourceHandle: 'true'
+      target: practice_eval_llm
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: if-else
+        targetType: code
+      id: practice_eval_if_valid-false-practice_eval_invalid_builder-target
+      source: practice_eval_if_valid
+      sourceHandle: 'false'
+      target: practice_eval_invalid_builder
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: llm
+        targetType: code
+      id: practice_eval_llm-source-practice_eval_normalize-target
+      source: practice_eval_llm
+      sourceHandle: source
+      target: practice_eval_normalize
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: end
+      id: practice_eval_normalize-source-practice_eval_end_success-target
+      source: practice_eval_normalize
+      sourceHandle: source
+      target: practice_eval_end_success
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: end
+      id: practice_eval_invalid_builder-source-practice_eval_end_invalid-target
+      source: practice_eval_invalid_builder
+      sourceHandle: source
+      target: practice_eval_end_invalid
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    nodes:
+    - data:
+        desc: 输入完整陪练对话、模块归属、周期阶段信息与训练标识
+        selected: false
+        title: 开始
+        type: start
+        variables:
+        - label: 练习记录ID
+          max_length: 64
+          options: []
+          required: false
+          type: text-input
+          variable: practice_id
+        - label: 用户ID
+          max_length: 64
+          options: []
+          required: true
+          type: text-input
+          variable: user_id
+        - label: 训练模块编码（必填，传 training_constants 中的模块 code）
+          max_length: 64
+          options:
+          - product_basics
+          - compliance_expression
+          - customer_opening
+          - needs_discovery
+          - objection_handling
+          - combo_recommendation
+          - closing_conversion
+          - independent_service
+          - final_review
+          required: false
+          type: text-input
+          variable: module_code
+        - label: 训练模块名称（可选，不传时自动回填）
+          max_length: 64
+          options: []
+          required: false
+          type: text-input
+          variable: module_name
+        - label: 训练周期ID（可选）
+          max_length: 64
+          options: []
+          required: false
+          type: text-input
+          variable: cycle_id
+        - label: 阶段号（可选）
+          max_length: 32
+          options: []
+          required: false
+          type: number
+          variable: stage_no
+        - label: 学员姓名
+          max_length: 64
+          options: []
+          required: false
+          type: text-input
+          variable: trainee_name
+        - label: 场景类型（支持固定场景或自定义场景文本）
+          max_length: 128
+          options: []
+          required: true
+          type: text-input
+          variable: scenario_type
+        - label: 本次训练重点
+          max_length: 128
+          options: []
+          required: false
+          type: text-input
+          variable: target_focus
+        - label: 琛ㄧ幇宸窛鎽樿
+          max_length: 1000
+          options: []
+          required: false
+          type: paragraph
+          variable: performance_gap_summary
+        - label: 鐩爣鎸囨爣
+          max_length: 256
+          options: []
+          required: false
+          type: text-input
+          variable: target_metric
+        - label: 寤鸿鍔ㄤ綔
+          max_length: 512
+          options: []
+          required: false
+          type: paragraph
+          variable: recommended_action
+        - label: 完整陪练对话
+          max_length: 20000
+          options: []
+          required: true
+          type: paragraph
+          variable: dialogue_text
+        height: 409
+      height: 283
+      id: practice_eval_start
+      position:
+        x: 80
+        y: 250
+      positionAbsolute:
+        x: 80
+        y: 250
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: |-
+          def main(
+              practice_id: str = "",
+              user_id: str = "",
+              module_code: str = "",
+              module_name: str = "",
+              cycle_id: str = "",
+              stage_no = 0,
+              trainee_name: str = "",
+              scenario_type: str = "",
+              target_focus: str = "",
+              performance_gap_summary: str = "",
+              target_metric: str = "",
+              recommended_action: str = "",
+              dialogue_text: str = ""
+          ) -> dict:
+              import re
+
+              module_name_map = {
+                  "product_basics": "产品基础",
+                  "compliance_expression": "合规表达",
+                  "customer_opening": "接待开场",
+                  "needs_discovery": "需求挖掘",
+                  "objection_handling": "异议处理",
+                  "combo_recommendation": "搭配推荐",
+                  "closing_conversion": "成交推进",
+                  "independent_service": "独立上岗",
+                  "final_review": "综合复盘"
+              }
+
+              module_focus_map = {
+                  "product_basics": "重点检查产品知识是否准确、材质证书是否说得清楚。",
+                  "compliance_expression": "重点检查表达是否稳妥合规，是否出现绝对化或无法核实承诺。",
+                  "customer_opening": "重点检查开场是否自然、是否快速建立信任并接住顾客。",
+                  "needs_discovery": "重点检查是否主动追问预算、用途、偏好、送礼对象等关键需求。",
+                  "objection_handling": "重点检查是否正面回应嫌贵、真假、犹豫等异议并保持自然。",
+                  "combo_recommendation": "重点检查是否能做基于场景的搭配推荐，而不是生硬加购。",
+                  "closing_conversion": "重点检查是否识别成交信号、能否自然推进试戴/下单/留资。",
+                  "independent_service": "重点检查是否完成完整接待闭环，能否独立接待真实顾客。",
+                  "final_review": "重点检查综合能力是否平衡，包括专业、合规、沟通和推进。"
+              }
+
+              def clean(v):
+                  return str(v or "").strip()
+
+              def to_int(v, default=0):
+                  try:
+                      if v is None or str(v).strip() == "":
+                          return default
+                      return int(round(float(v)))
+                  except Exception:
+                      return default
+
+              def infer_module_code(raw_code, raw_name, raw_scenario, raw_focus, raw_gap, raw_action):
+                  code = clean(raw_code)
+                  name = clean(raw_name)
+                  if code in module_name_map:
+                      return code
+                  reverse_map = {v: k for k, v in module_name_map.items()}
+                  if name in reverse_map:
+                      return reverse_map[name]
+                  text = " ".join(
+                      [
+                          clean(raw_scenario),
+                          clean(raw_focus),
+                          clean(raw_gap),
+                          clean(raw_action),
+                      ]
+                  )
+                  rules = [
+                      ("product_basics", ["产品", "材质", "工艺", "证书", "真假", "参数"]),
+                      ("compliance_expression", ["合规", "禁语", "承诺", "保值", "升值", "绝对"]),
+                      ("customer_opening", ["开场", "接待", "迎宾", "破冰"]),
+                      ("needs_discovery", ["需求", "预算", "用途", "送礼", "偏好"]),
+                      ("objection_handling", ["异议", "嫌贵", "犹豫", "反对", "质疑"]),
+                      ("combo_recommendation", ["连带", "搭配", "客单", "组合"]),
+                      ("closing_conversion", ["成交", "下单", "推进", "转化", "留资"]),
+                      ("independent_service", ["独立接待", "独立服务", "完整闭环"]),
+                  ]
+                  for inferred_code, keywords in rules:
+                      if any(keyword in text for keyword in keywords):
+                          return inferred_code
+                  return "final_review"
+
+              text = str(dialogue_text or "").replace("\r\n", "\n").replace("\r", "\n").strip()
+              lines = [line.strip() for line in text.split("\n") if line.strip()]
+              char_count = len(text)
+              round_count = len(lines) if lines else (1 if text else 0)
+
+              module_code = infer_module_code(
+                  module_code,
+                  module_name,
+                  scenario_type,
+                  target_focus,
+                  performance_gap_summary,
+                  recommended_action,
+              )
+              module_name = clean(module_name) or module_name_map.get(module_code, "")
+              cycle_id = clean(cycle_id)
+              stage_no = max(0, to_int(stage_no, 0))
+              target_focus = clean(target_focus)
+              scenario_type = clean(scenario_type)
+              performance_gap_summary = clean(performance_gap_summary)
+              target_metric = clean(target_metric)
+              recommended_action = clean(recommended_action)
+
+              invalid_reasons = []
+              if not user_id:
+                  invalid_reasons.append("缺少用户ID")
+              if not module_code:
+                  invalid_reasons.append("缺少训练模块编码")
+              elif module_code not in module_name_map:
+                  invalid_reasons.append("训练模块编码不在允许范围内")
+              if char_count == 0:
+                  invalid_reasons.append("对话为空")
+              elif char_count < 20:
+                  invalid_reasons.append("对话内容过短，无法评估")
+              elif round_count < 2:
+                  invalid_reasons.append("对话轮次不足，至少需要2轮")
+
+              is_valid = 0 if invalid_reasons else 1
+              invalid_reason = "；".join(invalid_reasons)
+
+              if char_count < 100 or round_count < 4:
+                  sample_status = "insufficient"
+              else:
+                  sample_status = "adequate"
+
+              cleaned = re.sub(r"[ \t]+", " ", text)
+              module_focus = module_focus_map.get(module_code, "重点检查本次训练模块对应能力是否达标。")
+              final_target_focus = target_focus or performance_gap_summary or target_metric or recommended_action or module_focus
+
+              return {
+                  "practice_id": clean(practice_id),
+                  "user_id": clean(user_id),
+                  "module_code": module_code,
+                  "module_name": module_name,
+                  "cycle_id": cycle_id,
+                  "stage_no": stage_no,
+                  "module_focus": module_focus,
+                  "trainee_name": clean(trainee_name),
+                  "scenario_type": scenario_type,
+                  "target_focus": final_target_focus,
+                  "clean_dialogue": cleaned,
+                  "char_count": char_count,
+                  "round_count": round_count,
+                  "sample_status": sample_status,
+                  "is_valid": is_valid,
+                  "invalid_reason": invalid_reason
+              }
+        code_language: python3
+        desc: 输入预检，补齐模块/周期/阶段元信息，并阻止缺少 module_code 的评估请求
+        outputs:
+          practice_id:
+            type: string
+          user_id:
+            type: string
+          module_code:
+            type: string
+          module_name:
+            type: string
+          cycle_id:
+            type: string
+          stage_no:
+            type: number
+          module_focus:
+            type: string
+          trainee_name:
+            type: string
+          scenario_type:
+            type: string
+          target_focus:
+            type: string
+          clean_dialogue:
+            type: string
+          char_count:
+            type: number
+          round_count:
+            type: number
+          sample_status:
+            type: string
+          is_valid:
+            type: number
+          invalid_reason:
+            type: string
+        selected: false
+        title: 输入预检与样本分析
+        type: code
+        variables:
+        - variable: practice_id
+          value_selector:
+          - practice_eval_start
+          - practice_id
+          value_type: string
+        - variable: user_id
+          value_selector:
+          - practice_eval_start
+          - user_id
+        - variable: module_code
+          value_selector:
+          - practice_eval_start
+          - module_code
+        - variable: module_name
+          value_selector:
+          - practice_eval_start
+          - module_name
+        - variable: cycle_id
+          value_selector:
+          - practice_eval_start
+          - cycle_id
+        - variable: stage_no
+          value_selector:
+          - practice_eval_start
+          - stage_no
+        - variable: trainee_name
+          value_selector:
+          - practice_eval_start
+          - trainee_name
+        - variable: scenario_type
+          value_selector:
+          - practice_eval_start
+          - scenario_type
+        - variable: target_focus
+          value_selector:
+          - practice_eval_start
+          - target_focus
+        - variable: performance_gap_summary
+          value_selector:
+          - practice_eval_start
+          - performance_gap_summary
+        - variable: target_metric
+          value_selector:
+          - practice_eval_start
+          - target_metric
+        - variable: recommended_action
+          value_selector:
+          - practice_eval_start
+          - recommended_action
+        - variable: dialogue_text
+          value_selector:
+          - practice_eval_start
+          - dialogue_text
+      height: 96
+      id: practice_eval_precheck
+      position:
+        x: 380
+        y: 250
+      positionAbsolute:
+        x: 380
+        y: 250
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        cases:
+        - case_id: 'true'
+          conditions:
+          - comparison_operator: '='
+            id: 4a7f65fc-f6dd-4b7d-a1c4-23f8e9b41101
+            value: '1'
+            varType: number
+            variable_selector:
+            - practice_eval_precheck
+            - is_valid
+          id: 'true'
+          logical_operator: and
+        desc: 有效输入进入正式评分，无效输入走兜底分支
+        selected: false
+        title: 是否满足评估条件
+        type: if-else
+      height: 168
+      id: practice_eval_if_valid
+      position:
+        x: 680
+        y: 250
+      positionAbsolute:
+        x: 680
+        y: 250
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        desc: 比赛版正式评估节点，结合训练模块重点做稳定 JSON 评分
+        model:
+          completion_params: {}
+          mode: chat
+          name: deepseek-r1
+          provider: langgenius/tongyi/tongyi
+        prompt_template:
+        - id: 602a6717-5f62-4539-8ff4-baf55c95f001
+          role: system
+          text: |-
+            你是“珠宝门店销售实战陪练高级评分官”，负责对销售学员与AI客户的完整陪练对话进行比赛级评估。
+
+            你的任务：
+            1. 对整段对话给出结构化评分。
+            2. 识别主要亮点、主要问题点、主要薄弱项。
+            3. 识别合规表达风险与成交推进不足。
+            4. 输出可用于 FastAPI 入库和前端展示的稳定 JSON。
+
+            输出要求：
+            - 只能输出 JSON。
+            - 不要输出 ```json，不要输出解释，不要输出额外文字。
+            - 所有字段必须完整，不能省略，不能为 null。
+            - overall_score 必须是 0~100 的整数。
+            - level 只能是：待加强、合格、良好、优秀。
+            - weak_dimension 只能输出 1 个主要薄弱项。
+            - risk_tags、highlights、problem_points、storage_tags 必须是字符串数组。
+            - concise_feedback 控制在 40 字以内。
+            - improvement_advice 控制在 60 字以内。
+            - followup_training 控制在 30 字以内。
+            - confidence 为 0~1 之间小数。
+
+            六个评分维度：
+            1. 需求洞察：是否识别顾客真实顾虑、预算、用途、购买动机。
+            2. 专业准确：材质、证书、工艺、产品信息是否表达专业且不乱说。
+            3. 异议处理：是否正面回应“嫌贵/真假/犹豫”等异议，而不是回避。
+            4. 成交推进：是否有试探成交、给出选择、引导下一步。
+            5. 表达自然：是否口语化、清晰、不生硬、不绕圈。
+            6. 合规安全：是否避免绝对化、夸大宣传、收益承诺、无法核实保证。
+
+            场景专项要求：
+            - 顾客嫌贵：重点看价值解释、预算探询、替代方案、分层推荐。
+            - 顾客质疑材质真假：重点看材质解释、证书依据、检测逻辑。
+            - 顾客犹豫不决不下单：重点看顾虑确认、缩小选择、推进决策。
+            - 其他：按通用珠宝门店销售标准评估。
+
+            以下表达若出现，应加入 risk_tags 的“合规表达风险”：
+            - 绝对保值
+            - 稳赚不赔
+            - 100%真
+            - 全国最低价
+            - 绝不会褪色
+            - 闭眼买
+            - 包你升值
+            - 任何绝对化承诺、收益承诺、无法核实保证
+
+            严格输出以下 JSON 结构：
+            {
+              "scenario_type": "",
+              "sample_status": "",
+              "sample_char_count": 0,
+              "sample_round_count": 0,
+              "overall_score": 0,
+              "level": "",
+              "dimension_scores": {
+                "需求洞察": 0,
+                "专业准确": 0,
+                "异议处理": 0,
+                "成交推进": 0,
+                "表达自然": 0,
+                "合规安全": 0
+              },
+              "weak_dimension": "",
+              "risk_tags": [],
+              "highlights": [],
+              "problem_points": [],
+              "improvement_advice": "",
+              "concise_feedback": "",
+              "followup_training": "",
+              "storage_tags": [],
+              "confidence": 0.0
+            }
+
+            额外要求：
+            - 结合“训练模块”判断本次对话是否对齐模块训练目标。
+            - 不要因为模块不同而改写 JSON Schema，但你的评分和建议必须体现模块训练重点。
+        - id: c4bdb0cf-b611-4623-9c92-56ea3ebfb002
+          role: user
+          text: |-
+            请评估以下珠宝销售陪练结果。
+
+            练习记录ID：{{#practice_eval_precheck.practice_id#}}
+            用户ID：{{#practice_eval_precheck.user_id#}}
+            训练模块编码：{{#practice_eval_precheck.module_code#}}
+            训练模块名称：{{#practice_eval_precheck.module_name#}}
+            训练模块重点：{{#practice_eval_precheck.module_focus#}}
+            训练周期ID：{{#practice_eval_precheck.cycle_id#}}
+            阶段号：{{#practice_eval_precheck.stage_no#}}
+            学员姓名：{{#practice_eval_precheck.trainee_name#}}
+            场景类型：{{#practice_eval_precheck.scenario_type#}}
+            本次训练重点：{{#practice_eval_precheck.target_focus#}}
+            样本状态：{{#practice_eval_precheck.sample_status#}}
+            对话字数：{{#practice_eval_precheck.char_count#}}
+            估算轮次：{{#practice_eval_precheck.round_count#}}
+
+            完整陪练对话：
+            {{#practice_eval_precheck.clean_dialogue#}}
+        selected: false
+        title: 正式评分LLM
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 132
+      id: practice_eval_llm
+      position:
+        x: 980
+        y: 120
+      positionAbsolute:
+        x: 980
+        y: 120
+      selected: true
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: |-
+          def main(
+              practice_id: str = "",
+              user_id: str = "",
+              module_code: str = "",
+              module_name: str = "",
+              cycle_id: str = "",
+              stage_no = 0,
+              trainee_name: str = "",
+              scenario_type: str = "",
+              char_count: int = 0,
+              round_count: int = 0,
+              sample_status: str = "",
+              llm_text: str = ""
+          ) -> dict:
+              import json
+              import re
+
+              def clamp_score(v, default=0):
+                  try:
+                      n = int(round(float(v)))
+                  except Exception:
+                      n = int(default)
+                  return max(0, min(100, n))
+
+              def non_negative_int(v, default=0):
+                  try:
+                      n = int(round(float(v)))
+                  except Exception:
+                      n = int(default)
+                  return max(0, n)
+
+              def ensure_list(v):
+                  if isinstance(v, list):
+                      return [str(i).strip() for i in v if str(i).strip()]
+                  if isinstance(v, str) and v.strip():
+                      return [v.strip()]
+                  return []
+
+              def ensure_text(v, default=""):
+                  if v is None:
+                      return default
+                  s = str(v).strip()
+                  return s if s else default
+
+              def parse_llm_payload(raw_text):
+                  if raw_text is None:
+                      return {}
+
+                  text = str(raw_text).strip()
+                  if not text or text.lower() == "null":
+                      return {}
+
+                  fence_match = re.search(r"```(?:json)?\s*(.*?)\s*```", text, flags=re.S)
+                  if fence_match:
+                      text = fence_match.group(1).strip()
+
+                  try:
+                      parsed = json.loads(text)
+                      if isinstance(parsed, dict):
+                          return parsed
+                      if isinstance(parsed, list):
+                          if parsed and isinstance(parsed[0], dict):
+                              return parsed[0]
+                          return {}
+                      return {}
+                  except Exception:
+                      pass
+
+                  obj_match = re.search(r"\{[\s\S]*\}", text)
+                  if obj_match:
+                      candidate = obj_match.group(0).strip()
+                      try:
+                          parsed = json.loads(candidate)
+                          if isinstance(parsed, dict):
+                              return parsed
+                      except Exception:
+                          pass
+
+                  return {}
+
+              raw = llm_text
+              payload = parse_llm_payload(raw)
+
+              ds = payload.get("dimension_scores", {})
+              if not isinstance(ds, dict):
+                  ds = {}
+
+              need_score = clamp_score(ds.get("需求洞察", 0), 0)
+              product_score = clamp_score(ds.get("专业准确", 0), 0)
+              objection_score = clamp_score(ds.get("异议处理", 0), 0)
+              closing_score = clamp_score(ds.get("成交推进", 0), 0)
+              expression_score = clamp_score(ds.get("表达自然", 0), 0)
+              compliance_score = clamp_score(ds.get("合规安全", 0), 0)
+
+              overall_score = clamp_score(payload.get("overall_score", 0), 0)
+
+              level = ensure_text(payload.get("level"), "待加强")
+              if level not in ["待加强", "合格", "良好", "优秀"]:
+                  level = "待加强"
+
+              weak_dimension = ensure_text(payload.get("weak_dimension"), "异议处理")
+              risk_tags = ensure_list(payload.get("risk_tags"))
+              highlights = ensure_list(payload.get("highlights"))[:3]
+              problem_points = ensure_list(payload.get("problem_points"))[:4]
+              storage_tags = ensure_list(payload.get("storage_tags"))[:6]
+
+              concise_feedback = ensure_text(payload.get("concise_feedback"), "本次陪练已完成评估。")
+              improvement_advice = ensure_text(
+                  payload.get("improvement_advice"),
+                  "下一轮请先回应客户顾虑，再推进成交。"
+              )
+              followup_training = ensure_text(payload.get("followup_training"), "加强异议处理训练")
+
+              try:
+                  confidence = float(payload.get("confidence", 0.7))
+              except Exception:
+                  confidence = 0.7
+              confidence = max(0.0, min(1.0, confidence))
+
+              sample_char_count = non_negative_int(payload.get("sample_char_count", char_count), char_count)
+              sample_round_count = non_negative_int(payload.get("sample_round_count", round_count), round_count)
+              final_sample_status = ensure_text(payload.get("sample_status"), ensure_text(sample_status, "adequate"))
+
+              if "合规表达风险" in risk_tags or compliance_score < 60 or overall_score < 60:
+                  risk_level = "high"
+              elif overall_score < 75:
+                  risk_level = "medium"
+              else:
+                  risk_level = "low"
+
+              pass_flag = 1
+              if overall_score < 70:
+                  pass_flag = 0
+              if "合规表达风险" in risk_tags:
+                  pass_flag = 0
+              if final_sample_status == "insufficient" and overall_score < 75:
+                  pass_flag = 0
+
+              result = {
+                  "evaluation_status": "success",
+                  "score_branch": "practice",
+                  "practice_id": ensure_text(practice_id),
+                  "user_id": ensure_text(user_id),
+                  "module_code": ensure_text(module_code),
+                  "module_name": ensure_text(module_name),
+                  "cycle_id": ensure_text(cycle_id),
+                  "stage_no": non_negative_int(stage_no, 0),
+                  "trainee_name": ensure_text(trainee_name),
+                  "scenario_type": ensure_text(payload.get("scenario_type"), ensure_text(scenario_type)),
+                  "sample_status": final_sample_status,
+                  "sample_char_count": sample_char_count,
+                  "sample_round_count": sample_round_count,
+                  "overall_score": overall_score,
+                  "pass_flag": pass_flag,
+                  "level": level,
+                  "risk_level": risk_level,
+                  "dimension_scores": {
+                      "需求洞察": need_score,
+                      "专业准确": product_score,
+                      "异议处理": objection_score,
+                      "成交推进": closing_score,
+                      "表达自然": expression_score,
+                      "合规安全": compliance_score
+                  },
+                  "weak_dimension": weak_dimension,
+                  "risk_tags": risk_tags,
+                  "highlights": highlights,
+                  "problem_points": problem_points,
+                  "improvement_advice": improvement_advice,
+                  "concise_feedback": concise_feedback,
+                  "followup_training": followup_training,
+                  "storage_tags": storage_tags,
+                  "confidence": confidence
+              }
+
+              return {
+                  "evaluation_result": json.dumps(result, ensure_ascii=False),
+                  "evaluation_status": result["evaluation_status"],
+                  "score_branch": result["score_branch"],
+                  "practice_id": result["practice_id"],
+                  "user_id": result["user_id"],
+                  "module_code": result["module_code"],
+                  "module_name": result["module_name"],
+                  "cycle_id": result["cycle_id"],
+                  "stage_no": result["stage_no"],
+                  "trainee_name": result["trainee_name"],
+                  "scenario_type": result["scenario_type"],
+                  "sample_status": result["sample_status"],
+                  "sample_char_count": result["sample_char_count"],
+                  "sample_round_count": result["sample_round_count"],
+                  "overall_score": result["overall_score"],
+                  "pass_flag": result["pass_flag"],
+                  "level": result["level"],
+                  "risk_level": result["risk_level"],
+                  "need_insight_score": need_score,
+                  "product_accuracy_score": product_score,
+                  "objection_handling_score": objection_score,
+                  "closing_push_score": closing_score,
+                  "expression_natural_score": expression_score,
+                  "compliance_safety_score": compliance_score,
+                  "weak_dimension": result["weak_dimension"],
+                  "risk_tags": result["risk_tags"],
+                  "highlights": result["highlights"],
+                  "problem_points": result["problem_points"],
+                  "improvement_advice": result["improvement_advice"],
+                  "concise_feedback": result["concise_feedback"],
+                  "followup_training": result["followup_training"],
+                  "storage_tags": result["storage_tags"],
+                  "raw_llm_output": "" if raw is None else str(raw)
+              }
+        code_language: python3
+        desc: 评分结果归一化，并显式带出 module_code/module_name/cycle_id/stage_no
+        outputs:
+          closing_push_score:
+            type: number
+          compliance_safety_score:
+            type: number
+          concise_feedback:
+            type: string
+          evaluation_result:
+            type: string
+          evaluation_status:
+            type: string
+          expression_natural_score:
+            type: number
+          followup_training:
+            type: string
+          highlights:
+            type: array[string]
+          improvement_advice:
+            type: string
+          level:
+            type: string
+          need_insight_score:
+            type: number
+          objection_handling_score:
+            type: number
+          overall_score:
+            type: number
+          pass_flag:
+            type: number
+          practice_id:
+            type: string
+          problem_points:
+            type: array[string]
+          product_accuracy_score:
+            type: number
+          raw_llm_output:
+            type: string
+          risk_level:
+            type: string
+          risk_tags:
+            type: array[string]
+          sample_char_count:
+            type: number
+          sample_round_count:
+            type: number
+          sample_status:
+            type: string
+          scenario_type:
+            type: string
+          storage_tags:
+            type: array[string]
+          trainee_name:
+            type: string
+          user_id:
+            type: string
+          weak_dimension:
+            type: string
+          score_branch:
+            type: string
+          module_code:
+            type: string
+          module_name:
+            type: string
+          cycle_id:
+            type: string
+          stage_no:
+            type: number
+        selected: false
+        title: 评分结果归一化
+        type: code
+        variables:
+        - variable: practice_id
+          value_selector:
+          - practice_eval_precheck
+          - practice_id
+        - variable: user_id
+          value_selector:
+          - practice_eval_precheck
+          - user_id
+        - variable: module_code
+          value_selector:
+          - practice_eval_precheck
+          - module_code
+        - variable: module_name
+          value_selector:
+          - practice_eval_precheck
+          - module_name
+        - variable: cycle_id
+          value_selector:
+          - practice_eval_precheck
+          - cycle_id
+        - variable: stage_no
+          value_selector:
+          - practice_eval_precheck
+          - stage_no
+        - variable: trainee_name
+          value_selector:
+          - practice_eval_precheck
+          - trainee_name
+        - variable: scenario_type
+          value_selector:
+          - practice_eval_precheck
+          - scenario_type
+        - variable: char_count
+          value_selector:
+          - practice_eval_precheck
+          - char_count
+        - variable: round_count
+          value_selector:
+          - practice_eval_precheck
+          - round_count
+        - variable: sample_status
+          value_selector:
+          - practice_eval_precheck
+          - sample_status
+        - variable: llm_text
+          value_selector:
+          - practice_eval_llm
+          - text
+      height: 96
+      id: practice_eval_normalize
+      position:
+        x: 1290
+        y: 120
+      positionAbsolute:
+        x: 1290
+        y: 120
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: |-
+          def main(practice_id: str = "",
+                   user_id: str = "",
+                   module_code: str = "",
+                   module_name: str = "",
+                   cycle_id: str = "",
+                   stage_no = 0,
+                   trainee_name: str = "",
+                   scenario_type: str = "",
+                   char_count: int = 0,
+                   round_count: int = 0,
+                   sample_status: str = "",
+                   invalid_reason: str = "") -> dict:
+              import json
+
+              def to_int(v, default=0):
+                  try:
+                      if v is None or str(v).strip() == "":
+                          return default
+                      return int(round(float(v)))
+                  except Exception:
+                      return default
+
+              result = {
+                  "evaluation_status": "invalid_input",
+                  "score_branch": "practice",
+                  "practice_id": practice_id or "",
+                  "user_id": user_id or "",
+                  "module_code": module_code or "",
+                  "module_name": module_name or "",
+                  "cycle_id": cycle_id or "",
+                  "stage_no": max(0, to_int(stage_no, 0)),
+                  "trainee_name": trainee_name or "",
+                  "scenario_type": scenario_type or "",
+                  "sample_status": sample_status or "insufficient",
+                  "sample_char_count": int(char_count or 0),
+                  "sample_round_count": int(round_count or 0),
+                  "overall_score": 0,
+                  "pass_flag": 0,
+                  "level": "待加强",
+                  "risk_level": "medium",
+                  "dimension_scores": {
+                      "需求洞察": 0,
+                      "专业准确": 0,
+                      "异议处理": 0,
+                      "成交推进": 0,
+                      "表达自然": 0,
+                      "合规安全": 0
+                  },
+                  "weak_dimension": "对话样本不足",
+                  "risk_tags": [],
+                  "highlights": [],
+                  "problem_points": [invalid_reason or "输入不满足评估条件"],
+                  "improvement_advice": "请至少提供2轮、20字以上的完整陪练对话，并确认已传训练模块编码后再评估。",
+                  "concise_feedback": "当前对话样本或模块信息不足，无法进行有效评分。",
+                  "followup_training": "补充完整对话后重新评估",
+                  "storage_tags": ["评估失败", "样本不足"],
+                  "confidence": 0.0
+              }
+
+              return {
+                  "evaluation_result": json.dumps(result, ensure_ascii=False),
+                  "evaluation_status": result["evaluation_status"],
+                  "score_branch": result["score_branch"],
+                  "practice_id": result["practice_id"],
+                  "user_id": result["user_id"],
+                  "module_code": result["module_code"],
+                  "module_name": result["module_name"],
+                  "cycle_id": result["cycle_id"],
+                  "stage_no": result["stage_no"],
+                  "trainee_name": result["trainee_name"],
+                  "scenario_type": result["scenario_type"],
+                  "sample_status": result["sample_status"],
+                  "sample_char_count": result["sample_char_count"],
+                  "sample_round_count": result["sample_round_count"],
+                  "overall_score": result["overall_score"],
+                  "pass_flag": result["pass_flag"],
+                  "level": result["level"],
+                  "risk_level": result["risk_level"],
+                  "need_insight_score": 0,
+                  "product_accuracy_score": 0,
+                  "objection_handling_score": 0,
+                  "closing_push_score": 0,
+                  "expression_natural_score": 0,
+                  "compliance_safety_score": 0,
+                  "weak_dimension": result["weak_dimension"],
+                  "risk_tags": result["risk_tags"],
+                  "highlights": result["highlights"],
+                  "problem_points": result["problem_points"],
+                  "improvement_advice": result["improvement_advice"],
+                  "concise_feedback": result["concise_feedback"],
+                  "followup_training": result["followup_training"],
+                  "storage_tags": result["storage_tags"],
+                  "raw_llm_output": ""
+              }
+        code_language: python3
+        desc: 无效输入兜底，并显式带出 module/cycle/stage 元信息
+        outputs:
+          closing_push_score:
+            type: number
+          compliance_safety_score:
+            type: number
+          concise_feedback:
+            type: string
+          evaluation_result:
+            type: string
+          evaluation_status:
+            type: string
+          expression_natural_score:
+            type: number
+          followup_training:
+            type: string
+          highlights:
+            type: array[string]
+          improvement_advice:
+            type: string
+          level:
+            type: string
+          need_insight_score:
+            type: number
+          objection_handling_score:
+            type: number
+          overall_score:
+            type: number
+          pass_flag:
+            type: number
+          practice_id:
+            type: string
+          problem_points:
+            type: array[string]
+          product_accuracy_score:
+            type: number
+          raw_llm_output:
+            type: string
+          risk_level:
+            type: string
+          risk_tags:
+            type: array[string]
+          sample_char_count:
+            type: number
+          sample_round_count:
+            type: number
+          sample_status:
+            type: string
+          scenario_type:
+            type: string
+          storage_tags:
+            type: array[string]
+          trainee_name:
+            type: string
+          user_id:
+            type: string
+          weak_dimension:
+            type: string
+          score_branch:
+            type: string
+          module_code:
+            type: string
+          module_name:
+            type: string
+          cycle_id:
+            type: string
+          stage_no:
+            type: number
+        selected: false
+        title: 无效输入结果构建
+        type: code
+        variables:
+        - variable: practice_id
+          value_selector:
+          - practice_eval_precheck
+          - practice_id
+        - variable: user_id
+          value_selector:
+          - practice_eval_precheck
+          - user_id
+        - variable: module_code
+          value_selector:
+          - practice_eval_precheck
+          - module_code
+        - variable: module_name
+          value_selector:
+          - practice_eval_precheck
+          - module_name
+        - variable: cycle_id
+          value_selector:
+          - practice_eval_precheck
+          - cycle_id
+        - variable: stage_no
+          value_selector:
+          - practice_eval_precheck
+          - stage_no
+        - variable: trainee_name
+          value_selector:
+          - practice_eval_precheck
+          - trainee_name
+        - variable: scenario_type
+          value_selector:
+          - practice_eval_precheck
+          - scenario_type
+        - variable: char_count
+          value_selector:
+          - practice_eval_precheck
+          - char_count
+        - variable: round_count
+          value_selector:
+          - practice_eval_precheck
+          - round_count
+        - variable: sample_status
+          value_selector:
+          - practice_eval_precheck
+          - sample_status
+        - variable: invalid_reason
+          value_selector:
+          - practice_eval_precheck
+          - invalid_reason
+      height: 80
+      id: practice_eval_invalid_builder
+      position:
+        x: 980
+        y: 420
+      positionAbsolute:
+        x: 980
+        y: 420
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        desc: 正常评估成功输出
+        outputs:
+        - value_selector:
+          - practice_eval_normalize
+          - evaluation_result
+          variable: evaluation_result
+        - value_selector:
+          - practice_eval_normalize
+          - evaluation_status
+          variable: evaluation_status
+        - value_selector:
+          - practice_eval_normalize
+          - practice_id
+          variable: practice_id
+        - value_selector:
+          - practice_eval_normalize
+          - user_id
+          variable: user_id
+        - value_selector:
+          - practice_eval_normalize
+          - trainee_name
+          variable: trainee_name
+        - value_selector:
+          - practice_eval_normalize
+          - scenario_type
+          variable: scenario_type
+        - value_selector:
+          - practice_eval_normalize
+          - sample_status
+          variable: sample_status
+        - value_selector:
+          - practice_eval_normalize
+          - sample_char_count
+          variable: sample_char_count
+        - value_selector:
+          - practice_eval_normalize
+          - sample_round_count
+          variable: sample_round_count
+        - value_selector:
+          - practice_eval_normalize
+          - overall_score
+          variable: overall_score
+        - value_selector:
+          - practice_eval_normalize
+          - pass_flag
+          variable: pass_flag
+        - value_selector:
+          - practice_eval_normalize
+          - level
+          variable: level
+        - value_selector:
+          - practice_eval_normalize
+          - risk_level
+          variable: risk_level
+        - value_selector:
+          - practice_eval_normalize
+          - need_insight_score
+          variable: need_insight_score
+        - value_selector:
+          - practice_eval_normalize
+          - product_accuracy_score
+          variable: product_accuracy_score
+        - value_selector:
+          - practice_eval_normalize
+          - objection_handling_score
+          variable: objection_handling_score
+        - value_selector:
+          - practice_eval_normalize
+          - closing_push_score
+          variable: closing_push_score
+        - value_selector:
+          - practice_eval_normalize
+          - expression_natural_score
+          variable: expression_natural_score
+        - value_selector:
+          - practice_eval_normalize
+          - compliance_safety_score
+          variable: compliance_safety_score
+        - value_selector:
+          - practice_eval_normalize
+          - weak_dimension
+          variable: weak_dimension
+        - value_selector:
+          - practice_eval_normalize
+          - risk_tags
+          variable: risk_tags
+        - value_selector:
+          - practice_eval_normalize
+          - highlights
+          variable: highlights
+        - value_selector:
+          - practice_eval_normalize
+          - problem_points
+          variable: problem_points
+        - value_selector:
+          - practice_eval_normalize
+          - improvement_advice
+          variable: improvement_advice
+        - value_selector:
+          - practice_eval_normalize
+          - concise_feedback
+          variable: concise_feedback
+        - value_selector:
+          - practice_eval_normalize
+          - followup_training
+          variable: followup_training
+        - value_selector:
+          - practice_eval_normalize
+          - storage_tags
+          variable: storage_tags
+        - value_selector:
+          - practice_eval_normalize
+          - raw_llm_output
+          variable: raw_llm_output
+        - value_selector:
+          - practice_eval_normalize
+          - score_branch
+          variable: score_branch
+        - value_selector:
+          - practice_eval_normalize
+          - module_code
+          variable: module_code
+        - value_selector:
+          - practice_eval_normalize
+          - module_name
+          variable: module_name
+        - value_selector:
+          - practice_eval_normalize
+          - cycle_id
+          variable: cycle_id
+        - value_selector:
+          - practice_eval_normalize
+          - stage_no
+          variable: stage_no
+        selected: false
+        title: 结束-评估成功
+        type: end
+      height: 818
+      id: practice_eval_end_success
+      position:
+        x: 1610
+        y: 120
+      positionAbsolute:
+        x: 1610
+        y: 120
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        desc: 无效输入兜底输出
+        outputs:
+        - value_selector:
+          - practice_eval_invalid_builder
+          - evaluation_result
+          variable: evaluation_result
+        - value_selector:
+          - practice_eval_invalid_builder
+          - evaluation_status
+          variable: evaluation_status
+        - value_selector:
+          - practice_eval_invalid_builder
+          - practice_id
+          variable: practice_id
+        - value_selector:
+          - practice_eval_invalid_builder
+          - user_id
+          variable: user_id
+        - value_selector:
+          - practice_eval_invalid_builder
+          - trainee_name
+          variable: trainee_name
+        - value_selector:
+          - practice_eval_invalid_builder
+          - scenario_type
+          variable: scenario_type
+        - value_selector:
+          - practice_eval_invalid_builder
+          - sample_status
+          variable: sample_status
+        - value_selector:
+          - practice_eval_invalid_builder
+          - sample_char_count
+          variable: sample_char_count
+        - value_selector:
+          - practice_eval_invalid_builder
+          - sample_round_count
+          variable: sample_round_count
+        - value_selector:
+          - practice_eval_invalid_builder
+          - overall_score
+          variable: overall_score
+        - value_selector:
+          - practice_eval_invalid_builder
+          - pass_flag
+          variable: pass_flag
+        - value_selector:
+          - practice_eval_invalid_builder
+          - level
+          variable: level
+        - value_selector:
+          - practice_eval_invalid_builder
+          - risk_level
+          variable: risk_level
+        - value_selector:
+          - practice_eval_invalid_builder
+          - need_insight_score
+          variable: need_insight_score
+        - value_selector:
+          - practice_eval_invalid_builder
+          - product_accuracy_score
+          variable: product_accuracy_score
+        - value_selector:
+          - practice_eval_invalid_builder
+          - objection_handling_score
+          variable: objection_handling_score
+        - value_selector:
+          - practice_eval_invalid_builder
+          - closing_push_score
+          variable: closing_push_score
+        - value_selector:
+          - practice_eval_invalid_builder
+          - expression_natural_score
+          variable: expression_natural_score
+        - value_selector:
+          - practice_eval_invalid_builder
+          - compliance_safety_score
+          variable: compliance_safety_score
+        - value_selector:
+          - practice_eval_invalid_builder
+          - weak_dimension
+          variable: weak_dimension
+        - value_selector:
+          - practice_eval_invalid_builder
+          - risk_tags
+          variable: risk_tags
+        - value_selector:
+          - practice_eval_invalid_builder
+          - highlights
+          variable: highlights
+        - value_selector:
+          - practice_eval_invalid_builder
+          - problem_points
+          variable: problem_points
+        - value_selector:
+          - practice_eval_invalid_builder
+          - improvement_advice
+          variable: improvement_advice
+        - value_selector:
+          - practice_eval_invalid_builder
+          - concise_feedback
+          variable: concise_feedback
+        - value_selector:
+          - practice_eval_invalid_builder
+          - followup_training
+          variable: followup_training
+        - value_selector:
+          - practice_eval_invalid_builder
+          - storage_tags
+          variable: storage_tags
+        - value_selector:
+          - practice_eval_invalid_builder
+          - raw_llm_output
+          variable: raw_llm_output
+        - value_selector:
+          - practice_eval_invalid_builder
+          - score_branch
+          variable: score_branch
+        - value_selector:
+          - practice_eval_invalid_builder
+          - module_code
+          variable: module_code
+        - value_selector:
+          - practice_eval_invalid_builder
+          - module_name
+          variable: module_name
+        - value_selector:
+          - practice_eval_invalid_builder
+          - cycle_id
+          variable: cycle_id
+        - value_selector:
+          - practice_eval_invalid_builder
+          - stage_no
+          variable: stage_no
+        selected: false
+        title: 结束-无效输入
+        type: end
+      height: 818
+      id: practice_eval_end_invalid
+      position:
+        x: 1290
+        y: 420
+      positionAbsolute:
+        x: 1290
+        y: 420
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    viewport:
+      x: -583.3
+      y: 67.29999999999995
+      zoom: 0.8
+  rag_pipeline_variables: []

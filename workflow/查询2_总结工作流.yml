@@ -1,0 +1,1023 @@
+app:
+  description: 查询模块｜工作流2：结果总结工作流
+  icon: 🤖
+  icon_background: '#D9F7BE'
+  mode: workflow
+  name: 自然语言查询总结工作流
+  use_icon_as_answer_icon: false
+dependencies:
+- current_identifier: null
+  type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: langgenius/tongyi:0.1.32@20a5454088fa017b72490e1cbaeebff21094d11b13e41197591734d1c08cdbb5
+    version: null
+kind: app
+version: 0.6.0
+workflow:
+  conversation_variables: []
+  environment_variables: []
+  features:
+    file_upload:
+      allowed_file_extensions:
+      - .JPG
+      - .JPEG
+      - .PNG
+      - .GIF
+      - .WEBP
+      - .SVG
+      allowed_file_types:
+      - image
+      allowed_file_upload_methods:
+      - local_file
+      - remote_url
+      enabled: false
+      fileUploadConfig:
+        attachment_image_file_size_limit: 2
+        audio_file_size_limit: 50
+        batch_count_limit: 5
+        file_size_limit: 15
+        file_upload_limit: 20
+        image_file_batch_limit: 10
+        image_file_size_limit: 10
+        single_chunk_attachment_limit: 10
+        video_file_size_limit: 100
+        workflow_file_upload_limit: 10
+      image:
+        enabled: false
+        number_limits: 3
+        transfer_methods:
+        - local_file
+        - remote_url
+      number_limits: 3
+    opening_statement: ''
+    retriever_resource:
+      enabled: false
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions: []
+    suggested_questions_after_answer:
+      enabled: false
+    text_to_speech:
+      enabled: false
+      language: ''
+      voice: ''
+  graph:
+    edges:
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: start
+        targetType: code
+      id: start-to-normalize
+      source: start_node
+      sourceHandle: source
+      target: normalize_result_input
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: if-else
+      id: normalize-to-if-valid
+      source: normalize_result_input
+      sourceHandle: source
+      target: if_input_valid
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: if-else
+        targetType: if-else
+      id: if-valid-to-if-result
+      source: if_input_valid
+      sourceHandle: 'true'
+      target: if_has_result
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: if-else
+        targetType: code
+      id: if-invalid-to-builder
+      source: if_input_valid
+      sourceHandle: 'false'
+      target: invalid_result_builder
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: if-else
+        targetType: llm
+      id: if-result-true-to-llm
+      source: if_has_result
+      sourceHandle: 'true'
+      target: summary_llm
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: if-else
+        targetType: code
+      id: if-result-false-to-empty
+      source: if_has_result
+      sourceHandle: 'false'
+      target: empty_result_builder
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: llm
+        targetType: code
+      id: llm-to-format
+      source: summary_llm
+      sourceHandle: source
+      target: format_summary_output
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: end
+      id: format-to-end-success
+      source: format_summary_output
+      sourceHandle: source
+      target: end_success
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: end
+      id: empty-to-end
+      source: empty_result_builder
+      sourceHandle: source
+      target: end_empty
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: end
+      id: invalid-to-end
+      source: invalid_result_builder
+      sourceHandle: source
+      target: end_invalid
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    nodes:
+    - data:
+        desc: 接收 FastAPI 已查询完成的结构化结果，用于生成一句话总结、管理建议与前端展示文案
+        selected: false
+        title: 开始
+        type: start
+        variables:
+        - label: 门店ID
+          max_length: 64
+          options: []
+          required: true
+          type: text-input
+          variable: store_id
+        - label: 查询类型（支持中文测试，后端也可直接传英文枚举）
+          max_length: 64
+          options:
+          - 本月新人培训未完成
+          - 低合规分员工
+          - 陪练成绩下降员工
+          - 最近高风险员工
+          - 重点跟进员工
+          - 高频提问某类知识点员工
+          required: true
+          type: select
+          variable: query_type
+        - label: 原始用户问题（可选）
+          max_length: 2000
+          options: []
+          required: false
+          type: paragraph
+          variable: user_query
+        - label: 查询参数 JSON（后端传入，可选）
+          max_length: 5000
+          options: []
+          required: false
+          type: paragraph
+          variable: params_json
+        - label: 查询状态（支持中文测试，后端也可直接传英文状态）
+          max_length: 32
+          options:
+          - 成功
+          - 空结果
+          - 异常
+          required: true
+          type: select
+          variable: query_status
+        - label: 结果数量（可选，未传时可自动估算）
+          max_length: 32
+          options: []
+          required: false
+          type: number
+          variable: result_count
+        - label: 查询结果 JSON（后端传入，可选）
+          max_length: 12000
+          options: []
+          required: false
+          type: paragraph
+          variable: result_json
+        - label: 异常信息（可选，query_status=异常 时建议传入）
+          max_length: 2000
+          options: []
+          required: false
+          type: paragraph
+          variable: error_message
+      height: 351
+      id: start_node
+      position:
+        x: 0
+        y: 0
+      positionAbsolute:
+        x: 0
+        y: 0
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "import json\nimport re\n\nALLOWED_QUERY_TYPES = {\n    \"training_unfinished_newcomer\"\
+          ,\n    \"low_compliance_staff\",\n    \"practice_decline_staff\",\n    \"\
+          recent_high_risk_staff\",\n    \"followup_priority_staff\",\n    \"high_freq_knowledge_tag_staff\"\
+          ,\n}\n\nQUERY_TYPE_MAP = {\n    \"training_unfinished_newcomer\": \"training_unfinished_newcomer\"\
+          ,\n    \"本月新人培训未完成\": \"training_unfinished_newcomer\",\n    \"新人培训未完成\"\
+          : \"training_unfinished_newcomer\",\n\n    \"low_compliance_staff\": \"\
+          low_compliance_staff\",\n    \"低合规分员工\": \"low_compliance_staff\",\n   \
+          \ \"合规分低员工\": \"low_compliance_staff\",\n\n    \"practice_decline_staff\"\
+          : \"practice_decline_staff\",\n    \"陪练成绩下降员工\": \"practice_decline_staff\"\
+          ,\n    \"陪练下降员工\": \"practice_decline_staff\",\n\n    \"recent_high_risk_staff\"\
+          : \"recent_high_risk_staff\",\n    \"最近高风险员工\": \"recent_high_risk_staff\"\
+          ,\n    \"高风险员工\": \"recent_high_risk_staff\",\n\n    \"followup_priority_staff\"\
+          : \"followup_priority_staff\",\n    \"重点跟进员工\": \"followup_priority_staff\"\
+          ,\n    \"需要重点跟进员工\": \"followup_priority_staff\",\n\n    \"high_freq_knowledge_tag_staff\"\
+          : \"high_freq_knowledge_tag_staff\",\n    \"高频提问某类知识点员工\": \"high_freq_knowledge_tag_staff\"\
+          ,\n    \"高频提问知识点员工\": \"high_freq_knowledge_tag_staff\",\n}\n\nQUERY_STATUS_MAP\
+          \ = {\n    \"success\": \"success\",\n    \"成功\": \"success\",\n    \"ok\"\
+          : \"success\",\n\n    \"empty\": \"empty\",\n    \"空结果\": \"empty\",\n \
+          \   \"无结果\": \"empty\",\n\n    \"error\": \"error\",\n    \"异常\": \"error\"\
+          ,\n    \"失败\": \"error\",\n}\n\ndef _clean(v):\n    return str(v or \"\"\
+          ).strip()\n\ndef _extract_json(text: str):\n    raw = _clean(text)\n   \
+          \ if not raw:\n        return None\n\n    raw = re.sub(r\"<think>[\\s\\\
+          S]*?</think>\", \"\", raw, flags=re.I)\n    raw = re.sub(r\"^```json\\s*\"\
+          , \"\", raw, flags=re.I)\n    raw = re.sub(r\"^```\\s*\", \"\", raw)\n \
+          \   raw = re.sub(r\"\\s*```$\", \"\", raw)\n    raw = raw.strip()\n\n  \
+          \  if not raw:\n        return None\n\n    try:\n        return json.loads(raw)\n\
+          \    except Exception:\n        pass\n\n    m = re.search(r\"(\\{[\\s\\\
+          S]*\\}|\\[[\\s\\S]*\\])\", raw)\n    if m:\n        try:\n            return\
+          \ json.loads(m.group(1))\n        except Exception:\n            pass\n\n\
+          \    return None\n\ndef _safe_int(v, default=0):\n    try:\n        return\
+          \ int(round(float(v)))\n    except Exception:\n        return default\n\n\
+          def _extract_result_list(obj):\n    if obj is None:\n        return []\n\
+          \    if isinstance(obj, list):\n        return obj\n    if isinstance(obj,\
+          \ dict):\n        for k in [\"rows\", \"items\", \"records\", \"data\",\
+          \ \"list\"]:\n            val = obj.get(k)\n            if isinstance(val,\
+          \ list):\n                return val\n        return [obj] if obj else []\n\
+          \    return []\n\ndef _preview_json(obj, limit=10):\n    try:\n        if\
+          \ isinstance(obj, list):\n            return json.dumps(obj[:limit], ensure_ascii=False)\n\
+          \        if isinstance(obj, dict):\n            clipped = obj.copy()\n \
+          \           for k in [\"rows\", \"items\", \"records\", \"data\", \"list\"\
+          ]:\n                if isinstance(clipped.get(k), list):\n             \
+          \       clipped[k] = clipped[k][:limit]\n            return json.dumps(clipped,\
+          \ ensure_ascii=False)\n        return json.dumps(obj, ensure_ascii=False)\n\
+          \    except Exception:\n        return \"[]\"\n\ndef main(\n    store_id:\
+          \ str = \"\",\n    query_type: str = \"\",\n    user_query: str = \"\",\n\
+          \    params_json: str = \"\",\n    query_status: str = \"\",\n    result_count\
+          \ = 0,\n    result_json: str = \"\",\n    error_message: str = \"\"\n) ->\
+          \ dict:\n    store_id = _clean(store_id)\n    query_type_raw = _clean(query_type)\n\
+          \    user_query = _clean(user_query)\n    query_status_raw = _clean(query_status)\n\
+          \    error_message = _clean(error_message)\n\n    params_obj = _extract_json(params_json)\n\
+          \    result_obj = _extract_json(result_json)\n\n    query_type = QUERY_TYPE_MAP.get(query_type_raw,\
+          \ query_type_raw)\n    query_status = QUERY_STATUS_MAP.get(\n        query_status_raw.lower(),\n\
+          \        QUERY_STATUS_MAP.get(query_status_raw, query_status_raw.lower())\n\
+          \    )\n    if query_status not in {\"success\", \"empty\", \"error\"}:\n\
+          \        query_status = \"success\"\n\n    if params_obj is None:\n    \
+          \    params_obj = {}\n    if not isinstance(params_obj, dict):\n       \
+          \ params_obj = {\"原始参数\": params_obj}\n\n    result_list = _extract_result_list(result_obj)\n\
+          \    actual_count = len(result_list)\n    declared_count = _safe_int(result_count,\
+          \ -1)\n\n    if query_status == \"empty\":\n        normalized_result_count\
+          \ = 0\n        result_list = []\n    elif result_obj is not None:\n    \
+          \    normalized_result_count = actual_count\n    else:\n        normalized_result_count\
+          \ = max(0, declared_count)\n\n    has_result = 1 if normalized_result_count\
+          \ > 0 else 0\n\n    input_valid = 1\n    invalid_reason = \"\"\n\n    if\
+          \ not store_id:\n        input_valid = 0\n        invalid_reason = \"缺少门店ID。\"\
+          \n    elif query_type not in ALLOWED_QUERY_TYPES:\n        input_valid =\
+          \ 0\n        invalid_reason = \"查询类型不在模块5支持范围内。\"\n    elif query_status\
+          \ == \"error\":\n        input_valid = 0\n        invalid_reason = error_message\
+          \ or \"FastAPI 查询返回异常状态。\"\n\n    query_type_label_map = {\n        \"training_unfinished_newcomer\"\
+          : \"本月新人培训未完成\",\n        \"low_compliance_staff\": \"低合规分员工\",\n      \
+          \  \"practice_decline_staff\": \"陪练成绩下降员工\",\n        \"recent_high_risk_staff\"\
+          : \"最近高风险员工\",\n        \"followup_priority_staff\": \"重点跟进员工\",\n     \
+          \   \"high_freq_knowledge_tag_staff\": \"高频提问某类知识点员工\"\n    }\n    query_status_label_map\
+          \ = {\n        \"success\": \"成功\",\n        \"empty\": \"空结果\",\n     \
+          \   \"error\": \"异常\"\n    }\n\n    query_type_label = query_type_label_map.get(query_type,\
+          \ query_type_raw or query_type)\n    query_status_label = query_status_label_map.get(query_status,\
+          \ query_status_raw or query_status)\n\n    normalized_result_list_json =\
+          \ json.dumps(result_list, ensure_ascii=False)\n    normalized_result_preview_json\
+          \ = _preview_json(result_list)\n\n    normalized_card = f\"\"\"【查询基础信息】\n\
+          门店ID：{store_id or '未提供'}\n查询类型枚举：{query_type}\n查询类型说明：{query_type_label}\n\
+          原始用户问题：{user_query or '未提供'}\n查询状态：{query_status_label}\n\n【查询参数】\n{json.dumps(params_obj,\
+          \ ensure_ascii=False)}\n\n【查询结果】\n结果数量：{normalized_result_count}\n是否有结果：{'是'\
+          \ if has_result == 1 else '否'}\n结果明细：{normalized_result_preview_json}\n\n\
+          【异常信息】\n{error_message or '无'}\"\"\"\n\n    return {\n        \"input_valid\"\
+          : input_valid,\n        \"invalid_reason\": invalid_reason,\n        \"\
+          normalized_query_type\": query_type,\n        \"normalized_query_type_label\"\
+          : query_type_label,\n        \"normalized_user_query\": user_query,\n  \
+          \      \"normalized_query_status\": query_status,\n        \"normalized_query_status_label\"\
+          : query_status_label,\n        \"normalized_result_count\": normalized_result_count,\n\
+          \        \"has_result\": has_result,\n        \"normalized_result_list_json\"\
+          : normalized_result_list_json,\n        \"normalized_result_json\": normalized_result_preview_json,\n\
+          \        \"normalized_params_json\": json.dumps(params_obj, ensure_ascii=False),\n\
+          \        \"normalized_card\": normalized_card\n    }\n"
+        code_language: python3
+        desc: 解析 FastAPI 返回内容，兼容中文/英文输入，统一标准化字段
+        outputs:
+          has_result:
+            type: number
+          input_valid:
+            type: number
+          invalid_reason:
+            type: string
+          normalized_card:
+            type: string
+          normalized_params_json:
+            type: string
+          normalized_query_status:
+            type: string
+          normalized_query_status_label:
+            type: string
+          normalized_query_type:
+            type: string
+          normalized_query_type_label:
+            type: string
+          normalized_result_count:
+            type: number
+          normalized_result_json:
+            type: string
+          normalized_result_list_json:
+            type: string
+          normalized_user_query:
+            type: string
+        selected: false
+        title: 输入校验与标准化
+        type: code
+        variables:
+        - value_selector:
+          - start_node
+          - store_id
+          variable: store_id
+        - value_selector:
+          - start_node
+          - query_type
+          variable: query_type
+        - value_selector:
+          - start_node
+          - user_query
+          variable: user_query
+        - value_selector:
+          - start_node
+          - params_json
+          variable: params_json
+        - value_selector:
+          - start_node
+          - query_status
+          variable: query_status
+        - value_selector:
+          - start_node
+          - result_count
+          variable: result_count
+        - value_selector:
+          - start_node
+          - result_json
+          variable: result_json
+        - value_selector:
+          - start_node
+          - error_message
+          variable: error_message
+      height: 96
+      id: normalize_result_input
+      position:
+        x: 342
+        y: 128
+      positionAbsolute:
+        x: 342
+        y: 128
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        cases:
+        - case_id: 'true'
+          conditions:
+          - comparison_operator: '='
+            id: if-valid-cond
+            value: '1'
+            varType: number
+            variable_selector:
+            - normalize_result_input
+            - input_valid
+          id: 'true'
+          logical_operator: and
+        desc: 输入有效则继续；无效直接兜底
+        selected: false
+        title: 是否满足总结条件
+        type: if-else
+      height: 152
+      id: if_input_valid
+      position:
+        x: 684
+        y: 100
+      positionAbsolute:
+        x: 684
+        y: 100
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "import json\n\ndef main(\n    invalid_reason: str = \"\",\n    query_type:\
+          \ str = \"\",\n    query_status: str = \"\"\n) -> dict:\n    invalid_reason\
+          \ = str(invalid_reason or \"\").strip() or \"输入不完整，暂时无法生成稳定总结。\"\n    query_type\
+          \ = str(query_type or \"\").strip()\n    query_status = str(query_status\
+          \ or \"\").strip()\n\n    summary = \"当前查询结果输入无效，未进入总结生成。\"\n    manager_advice\
+          \ = \"请检查 FastAPI 返回字段是否完整，至少保证 query_type、query_status、result_count、result_json\
+          \ 正确。\"\n    user_visible_output = f\"{summary} 原因：{invalid_reason}\"\n\n\
+          \    safe_output = {\n        \"workflow_status\": \"failed\",\n       \
+          \ \"query_type\": query_type,\n        \"result_count\": 0,\n        \"\
+          summary\": summary,\n        \"manager_advice\": manager_advice,\n     \
+          \   \"focus_names\": [],\n        \"display_tags\": [\"输入无效\", \"需检查接口\"\
+          ],\n        \"user_visible_output\": user_visible_output,\n        \"query_status\"\
+          : query_status\n    }\n\n    return {\n        \"workflow_status\": \"failed\"\
+          ,\n        \"query_type\": query_type,\n        \"result_count\": 0,\n \
+          \       \"summary\": summary,\n        \"manager_advice\": manager_advice,\n\
+          \        \"focus_names_json\": \"[]\",\n        \"display_tags_json\": json.dumps([\"\
+          输入无效\", \"需检查接口\"], ensure_ascii=False),\n        \"user_visible_output\"\
+          : user_visible_output,\n        \"confidence_level\": \"high\",\n      \
+          \  \"raw_output\": \"\",\n        \"safe_output_json\": json.dumps(safe_output,\
+          \ ensure_ascii=False)\n    }"
+        code_language: python3
+        desc: 构建输入无效兜底输出
+        outputs:
+          confidence_level:
+            type: string
+          display_tags_json:
+            type: string
+          focus_names_json:
+            type: string
+          manager_advice:
+            type: string
+          query_type:
+            type: string
+          raw_output:
+            type: string
+          result_count:
+            type: number
+          safe_output_json:
+            type: string
+          summary:
+            type: string
+          user_visible_output:
+            type: string
+          workflow_status:
+            type: string
+        selected: false
+        title: 无效输入兜底
+        type: code
+        variables:
+        - value_selector:
+          - normalize_result_input
+          - invalid_reason
+          variable: invalid_reason
+        - value_selector:
+          - normalize_result_input
+          - normalized_query_type
+          variable: query_type
+        - value_selector:
+          - normalize_result_input
+          - normalized_query_status
+          variable: query_status
+      height: 80
+      id: invalid_result_builder
+      position:
+        x: 1046
+        y: 662
+      positionAbsolute:
+        x: 1046
+        y: 662
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        cases:
+        - case_id: 'true'
+          conditions:
+          - comparison_operator: '>'
+            id: if-result-cond
+            value: '0'
+            varType: number
+            variable_selector:
+            - normalize_result_input
+            - normalized_result_count
+          id: 'true'
+          logical_operator: and
+        desc: 有结果走正常总结；无结果走空结果分支
+        selected: false
+        title: 是否有查询结果
+        type: if-else
+      height: 168
+      id: if_has_result
+      position:
+        x: 1046
+        y: 107
+      positionAbsolute:
+        x: 1046
+        y: 107
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        desc: 基于 FastAPI 查询结果生成一句话总结与管理建议
+        model:
+          completion_params: {}
+          mode: chat
+          name: deepseek-r1
+          provider: langgenius/tongyi/tongyi
+        prompt_template:
+        - id: summary-system
+          role: system
+          text: "你是“珠宝企业培训智能体系统”的模块5【一句话查询】结果总结引擎。\n\n你的职责：\n1. 读取 FastAPI 已完成查询后的结构化结果。\n\
+            2. 根据 query_type 和 result_list_json 生成一句话总结。\n3. 给管理者生成 1 条可执行建议。\n4.\
+            \ 尽量提取重点关注对象姓名列表；若结果中没有明确姓名，则返回空数组。\n5. 输出适合前端直接展示的 user_visible_output。\n\
+            \n重要约束：\n- 你不能编造数据库中不存在的结果。\n- 你不能改写 query_type。\n- 只基于输入 result_list_json\
+            \ 做总结，不做额外推测。\n- 如果结果里没有明确姓名，不要虚构姓名。\n- 当 result_count > 0 且 result_list_json\
+            \ 非空时，不得输出“结果为空”“暂无结果”“无记录”等表述。\n- 只输出 JSON，不要解释，不要代码块。\n\nquery_type\
+            \ 含义：\n- training_unfinished_newcomer：本月哪些新人培训没完成\n- low_compliance_staff：哪些员工合规分低于阈值\n\
+            - practice_decline_staff：最近谁的陪练成绩下降了\n- recent_high_risk_staff：哪些员工最近高风险\n\
+            - followup_priority_staff：哪些员工最近需要重点跟进\n- high_freq_knowledge_tag_staff：哪些员工高频提问某类知识点\n\
+            \n严格输出：\n{\n  \"summary\": \"\",\n  \"manager_advice\": \"\",\n  \"focus_names\"\
+            : [],\n  \"display_tags\": [],\n  \"user_visible_output\": \"\",\n  \"\
+            confidence\": \"high | medium | low\"\n}\n"
+        - id: summary-user
+          role: user
+          text: '请根据以下 FastAPI 查询结果，输出严格 JSON：
+
+
+            {{#normalize_result_input.normalized_card#}}
+
+
+            补充输入：
+
+            - params_json：
+
+            {{#normalize_result_input.normalized_params_json#}}
+
+
+            - result_list_json：
+
+            {{#normalize_result_input.normalized_result_list_json#}}
+
+
+            要求：
+
+            - summary 控制在 50 字以内
+
+            - manager_advice 控制在 60 字以内
+
+            - display_tags 输出 2~5 个简洁标签
+
+            - user_visible_output 适合直接展示给管理者
+
+            - 如果 normalized_result_count > 0，不能输出“结果为空”“暂无结果”“未查到结果”这类表述
+
+            - 如果结果列表中存在 employee_name，请优先写入 focus_names
+
+            - 只能基于提供的结果列表总结，不得编造名单、数量或结论
+
+            - 如果 focus_names 无法明确提取，则返回空数组
+
+            '
+        selected: true
+        title: 正常结果总结
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 132
+      id: summary_llm
+      position:
+        x: 1408
+        y: 142
+      positionAbsolute:
+        x: 1408
+        y: 142
+      selected: true
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "import json\nimport re\n\ndef _extract_json(text: str) -> dict:\n \
+          \   raw = str(text or \"\").strip()\n    if not raw:\n        return {}\n\
+          \    raw = re.sub(r\"<think>[\\s\\S]*?</think>\", \"\", raw, flags=re.I)\n\
+          \    raw = re.sub(r\"^```json\\s*\", \"\", raw, flags=re.I)\n    raw = re.sub(r\"\
+          ^```\\s*\", \"\", raw)\n    raw = re.sub(r\"\\s*```$\", \"\", raw)\n   \
+          \ raw = raw.strip()\n    try:\n        data = json.loads(raw)\n        return\
+          \ data if isinstance(data, dict) else {}\n    except Exception:\n      \
+          \  pass\n    m = re.search(r\"\\{[\\s\\S]*\\}\", raw)\n    if m:\n     \
+          \   try:\n            data = json.loads(m.group(0))\n            return\
+          \ data if isinstance(data, dict) else {}\n        except Exception:\n  \
+          \          pass\n    return {}\n\ndef _ensure_list(v):\n    if isinstance(v,\
+          \ list):\n        return [str(x).strip() for x in v if str(x).strip()]\n\
+          \    if isinstance(v, str) and v.strip():\n        return [v.strip()]\n\
+          \    return []\n\ndef _safe_text(v, default=\"\"):\n    if v is None:\n\
+          \        return default\n    s = str(v).strip()\n    return s if s else\
+          \ default\n\ndef main(\n    query_type: str = \"\",\n    result_count =\
+          \ 0,\n    raw_output: str = \"\"\n) -> dict:\n    data = _extract_json(raw_output)\n\
+          \    try:\n        result_count = int(round(float(result_count)))\n    except\
+          \ Exception:\n        result_count = 0\n    result_count = max(0, result_count)\n\
+          \n    summary = _safe_text(data.get(\"summary\"), \"已完成查询结果总结。\")\n    manager_advice\
+          \ = _safe_text(data.get(\"manager_advice\"), \"建议管理者结合结果继续跟进。\")\n    focus_names\
+          \ = _ensure_list(data.get(\"focus_names\"))\n    display_tags = _ensure_list(data.get(\"\
+          display_tags\"))\n    user_visible_output = _safe_text(data.get(\"user_visible_output\"\
+          ), summary)\n    confidence = _safe_text(data.get(\"confidence\"), \"medium\"\
+          ).lower()\n    if confidence not in {\"high\", \"medium\", \"low\"}:\n \
+          \       confidence = \"medium\"\n\n    safe_output = {\n        \"workflow_status\"\
+          : \"success\",\n        \"query_type\": query_type,\n        \"result_count\"\
+          : result_count,\n        \"summary\": summary,\n        \"manager_advice\"\
+          : manager_advice,\n        \"focus_names\": focus_names,\n        \"display_tags\"\
+          : display_tags,\n        \"user_visible_output\": user_visible_output,\n\
+          \        \"confidence\": confidence\n    }\n\n    return {\n        \"workflow_status\"\
+          : \"success\",\n        \"query_type\": query_type,\n        \"result_count\"\
+          : result_count,\n        \"summary\": summary,\n        \"manager_advice\"\
+          : manager_advice,\n        \"focus_names_json\": json.dumps(focus_names,\
+          \ ensure_ascii=False),\n        \"display_tags_json\": json.dumps(display_tags,\
+          \ ensure_ascii=False),\n        \"user_visible_output\": user_visible_output,\n\
+          \        \"confidence_level\": confidence,\n        \"raw_output\": str(raw_output\
+          \ or \"\"),\n        \"safe_output_json\": json.dumps(safe_output, ensure_ascii=False)\n\
+          \    }"
+        code_language: python3
+        desc: 解析 LLM 输出并统一为稳定结构
+        outputs:
+          confidence_level:
+            type: string
+          display_tags_json:
+            type: string
+          focus_names_json:
+            type: string
+          manager_advice:
+            type: string
+          query_type:
+            type: string
+          raw_output:
+            type: string
+          result_count:
+            type: number
+          safe_output_json:
+            type: string
+          summary:
+            type: string
+          user_visible_output:
+            type: string
+          workflow_status:
+            type: string
+        selected: false
+        title: 结果整形
+        type: code
+        variables:
+        - value_selector:
+          - normalize_result_input
+          - normalized_query_type
+          variable: query_type
+        - value_selector:
+          - normalize_result_input
+          - normalized_result_count
+          variable: result_count
+        - value_selector:
+          - summary_llm
+          - text
+          variable: raw_output
+      height: 80
+      id: format_summary_output
+      position:
+        x: 1750
+        y: 168
+      positionAbsolute:
+        x: 1750
+        y: 168
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "import json\n\ndef main(\n    query_type: str = \"\",\n    user_query:\
+          \ str = \"\",\n    params_json: str = \"\"\n) -> dict:\n    query_type =\
+          \ str(query_type or \"\").strip()\n    user_query = str(user_query or \"\
+          \").strip()\n\n    empty_templates = {\n        \"training_unfinished_newcomer\"\
+          : (\n            \"当前条件下未查到培训未完成的新人。\",\n            \"可改问“这个月还有哪些新人未完成培训”或缩小到具体门店/时间范围。\"\
+          \n        ),\n        \"low_compliance_staff\": (\n            \"当前条件下未查到合规分低于阈值的员工。\"\
+          ,\n            \"可调整阈值后重查，例如低于 70 分或指定最近时间范围。\"\n        ),\n        \"\
+          practice_decline_staff\": (\n            \"当前条件下未查到陪练成绩下降的员工。\",\n     \
+          \       \"可改查最近 30 天、最近 90 天，或指定具体班组。\"\n        ),\n        \"recent_high_risk_staff\"\
+          : (\n            \"当前条件下未查到最近高风险员工。\",\n            \"可改查最近更长周期，或联动合规分、陪练趋势进一步筛查。\"\
+          \n        ),\n        \"followup_priority_staff\": (\n            \"当前条件下未查到需要重点跟进的员工。\"\
+          ,\n            \"可改查高风险、低合规分或陪练下降员工。\"\n        ),\n        \"high_freq_knowledge_tag_staff\"\
+          : (\n            \"当前条件下未查到该知识点的高频提问员工。\",\n            \"可换一个知识点名称，或扩大时间范围后重查。\"\
+          \n        ),\n    }\n\n    summary, manager_advice = empty_templates.get(\n\
+          \        query_type,\n        (\"当前条件下未查到相关结果。\", \"建议调整时间范围、阈值或筛选条件后重试。\"\
+          )\n    )\n\n    safe_output = {\n        \"workflow_status\": \"empty\"\
+          ,\n        \"query_type\": query_type,\n        \"result_count\": 0,\n \
+          \       \"summary\": summary,\n        \"manager_advice\": manager_advice,\n\
+          \        \"focus_names\": [],\n        \"display_tags\": [\"空结果\", \"建议改问\"\
+          ],\n        \"user_visible_output\": summary\n    }\n\n    return {\n  \
+          \      \"workflow_status\": \"empty\",\n        \"query_type\": query_type,\n\
+          \        \"result_count\": 0,\n        \"summary\": summary,\n        \"\
+          manager_advice\": manager_advice,\n        \"focus_names_json\": \"[]\"\
+          ,\n        \"display_tags_json\": json.dumps([\"空结果\", \"建议改问\"], ensure_ascii=False),\n\
+          \        \"user_visible_output\": summary,\n        \"confidence_level\"\
+          : \"high\",\n        \"raw_output\": \"\",\n        \"safe_output_json\"\
+          : json.dumps(safe_output, ensure_ascii=False)\n    }"
+        code_language: python3
+        desc: 无结果时输出空结果说明与改问建议
+        outputs:
+          confidence_level:
+            type: string
+          display_tags_json:
+            type: string
+          focus_names_json:
+            type: string
+          manager_advice:
+            type: string
+          query_type:
+            type: string
+          raw_output:
+            type: string
+          result_count:
+            type: number
+          safe_output_json:
+            type: string
+          summary:
+            type: string
+          user_visible_output:
+            type: string
+          workflow_status:
+            type: string
+        selected: false
+        title: 空结果构建
+        type: code
+        variables:
+        - value_selector:
+          - normalize_result_input
+          - normalized_query_type
+          variable: query_type
+        - value_selector:
+          - normalize_result_input
+          - normalized_user_query
+          variable: user_query
+        - value_selector:
+          - normalize_result_input
+          - normalized_params_json
+          variable: params_json
+      height: 80
+      id: empty_result_builder
+      position:
+        x: 1408
+        y: 354
+      positionAbsolute:
+        x: 1408
+        y: 354
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        desc: 输出正常总结结果
+        outputs:
+        - value_selector:
+          - format_summary_output
+          - workflow_status
+          variable: workflow_status
+        - value_selector:
+          - format_summary_output
+          - query_type
+          variable: query_type
+        - value_selector:
+          - format_summary_output
+          - result_count
+          variable: result_count
+        - value_selector:
+          - format_summary_output
+          - summary
+          variable: summary
+        - value_selector:
+          - format_summary_output
+          - manager_advice
+          variable: manager_advice
+        - value_selector:
+          - format_summary_output
+          - focus_names_json
+          variable: focus_names_json
+        - value_selector:
+          - format_summary_output
+          - display_tags_json
+          variable: display_tags_json
+        - value_selector:
+          - format_summary_output
+          - user_visible_output
+          variable: user_visible_output
+        - value_selector:
+          - format_summary_output
+          - confidence_level
+          variable: confidence_level
+        - value_selector:
+          - format_summary_output
+          - raw_output
+          variable: raw_output
+        - value_selector:
+          - format_summary_output
+          - safe_output_json
+          variable: safe_output_json
+        selected: false
+        title: 结束-正常结果
+        type: end
+      height: 376
+      id: end_success
+      position:
+        x: 2112
+        y: 20
+      positionAbsolute:
+        x: 2112
+        y: 20
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        desc: 输出空结果说明
+        outputs:
+        - value_selector:
+          - empty_result_builder
+          - workflow_status
+          variable: workflow_status
+        - value_selector:
+          - empty_result_builder
+          - query_type
+          variable: query_type
+        - value_selector:
+          - empty_result_builder
+          - result_count
+          variable: result_count
+        - value_selector:
+          - empty_result_builder
+          - summary
+          variable: summary
+        - value_selector:
+          - empty_result_builder
+          - manager_advice
+          variable: manager_advice
+        - value_selector:
+          - empty_result_builder
+          - focus_names_json
+          variable: focus_names_json
+        - value_selector:
+          - empty_result_builder
+          - display_tags_json
+          variable: display_tags_json
+        - value_selector:
+          - empty_result_builder
+          - user_visible_output
+          variable: user_visible_output
+        - value_selector:
+          - empty_result_builder
+          - confidence_level
+          variable: confidence_level
+        - value_selector:
+          - empty_result_builder
+          - raw_output
+          variable: raw_output
+        - value_selector:
+          - empty_result_builder
+          - safe_output_json
+          variable: safe_output_json
+        selected: false
+        title: 结束-空结果
+        type: end
+      height: 376
+      id: end_empty
+      position:
+        x: 1770
+        y: 328
+      positionAbsolute:
+        x: 1770
+        y: 328
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        desc: 输出输入无效说明
+        outputs:
+        - value_selector:
+          - invalid_result_builder
+          - workflow_status
+          variable: workflow_status
+        - value_selector:
+          - invalid_result_builder
+          - query_type
+          variable: query_type
+        - value_selector:
+          - invalid_result_builder
+          - result_count
+          variable: result_count
+        - value_selector:
+          - invalid_result_builder
+          - summary
+          variable: summary
+        - value_selector:
+          - invalid_result_builder
+          - manager_advice
+          variable: manager_advice
+        - value_selector:
+          - invalid_result_builder
+          - focus_names_json
+          variable: focus_names_json
+        - value_selector:
+          - invalid_result_builder
+          - display_tags_json
+          variable: display_tags_json
+        - value_selector:
+          - invalid_result_builder
+          - user_visible_output
+          variable: user_visible_output
+        - value_selector:
+          - invalid_result_builder
+          - confidence_level
+          variable: confidence_level
+        - value_selector:
+          - invalid_result_builder
+          - raw_output
+          variable: raw_output
+        - value_selector:
+          - invalid_result_builder
+          - safe_output_json
+          variable: safe_output_json
+        selected: false
+        title: 结束-无效输入
+        type: end
+      height: 376
+      id: end_invalid
+      position:
+        x: 1388
+        y: 514
+      positionAbsolute:
+        x: 1388
+        y: 514
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    viewport:
+      x: -1401.1779050825817
+      y: 288.70756201403793
+      zoom: 0.9236555375410264
+  rag_pipeline_variables: []

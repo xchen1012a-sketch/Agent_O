@@ -1,0 +1,1035 @@
+app:
+  description: 自动晋级解锁工作流｜根据后端已确认的阶段结果，输出权限解锁包、路由建议与通知文案。
+  icon: "🔓"
+  icon_background: '#E8F5E9'
+  icon_type: emoji
+  mode: workflow
+  name: 阶段晋级解锁工作流
+  use_icon_as_answer_icon: false
+dependencies:
+- current_identifier: null
+  type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: langgenius/tongyi:0.1.32@20a5454088fa017b72490e1cbaeebff21094d11b13e41197591734d1c08cdbb5
+    version: null
+kind: app
+version: 0.6.0
+workflow:
+  conversation_variables: []
+  environment_variables: []
+  features:
+    file_upload:
+      allowed_file_extensions:
+      - .JPG
+      - .JPEG
+      - .PNG
+      - .GIF
+      - .WEBP
+      - .SVG
+      allowed_file_types:
+      - image
+      allowed_file_upload_methods:
+      - local_file
+      - remote_url
+      enabled: false
+      fileUploadConfig:
+        attachment_image_file_size_limit: 2
+        audio_file_size_limit: 50
+        batch_count_limit: 5
+        file_size_limit: 15
+        file_upload_limit: 20
+        image_file_batch_limit: 10
+        image_file_size_limit: 10
+        single_chunk_attachment_limit: 10
+        video_file_size_limit: 100
+        workflow_file_upload_limit: 10
+      image:
+        enabled: false
+        number_limits: 3
+        transfer_methods:
+        - local_file
+        - remote_url
+      number_limits: 3
+    opening_statement: ''
+    retriever_resource:
+      enabled: false
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions: []
+    suggested_questions_after_answer:
+      enabled: false
+    text_to_speech:
+      enabled: false
+      language: ''
+      voice: ''
+  graph:
+    edges:
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: start
+        targetType: code
+      id: start-to-normalize
+      source: unlock_start
+      sourceHandle: source
+      target: normalize_facts
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: if-else
+      id: normalize-to-if
+      source: normalize_facts
+      sourceHandle: source
+      target: if_facts_valid
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: if-else
+        targetType: code
+      id: if-false-invalid
+      source: if_facts_valid
+      sourceHandle: 'false'
+      target: invalid_builder
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: if-else
+        targetType: code
+      id: if-true-rule
+      source: if_facts_valid
+      sourceHandle: 'true'
+      target: unlock_rule_engine
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: llm
+      id: rule-to-llm
+      source: unlock_rule_engine
+      sourceHandle: source
+      target: copy_polish_llm
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: llm
+        targetType: code
+      id: llm-to-merge
+      source: copy_polish_llm
+      sourceHandle: source
+      target: safe_merge
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: end
+      id: invalid-to-end
+      source: invalid_builder
+      sourceHandle: source
+      target: end_invalid
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: end
+      id: merge-to-end
+      source: safe_merge
+      sourceHandle: source
+      target: end_success
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    nodes:
+    - data:
+        desc: 接收后端已确认的训练周期阶段结果，只负责生成权限解锁包与提示文案，不负责落库。
+        selected: false
+        title: 开始
+        type: start
+        variables:
+        - label: 用户ID
+          max_length: 64
+          options: []
+          required: true
+          type: text-input
+          variable: user_id
+        - label: 周期ID
+          max_length: 64
+          options: []
+          required: true
+          type: text-input
+          variable: cycle_id
+        - label: 周期类型
+          max_length: 64
+          options: []
+          required: false
+          type: text-input
+          variable: cycle_type
+        - label: 阶段编号
+          max_length: 32
+          options: []
+          required: true
+          type: number
+          variable: stage_no
+        - label: 阶段名称
+          max_length: 64
+          options: []
+          required: false
+          type: text-input
+          variable: stage_name
+        - label: 评审分数
+          max_length: 32
+          options: []
+          required: false
+          type: number
+          variable: review_score
+        - label: 是否通过
+          max_length: 8
+          options: []
+          required: false
+          type: paragraph
+          variable: is_pass
+        - label: 阶段状态
+          max_length: 64
+          options: []
+          required: false
+          type: text-input
+          variable: stage_status
+        - label: 已有成长计划
+          max_length: 8
+          options: []
+          required: false
+          type: paragraph
+          variable: has_growth_plan
+        - label: 已通过阶段1
+          max_length: 8
+          options: []
+          required: false
+          type: paragraph
+          variable: passed_stage1
+        - label: 已通过阶段2
+          max_length: 8
+          options: []
+          required: false
+          type: paragraph
+          variable: passed_stage2
+        - label: 下一阶段周期ID
+          max_length: 64
+          options: []
+          required: false
+          type: text-input
+          variable: next_cycle_id
+        - label: 补训任务数
+          max_length: 32
+          options: []
+          required: false
+          type: number
+          variable: retry_task_count
+        - label: 触发来源
+          max_length: 64
+          options: []
+          required: false
+          type: text-input
+          variable: trigger_source
+        - label: 解锁矩阵版本
+          max_length: 32
+          options: []
+          required: false
+          type: text-input
+          variable: unlock_matrix_version
+        - label: 当前权限JSON
+          max_length: 120000
+          options: []
+          required: false
+          type: paragraph
+          variable: current_unlocks_json
+      height: 456
+      id: unlock_start
+      position: {x: 20, y: 260}
+      positionAbsolute: {x: 20, y: 260}
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: |-
+          import json, re
+          def t(v, d=""):
+              s = str(v or "").strip()
+              return s if s else d
+          def n(v, d=0):
+              try:
+                  if v is None or str(v).strip() == "":
+                      return int(d)
+                  return int(float(v))
+              except:
+                  return int(d)
+          def f(v, d=0.0):
+              try:
+                  if v is None or str(v).strip() == "":
+                      return float(d)
+                  return float(v)
+              except:
+                  return float(d)
+          def b(v, d=0):
+              if isinstance(v, bool):
+                  return 1 if v else 0
+              s = str(v or "").strip().lower()
+              if s in {"1","true","yes","y","on","是"}:
+                  return 1
+              if s in {"0","false","no","n","off","否"}:
+                  return 0
+              return int(d)
+          def j(raw, default):
+              if isinstance(raw, (dict, list)):
+                  return raw
+              s = t(raw)
+              s = re.sub(r"<think>[\s\S]*?</think>", "", s, flags=re.I)
+              s = re.sub(r"^```json\s*", "", s, flags=re.I)
+              s = re.sub(r"^```\s*", "", s)
+              s = re.sub(r"\s*```$", "", s)
+              if not s:
+                  return default
+              try:
+                  obj = json.loads(s)
+                  return obj
+              except:
+                  return default
+          def main(user_id="", cycle_id="", cycle_type="", stage_no=0, stage_name="", review_score=0, is_pass="", stage_status="", has_growth_plan="", passed_stage1="", passed_stage2="", next_cycle_id="", retry_task_count=0, trigger_source="", unlock_matrix_version="", current_unlocks_json=""):
+              user_id = t(user_id)
+              cycle_id = t(cycle_id)
+              cycle_type = t(cycle_type, "onboarding")
+              stage_name = t(stage_name)
+              stage_status = t(stage_status, "active")
+              next_cycle_id = t(next_cycle_id)
+              trigger_source = t(trigger_source, "review_stage")
+              unlock_matrix_version = t(unlock_matrix_version, "v1")
+              stage_no = n(stage_no, 0)
+              review_score = round(f(review_score, 0), 2)
+              is_pass = b(is_pass, 0)
+              has_growth_plan = b(has_growth_plan, 1)
+              passed_stage1 = b(passed_stage1, 0)
+              passed_stage2 = b(passed_stage2, 0)
+              retry_task_count = n(retry_task_count, 0)
+              current_unlocks = j(current_unlocks_json, {})
+              if not isinstance(current_unlocks, dict):
+                  current_unlocks = {}
+
+              if stage_no >= 1 and is_pass == 1:
+                  passed_stage1_final = 1 if stage_no >= 1 else passed_stage1
+                  passed_stage2_final = 1 if stage_no >= 2 else passed_stage2
+              else:
+                  passed_stage1_final = 1 if passed_stage1 else 0
+                  passed_stage2_final = 1 if passed_stage2 else 0
+
+              facts_valid = 1
+              invalid_reason = ""
+              if not user_id:
+                  facts_valid = 0
+                  invalid_reason = "缺少 user_id"
+              elif not cycle_id:
+                  facts_valid = 0
+                  invalid_reason = "缺少 cycle_id"
+              elif stage_no <= 0:
+                  facts_valid = 0
+                  invalid_reason = "stage_no 必须大于 0"
+              elif stage_status not in {"active", "waiting_review", "passed", "failed", "completed"}:
+                  facts_valid = 0
+                  invalid_reason = "stage_status 非法"
+              elif trigger_source not in {"review_stage", "onboarding_status", "manual_check"}:
+                  facts_valid = 0
+                  invalid_reason = "trigger_source 非法"
+              elif is_pass not in {0, 1}:
+                  facts_valid = 0
+                  invalid_reason = "is_pass 非法"
+
+              snapshot = {
+                  "user_id": user_id,
+                  "cycle_id": cycle_id,
+                  "cycle_type": cycle_type,
+                  "stage_no": stage_no,
+                  "stage_name": stage_name,
+                  "review_score": review_score,
+                  "is_pass": is_pass,
+                  "stage_status": stage_status,
+                  "has_growth_plan": has_growth_plan,
+                  "passed_stage1": passed_stage1,
+                  "passed_stage2": passed_stage2,
+                  "passed_stage1_final": passed_stage1_final,
+                  "passed_stage2_final": passed_stage2_final,
+                  "next_cycle_id": next_cycle_id,
+                  "retry_task_count": retry_task_count,
+                  "trigger_source": trigger_source,
+                  "unlock_matrix_version": unlock_matrix_version,
+                  "current_unlocks": current_unlocks,
+              }
+
+              return {
+                  "facts_valid": facts_valid,
+                  "invalid_reason": invalid_reason,
+                  "user_id_out": user_id,
+                  "cycle_id_out": cycle_id,
+                  "cycle_type_out": cycle_type,
+                  "stage_no_out": stage_no,
+                  "stage_name_out": stage_name,
+                  "review_score_out": review_score,
+                  "is_pass_out": is_pass,
+                  "stage_status_out": stage_status,
+                  "has_growth_plan_out": has_growth_plan,
+                  "passed_stage1_final": passed_stage1_final,
+                  "passed_stage2_final": passed_stage2_final,
+                  "next_cycle_id_out": next_cycle_id,
+                  "retry_task_count_out": retry_task_count,
+                  "trigger_source_out": trigger_source,
+                  "unlock_matrix_version_out": unlock_matrix_version,
+                  "current_unlocks_out": json.dumps(current_unlocks, ensure_ascii=False),
+                  "normalized_snapshot_json": json.dumps(snapshot, ensure_ascii=False),
+              }
+        code_language: python3
+        desc: 清洗输入并标准化为后续规则引擎可消费的事实快照
+        outputs:
+          current_unlocks_out: {type: string}
+          cycle_id_out: {type: string}
+          cycle_type_out: {type: string}
+          facts_valid: {type: number}
+          has_growth_plan_out: {type: number}
+          invalid_reason: {type: string}
+          is_pass_out: {type: number}
+          next_cycle_id_out: {type: string}
+          normalized_snapshot_json: {type: string}
+          passed_stage1_final: {type: number}
+          passed_stage2_final: {type: number}
+          retry_task_count_out: {type: number}
+          review_score_out: {type: number}
+          stage_name_out: {type: string}
+          stage_no_out: {type: number}
+          stage_status_out: {type: string}
+          trigger_source_out: {type: string}
+          unlock_matrix_version_out: {type: string}
+          user_id_out: {type: string}
+        selected: false
+        title: 输入校验与标准化
+        type: code
+        variables:
+        - {value_selector: [unlock_start, user_id], variable: user_id}
+        - {value_selector: [unlock_start, cycle_id], variable: cycle_id}
+        - {value_selector: [unlock_start, cycle_type], variable: cycle_type}
+        - {value_selector: [unlock_start, stage_no], variable: stage_no}
+        - {value_selector: [unlock_start, stage_name], variable: stage_name}
+        - {value_selector: [unlock_start, review_score], variable: review_score}
+        - {value_selector: [unlock_start, is_pass], variable: is_pass}
+        - {value_selector: [unlock_start, stage_status], variable: stage_status}
+        - {value_selector: [unlock_start, has_growth_plan], variable: has_growth_plan}
+        - {value_selector: [unlock_start, passed_stage1], variable: passed_stage1}
+        - {value_selector: [unlock_start, passed_stage2], variable: passed_stage2}
+        - {value_selector: [unlock_start, next_cycle_id], variable: next_cycle_id}
+        - {value_selector: [unlock_start, retry_task_count], variable: retry_task_count}
+        - {value_selector: [unlock_start, trigger_source], variable: trigger_source}
+        - {value_selector: [unlock_start, unlock_matrix_version], variable: unlock_matrix_version}
+        - {value_selector: [unlock_start, current_unlocks_json], variable: current_unlocks_json}
+      height: 80
+      id: normalize_facts
+      position: {x: 328, y: 260}
+      positionAbsolute: {x: 328, y: 260}
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        cases:
+        - case_id: 'true'
+          conditions:
+          - comparison_operator: '>'
+            id: valid-cond
+            value: '0'
+            varType: number
+            variable_selector: [normalize_facts, facts_valid]
+          id: 'true'
+          logical_operator: and
+        desc: 输入合法则继续执行规则引擎
+        selected: false
+        title: 是否有效
+        type: if-else
+      height: 126
+      id: if_facts_valid
+      position: {x: 636, y: 260}
+      positionAbsolute: {x: 636, y: 260}
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: |-
+          import json
+          def t(v, d=""):
+              s = str(v or "").strip()
+              return s if s else d
+          def main(user_id_out="", cycle_id_out="", invalid_reason=""):
+              reason = t(invalid_reason, "输入无效，无法生成自动晋级解锁结果。")
+              payload = {
+                  "workflow_status": "invalid_input",
+                  "unlock_scope": "invalid_input",
+                  "module_unlocks_json": json.dumps({
+                      "growth_plan": False,
+                      "daily_tasks": False,
+                      "free_practice": False,
+                      "exam_center": False,
+                      "on_job_assistant": False,
+                      "competition_dashboard": False,
+                      "business_workspace": False,
+                  }, ensure_ascii=False),
+                  "next_route": "/frontend/#/growth-plan",
+                  "next_action": "check_input",
+                  "user_message": reason,
+                  "manager_message": reason,
+                  "recommended_actions_json": json.dumps(["检查工作流输入字段"], ensure_ascii=False),
+                  "unlock_diff_json": json.dumps({}, ensure_ascii=False),
+                  "should_notify_user": 0,
+                  "should_notify_manager": 0,
+                  "invalid_reason": reason,
+              }
+              payload["safe_output_json"] = json.dumps({
+                  "user_id": t(user_id_out),
+                  "cycle_id": t(cycle_id_out),
+                  **payload,
+              }, ensure_ascii=False)
+              return payload
+        code_language: python3
+        desc: 无效输入兜底
+        outputs:
+          invalid_reason: {type: string}
+          manager_message: {type: string}
+          module_unlocks_json: {type: string}
+          next_action: {type: string}
+          next_route: {type: string}
+          recommended_actions_json: {type: string}
+          safe_output_json: {type: string}
+          should_notify_manager: {type: number}
+          should_notify_user: {type: number}
+          unlock_diff_json: {type: string}
+          unlock_scope: {type: string}
+          user_message: {type: string}
+          workflow_status: {type: string}
+        selected: false
+        title: 无效输入构建
+        type: code
+        variables:
+        - {value_selector: [normalize_facts, user_id_out], variable: user_id_out}
+        - {value_selector: [normalize_facts, cycle_id_out], variable: cycle_id_out}
+        - {value_selector: [normalize_facts, invalid_reason], variable: invalid_reason}
+      height: 80
+      id: invalid_builder
+      position: {x: 960, y: 420}
+      positionAbsolute: {x: 960, y: 420}
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: |-
+          import json
+          def t(v, d=""):
+              s = str(v or "").strip()
+              return s if s else d
+          def n(v, d=0):
+              try:
+                  if v is None or str(v).strip() == "":
+                      return int(d)
+                  return int(float(v))
+              except:
+                  return int(d)
+          def j(raw, default):
+              if isinstance(raw, (dict, list)):
+                  return raw
+              s = t(raw)
+              if not s:
+                  return default
+              try:
+                  obj = json.loads(s)
+                  return obj
+              except:
+                  return default
+          def route_for(scope, next_cycle_id):
+              if scope == "retry_required":
+                  return "/frontend/#/daily-tasks"
+              if scope in {"onboarding_only", "stage1_locked"}:
+                  return "/frontend/#/growth-plan"
+              if scope == "stage1_passed":
+                  return "/frontend/#/free-practice"
+              if scope == "stage2_passed":
+                  return "/frontend/#/exam-center"
+              return "/frontend/#/growth-plan"
+          def main(user_id_out="", cycle_id_out="", cycle_type_out="", stage_no_out=0, stage_name_out="", review_score_out=0, is_pass_out=0, stage_status_out="", has_growth_plan_out=1, passed_stage1_final=0, passed_stage2_final=0, next_cycle_id_out="", retry_task_count_out=0, trigger_source_out="", unlock_matrix_version_out="v1", current_unlocks_out="{}", normalized_snapshot_json=""):
+              stage_no = n(stage_no_out, 0)
+              is_pass = n(is_pass_out, 0)
+              has_growth_plan = n(has_growth_plan_out, 1)
+              passed_stage1 = n(passed_stage1_final, 0)
+              passed_stage2 = n(passed_stage2_final, 0)
+              retry_task_count = n(retry_task_count_out, 0)
+              current_unlocks = j(current_unlocks_out, {})
+              if not isinstance(current_unlocks, dict):
+                  current_unlocks = {}
+
+              if not has_growth_plan:
+                  unlock_scope = "onboarding_only"
+                  module_unlocks = {
+                      "growth_plan": True,
+                      "daily_tasks": False,
+                      "free_practice": False,
+                      "exam_center": False,
+                      "on_job_assistant": False,
+                      "competition_dashboard": False,
+                      "business_workspace": False,
+                  }
+                  next_action = "generate_growth_plan"
+                  rule_reason = "用户尚未生成成长计划，仅允许进入成长计划入口。"
+              elif is_pass == 0 and trigger_source_out == "review_stage":
+                  unlock_scope = "retry_required"
+                  module_unlocks = {
+                      "growth_plan": True,
+                      "daily_tasks": True,
+                      "free_practice": False,
+                      "exam_center": False,
+                      "on_job_assistant": False,
+                      "competition_dashboard": False,
+                      "business_workspace": False,
+                  }
+                  next_action = "complete_retry_tasks"
+                  rule_reason = "阶段评审未通过，需要补训，权限不扩张。"
+              elif passed_stage2 == 1:
+                  unlock_scope = "stage2_passed"
+                  module_unlocks = {
+                      "growth_plan": True,
+                      "daily_tasks": True,
+                      "free_practice": True,
+                      "exam_center": True,
+                      "on_job_assistant": True,
+                      "competition_dashboard": True,
+                      "business_workspace": True,
+                  }
+                  next_action = "enter_exam_center"
+                  rule_reason = "已通过阶段2，解锁考试中心、竞赛看板和完整业务工作区。"
+              elif passed_stage1 == 1:
+                  unlock_scope = "stage1_passed"
+                  module_unlocks = {
+                      "growth_plan": True,
+                      "daily_tasks": True,
+                      "free_practice": True,
+                      "exam_center": False,
+                      "on_job_assistant": True,
+                      "competition_dashboard": False,
+                      "business_workspace": False,
+                  }
+                  next_action = "enter_free_practice"
+                  rule_reason = "已通过阶段1，解锁自由练习与在岗助手。"
+              else:
+                  unlock_scope = "stage1_locked"
+                  module_unlocks = {
+                      "growth_plan": True,
+                      "daily_tasks": True,
+                      "free_practice": False,
+                      "exam_center": False,
+                      "on_job_assistant": False,
+                      "competition_dashboard": False,
+                      "business_workspace": False,
+                  }
+                  next_action = "complete_current_stage"
+                  rule_reason = "尚未通过阶段1，仅开放成长计划与当日任务。"
+
+              unlock_diff = {}
+              for key, value in module_unlocks.items():
+                  old_value = bool(current_unlocks.get(key, False))
+                  new_value = bool(value)
+                  if old_value != new_value:
+                      unlock_diff[key] = {"from": old_value, "to": new_value}
+
+              next_route = route_for(unlock_scope, next_cycle_id_out)
+              should_notify_user = 1 if unlock_scope in {"retry_required", "stage1_passed", "stage2_passed"} else 0
+              should_notify_manager = 1 if unlock_scope in {"retry_required", "stage2_passed"} else 0
+
+              recommended_actions = []
+              if unlock_scope == "onboarding_only":
+                  recommended_actions = ["进入成长计划页面并生成个人成长计划"]
+              elif unlock_scope == "stage1_locked":
+                  recommended_actions = ["继续完成当前阶段每日任务", "完成阶段评审后再解锁更多模块"]
+              elif unlock_scope == "stage1_passed":
+                  recommended_actions = ["进入自由练习巩固能力", "开始使用在岗助手处理真实业务问题"]
+              elif unlock_scope == "stage2_passed":
+                  recommended_actions = ["进入考试中心参加正式考核", "查看竞赛看板追踪进度", "使用完整业务工作区开展实战"]
+              elif unlock_scope == "retry_required":
+                  recommended_actions = ["优先完成系统下发的补训任务", "补训完成后重新参加阶段评审"]
+
+              return {
+                  "workflow_status": "success",
+                  "unlock_scope": unlock_scope,
+                  "module_unlocks_json": json.dumps(module_unlocks, ensure_ascii=False),
+                  "next_route": next_route,
+                  "next_action": next_action,
+                  "rule_reason": rule_reason,
+                  "recommended_actions_json": json.dumps(recommended_actions, ensure_ascii=False),
+                  "unlock_diff_json": json.dumps(unlock_diff, ensure_ascii=False),
+                  "should_notify_user": should_notify_user,
+                  "should_notify_manager": should_notify_manager,
+                  "normalized_snapshot_json_out": t(normalized_snapshot_json, "{}"),
+                  "policy_snapshot_json": json.dumps({
+                      "unlock_matrix_version": t(unlock_matrix_version_out, "v1"),
+                      "trigger_source": t(trigger_source_out),
+                      "stage_status": t(stage_status_out),
+                      "review_score": review_score_out,
+                      "stage_no": stage_no,
+                      "stage_name": t(stage_name_out),
+                      "retry_task_count": retry_task_count,
+                      "next_cycle_id": t(next_cycle_id_out),
+                      "cycle_type": t(cycle_type_out, "onboarding"),
+                      "user_id": t(user_id_out),
+                      "cycle_id": t(cycle_id_out),
+                      "is_pass": is_pass,
+                  }, ensure_ascii=False),
+                }
+        code_language: python3
+        desc: 根据既有计划文档与后端事实生成解锁包，不做任何状态落库
+        outputs:
+          module_unlocks_json: {type: string}
+          next_action: {type: string}
+          next_route: {type: string}
+          normalized_snapshot_json_out: {type: string}
+          policy_snapshot_json: {type: string}
+          recommended_actions_json: {type: string}
+          rule_reason: {type: string}
+          should_notify_manager: {type: number}
+          should_notify_user: {type: number}
+          unlock_diff_json: {type: string}
+          unlock_scope: {type: string}
+          workflow_status: {type: string}
+        selected: false
+        title: 解锁矩阵规则引擎
+        type: code
+        variables:
+        - {value_selector: [normalize_facts, user_id_out], variable: user_id_out}
+        - {value_selector: [normalize_facts, cycle_id_out], variable: cycle_id_out}
+        - {value_selector: [normalize_facts, cycle_type_out], variable: cycle_type_out}
+        - {value_selector: [normalize_facts, stage_no_out], variable: stage_no_out}
+        - {value_selector: [normalize_facts, stage_name_out], variable: stage_name_out}
+        - {value_selector: [normalize_facts, review_score_out], variable: review_score_out}
+        - {value_selector: [normalize_facts, is_pass_out], variable: is_pass_out}
+        - {value_selector: [normalize_facts, stage_status_out], variable: stage_status_out}
+        - {value_selector: [normalize_facts, has_growth_plan_out], variable: has_growth_plan_out}
+        - {value_selector: [normalize_facts, passed_stage1_final], variable: passed_stage1_final}
+        - {value_selector: [normalize_facts, passed_stage2_final], variable: passed_stage2_final}
+        - {value_selector: [normalize_facts, next_cycle_id_out], variable: next_cycle_id_out}
+        - {value_selector: [normalize_facts, retry_task_count_out], variable: retry_task_count_out}
+        - {value_selector: [normalize_facts, trigger_source_out], variable: trigger_source_out}
+        - {value_selector: [normalize_facts, unlock_matrix_version_out], variable: unlock_matrix_version_out}
+        - {value_selector: [normalize_facts, current_unlocks_out], variable: current_unlocks_out}
+        - {value_selector: [normalize_facts, normalized_snapshot_json], variable: normalized_snapshot_json}
+      height: 80
+      id: unlock_rule_engine
+      position: {x: 960, y: 180}
+      positionAbsolute: {x: 960, y: 180}
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        desc: 只润色文案，不允许改写任何解锁布尔值与动作字段
+        model:
+          completion_params:
+            temperature: 0.2
+            max_tokens: 1400
+          mode: chat
+          name: qwen-plus
+          provider: langgenius/tongyi/tongyi
+        prompt_template:
+        - id: unlock-copy-system
+          role: system
+          text: |-
+            你是培训系统的提示文案生成器。
+            你不是状态机，也不是权限引擎。
+            你只能基于已给出的规则结果生成文案。
+            不允许修改或推断任何权限布尔值、next_action、next_route、unlock_scope。
+            只输出 JSON，不要 markdown，不要解释。
+            输出 Schema：
+            {
+              "user_message":"",
+              "manager_message":"",
+              "recommended_actions":[""],
+              "panel_summary":""
+            }
+            要求：
+            - user_message 面向学员，简短明确
+            - manager_message 面向管理员，说明当前解锁结论和跟进重点
+            - recommended_actions 最多 3 条
+            - panel_summary 1 句话摘要
+        - id: unlock-copy-user
+          role: user
+          text: |-
+            事实快照：{{#unlock_rule_engine.normalized_snapshot_json_out#}}
+            规则结果：{{#unlock_rule_engine.module_unlocks_json#}}
+            解锁范围：{{#unlock_rule_engine.unlock_scope#}}
+            下一动作：{{#unlock_rule_engine.next_action#}}
+            跳转路由：{{#unlock_rule_engine.next_route#}}
+            规则原因：{{#unlock_rule_engine.rule_reason#}}
+            推荐动作（规则版）：{{#unlock_rule_engine.recommended_actions_json#}}
+        selected: false
+        title: 提示文案润色
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 132
+      id: copy_polish_llm
+      position: {x: 1268, y: 180}
+      positionAbsolute: {x: 1268, y: 180}
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: |-
+          import json, re
+          def t(v, d=""):
+              s = str(v or "").strip()
+              return s if s else d
+          def n(v, d=0):
+              try:
+                  if v is None or str(v).strip() == "":
+                      return int(d)
+                  return int(float(v))
+              except:
+                  return int(d)
+          def j(raw, default):
+              if isinstance(raw, (dict, list)):
+                  return raw
+              s = t(raw)
+              s = re.sub(r"<think>[\s\S]*?</think>", "", s, flags=re.I)
+              s = re.sub(r"^```json\s*", "", s, flags=re.I)
+              s = re.sub(r"^```\s*", "", s)
+              s = re.sub(r"\s*```$", "", s)
+              if not s:
+                  return default
+              try:
+                  obj = json.loads(s)
+                  return obj
+              except:
+                  m = re.search(r"(\{[\s\S]*\}|\[[\s\S]*\])", s)
+                  if not m:
+                      return default
+                  try:
+                      return json.loads(m.group(1))
+                  except:
+                      return default
+          def main(user_id_out="", cycle_id_out="", workflow_status="success", unlock_scope="", module_unlocks_json="{}", next_route="", next_action="", rule_reason="", recommended_actions_json="[]", unlock_diff_json="{}", should_notify_user=0, should_notify_manager=0, normalized_snapshot_json_out="{}", policy_snapshot_json="{}", raw_output=""):
+              llm = j(raw_output, {})
+              if not isinstance(llm, dict):
+                  llm = {}
+
+              user_message = t(llm.get("user_message"))
+              manager_message = t(llm.get("manager_message"))
+              panel_summary = t(llm.get("panel_summary"))
+              recommended_actions = llm.get("recommended_actions") if isinstance(llm.get("recommended_actions"), list) else j(recommended_actions_json, [])
+              if not isinstance(recommended_actions, list):
+                  recommended_actions = []
+              recommended_actions = [str(x).strip() for x in recommended_actions if str(x).strip()][:3]
+              if not recommended_actions:
+                  recommended_actions = j(recommended_actions_json, []) if isinstance(j(recommended_actions_json, []), list) else []
+                  recommended_actions = [str(x).strip() for x in recommended_actions if str(x).strip()][:3]
+
+              if not user_message:
+                  if unlock_scope == "onboarding_only":
+                      user_message = "请先生成成长计划，生成后再开始后续训练。"
+                  elif unlock_scope == "stage1_locked":
+                      user_message = "你当前可继续完成成长计划和当日任务，通过阶段1后会解锁更多功能。"
+                  elif unlock_scope == "stage1_passed":
+                      user_message = "你已通过阶段1，现已解锁自由练习和在岗助手。"
+                  elif unlock_scope == "stage2_passed":
+                      user_message = "你已通过阶段2，考试中心、竞赛看板和完整业务工作区已解锁。"
+                  elif unlock_scope == "retry_required":
+                      user_message = "本次阶段评审未通过，请先完成补训任务后再重新评审。"
+                  else:
+                      user_message = "已完成自动解锁判断。"
+
+              if not manager_message:
+                  manager_message = f"当前解锁范围：{unlock_scope}；建议动作：{next_action}；规则原因：{rule_reason}"
+
+              if not panel_summary:
+                  panel_summary = f"解锁范围 {unlock_scope}，下一步建议 {next_action}。"
+
+              safe_output = {
+                  "user_id": t(user_id_out),
+                  "cycle_id": t(cycle_id_out),
+                  "workflow_status": t(workflow_status, "success"),
+                  "unlock_scope": t(unlock_scope),
+                  "module_unlocks_json": t(module_unlocks_json, "{}"),
+                  "next_route": t(next_route),
+                  "next_action": t(next_action),
+                  "user_message": user_message,
+                  "manager_message": manager_message,
+                  "panel_summary": panel_summary,
+                  "recommended_actions_json": json.dumps(recommended_actions, ensure_ascii=False),
+                  "unlock_diff_json": t(unlock_diff_json, "{}"),
+                  "should_notify_user": n(should_notify_user, 0),
+                  "should_notify_manager": n(should_notify_manager, 0),
+                  "invalid_reason": "",
+                  "normalized_snapshot_json": t(normalized_snapshot_json_out, "{}"),
+                  "policy_snapshot_json": t(policy_snapshot_json, "{}"),
+                  "raw_output": t(raw_output),
+                }
+
+              return {
+                  "workflow_status": safe_output["workflow_status"],
+                  "unlock_scope": safe_output["unlock_scope"],
+                  "module_unlocks_json": safe_output["module_unlocks_json"],
+                  "next_route": safe_output["next_route"],
+                  "next_action": safe_output["next_action"],
+                  "user_message": safe_output["user_message"],
+                  "manager_message": safe_output["manager_message"],
+                  "panel_summary": safe_output["panel_summary"],
+                  "recommended_actions_json": safe_output["recommended_actions_json"],
+                  "unlock_diff_json": safe_output["unlock_diff_json"],
+                  "should_notify_user": safe_output["should_notify_user"],
+                  "should_notify_manager": safe_output["should_notify_manager"],
+                  "invalid_reason": safe_output["invalid_reason"],
+                  "normalized_snapshot_json": safe_output["normalized_snapshot_json"],
+                  "policy_snapshot_json": safe_output["policy_snapshot_json"],
+                  "raw_output": safe_output["raw_output"],
+                  "safe_output_json": json.dumps(safe_output, ensure_ascii=False),
+                }
+        code_language: python3
+        desc: 规则结果优先，LLM 只补文案，最终输出安全收口
+        outputs:
+          invalid_reason: {type: string}
+          manager_message: {type: string}
+          module_unlocks_json: {type: string}
+          next_action: {type: string}
+          next_route: {type: string}
+          normalized_snapshot_json: {type: string}
+          panel_summary: {type: string}
+          policy_snapshot_json: {type: string}
+          raw_output: {type: string}
+          recommended_actions_json: {type: string}
+          safe_output_json: {type: string}
+          should_notify_manager: {type: number}
+          should_notify_user: {type: number}
+          unlock_diff_json: {type: string}
+          unlock_scope: {type: string}
+          user_message: {type: string}
+          workflow_status: {type: string}
+        selected: false
+        title: 结果融合与安全收口
+        type: code
+        variables:
+        - {value_selector: [normalize_facts, user_id_out], variable: user_id_out}
+        - {value_selector: [normalize_facts, cycle_id_out], variable: cycle_id_out}
+        - {value_selector: [unlock_rule_engine, workflow_status], variable: workflow_status}
+        - {value_selector: [unlock_rule_engine, unlock_scope], variable: unlock_scope}
+        - {value_selector: [unlock_rule_engine, module_unlocks_json], variable: module_unlocks_json}
+        - {value_selector: [unlock_rule_engine, next_route], variable: next_route}
+        - {value_selector: [unlock_rule_engine, next_action], variable: next_action}
+        - {value_selector: [unlock_rule_engine, rule_reason], variable: rule_reason}
+        - {value_selector: [unlock_rule_engine, recommended_actions_json], variable: recommended_actions_json}
+        - {value_selector: [unlock_rule_engine, unlock_diff_json], variable: unlock_diff_json}
+        - {value_selector: [unlock_rule_engine, should_notify_user], variable: should_notify_user}
+        - {value_selector: [unlock_rule_engine, should_notify_manager], variable: should_notify_manager}
+        - {value_selector: [unlock_rule_engine, normalized_snapshot_json_out], variable: normalized_snapshot_json_out}
+        - {value_selector: [unlock_rule_engine, policy_snapshot_json], variable: policy_snapshot_json}
+        - {value_selector: [copy_polish_llm, text], variable: raw_output}
+      height: 80
+      id: safe_merge
+      position: {x: 1572, y: 180}
+      positionAbsolute: {x: 1572, y: 180}
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        desc: 输出自动晋级解锁结果
+        outputs:
+        - {value_selector: [safe_merge, workflow_status], variable: workflow_status}
+        - {value_selector: [safe_merge, unlock_scope], variable: unlock_scope}
+        - {value_selector: [safe_merge, module_unlocks_json], variable: module_unlocks_json}
+        - {value_selector: [safe_merge, next_route], variable: next_route}
+        - {value_selector: [safe_merge, next_action], variable: next_action}
+        - {value_selector: [safe_merge, user_message], variable: user_message}
+        - {value_selector: [safe_merge, manager_message], variable: manager_message}
+        - {value_selector: [safe_merge, panel_summary], variable: panel_summary}
+        - {value_selector: [safe_merge, recommended_actions_json], variable: recommended_actions_json}
+        - {value_selector: [safe_merge, unlock_diff_json], variable: unlock_diff_json}
+        - {value_selector: [safe_merge, should_notify_user], variable: should_notify_user}
+        - {value_selector: [safe_merge, should_notify_manager], variable: should_notify_manager}
+        - {value_selector: [safe_merge, invalid_reason], variable: invalid_reason}
+        - {value_selector: [safe_merge, normalized_snapshot_json], variable: normalized_snapshot_json}
+        - {value_selector: [safe_merge, policy_snapshot_json], variable: policy_snapshot_json}
+        - {value_selector: [safe_merge, raw_output], variable: raw_output}
+        - {value_selector: [safe_merge, safe_output_json], variable: safe_output_json}
+        selected: false
+        title: 结束-成功
+        type: end
+      height: 488
+      id: end_success
+      position: {x: 1880, y: 180}
+      positionAbsolute: {x: 1880, y: 180}
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        desc: 输出无效输入说明
+        outputs:
+        - {value_selector: [invalid_builder, workflow_status], variable: workflow_status}
+        - {value_selector: [invalid_builder, unlock_scope], variable: unlock_scope}
+        - {value_selector: [invalid_builder, module_unlocks_json], variable: module_unlocks_json}
+        - {value_selector: [invalid_builder, next_route], variable: next_route}
+        - {value_selector: [invalid_builder, next_action], variable: next_action}
+        - {value_selector: [invalid_builder, user_message], variable: user_message}
+        - {value_selector: [invalid_builder, manager_message], variable: manager_message}
+        - {value_selector: [invalid_builder, recommended_actions_json], variable: recommended_actions_json}
+        - {value_selector: [invalid_builder, unlock_diff_json], variable: unlock_diff_json}
+        - {value_selector: [invalid_builder, should_notify_user], variable: should_notify_user}
+        - {value_selector: [invalid_builder, should_notify_manager], variable: should_notify_manager}
+        - {value_selector: [invalid_builder, invalid_reason], variable: invalid_reason}
+        - {value_selector: [invalid_builder, safe_output_json], variable: safe_output_json}
+        selected: false
+        title: 结束-无效输入
+        type: end
+      height: 384
+      id: end_invalid
+      position: {x: 1268, y: 420}
+      positionAbsolute: {x: 1268, y: 420}
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242

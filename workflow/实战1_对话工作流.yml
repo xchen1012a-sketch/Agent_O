@@ -1,0 +1,1862 @@
+app:
+  description: 实战陪练模块 - 工作流A：陪练对话主工作流（模块归属/周期阶段对齐版）
+  icon: 🤖
+  icon_background: '#FFEAD5'
+  mode: advanced-chat
+  name: 实战陪练对话工作流
+  use_icon_as_answer_icon: false
+dependencies:
+- current_identifier: null
+  type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: langgenius/tongyi:0.1.32@20a5454088fa017b72490e1cbaeebff21094d11b13e41197591734d1c08cdbb5
+    version: null
+kind: app
+version: 0.6.0
+workflow:
+  conversation_variables:
+  - description: 用户ID
+    id: 2baf5f61-1d17-4d2d-8e5f-111111111001
+    name: cv_user_id
+    selector:
+    - conversation
+    - cv_user_id
+    value: ''
+    value_type: string
+  - description: 当前陪练场景
+    id: 2baf5f61-1d17-4d2d-8e5f-111111111002
+    name: cv_scenario_type
+    selector:
+    - conversation
+    - cv_scenario_type
+    value: ''
+    value_type: string
+  - description: 当前陪练难度
+    id: 2baf5f61-1d17-4d2d-8e5f-111111111003
+    name: cv_difficulty
+    selector:
+    - conversation
+    - cv_difficulty
+    value: ''
+    value_type: string
+  - description: 学员角色
+    id: 2baf5f61-1d17-4d2d-8e5f-111111111004
+    name: cv_trainee_role
+    selector:
+    - conversation
+    - cv_trainee_role
+    value: ''
+    value_type: string
+  - description: 陪练场景卡
+    id: 2baf5f61-1d17-4d2d-8e5f-111111111005
+    name: cv_scenario_card
+    selector:
+    - conversation
+    - cv_scenario_card
+    value: ''
+    value_type: string
+  - description: 当前阶段
+    id: 2baf5f61-1d17-4d2d-8e5f-111111111006
+    name: cv_stage
+    selector:
+    - conversation
+    - cv_stage
+    value: init
+    value_type: string
+  - description: 累计对话轮次
+    id: 2baf5f61-1d17-4d2d-8e5f-111111111007
+    name: cv_round_count
+    selector:
+    - conversation
+    - cv_round_count
+    value: 0
+    value_type: integer
+  - description: 是否已发送首轮顾客开场
+    id: 2baf5f61-1d17-4d2d-8e5f-111111111008
+    name: cv_opening_sent
+    selector:
+    - conversation
+    - cv_opening_sent
+    value: 0
+    value_type: integer
+  - description: 是否结束
+    id: 2baf5f61-1d17-4d2d-8e5f-111111111009
+    name: cv_end_flag
+    selector:
+    - conversation
+    - cv_end_flag
+    value: 0
+    value_type: integer
+  - description: 用户风险表达累计次数
+    id: 2baf5f61-1d17-4d2d-8e5f-111111111010
+    name: cv_risk_hit_count
+    selector:
+    - conversation
+    - cv_risk_hit_count
+    value: 0
+    value_type: integer
+  - description: 最近一轮顾客回复
+    id: 2baf5f61-1d17-4d2d-8e5f-111111111011
+    name: cv_last_customer_reply
+    selector:
+    - conversation
+    - cv_last_customer_reply
+    value: ''
+    value_type: string
+  - description: 当前训练模块编码
+    id: 2baf5f61-1d17-4d2d-8e5f-111111111012
+    name: cv_module_code
+    selector:
+    - conversation
+    - cv_module_code
+    value: ''
+    value_type: string
+  - description: 当前训练模块名称
+    id: 2baf5f61-1d17-4d2d-8e5f-111111111013
+    name: cv_module_name
+    selector:
+    - conversation
+    - cv_module_name
+    value: ''
+    value_type: string
+  - description: 当前训练周期ID
+    id: 2baf5f61-1d17-4d2d-8e5f-111111111014
+    name: cv_cycle_id
+    selector:
+    - conversation
+    - cv_cycle_id
+    value: ''
+    value_type: string
+  - description: 当前训练阶段号
+    id: 2baf5f61-1d17-4d2d-8e5f-111111111015
+    name: cv_stage_no
+    selector:
+    - conversation
+    - cv_stage_no
+    value: 0
+    value_type: integer
+  environment_variables: []
+  features:
+    file_upload:
+      allowed_file_extensions:
+      - .JPG
+      - .JPEG
+      - .PNG
+      - .GIF
+      - .WEBP
+      - .SVG
+      allowed_file_types:
+      - image
+      allowed_file_upload_methods:
+      - local_file
+      - remote_url
+      enabled: false
+      fileUploadConfig:
+        attachment_image_file_size_limit: 2
+        audio_file_size_limit: 50
+        batch_count_limit: 5
+        file_size_limit: 15
+        file_upload_limit: 20
+        image_file_batch_limit: 10
+        image_file_size_limit: 10
+        single_chunk_attachment_limit: 10
+        video_file_size_limit: 100
+        workflow_file_upload_limit: 10
+      image:
+        enabled: false
+        number_limits: 3
+        transfer_methods:
+        - local_file
+        - remote_url
+      number_limits: 3
+    opening_statement: ''
+    retriever_resource:
+      enabled: false
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions: []
+    suggested_questions_after_answer:
+      enabled: false
+    text_to_speech:
+      enabled: false
+      language: ''
+      voice: ''
+  graph:
+    edges:
+    - data:
+        isInIteration: false
+        sourceType: start
+        targetType: code
+      id: start-init_context
+      source: start
+      sourceHandle: source
+      target: init_context
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: code
+        targetType: assigner
+      id: init_context-init_assigner
+      source: init_context
+      sourceHandle: source
+      target: init_assigner
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: llm
+        targetType: code
+      id: customer_llm-post_process
+      source: customer_llm
+      sourceHandle: source
+      target: post_process
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: code
+        targetType: assigner
+      id: post_process-state_update
+      source: post_process
+      sourceHandle: source
+      target: state_update
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: assigner
+        targetType: answer
+      id: state_update-answer
+      source: state_update
+      sourceHandle: source
+      target: answer
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: if-else
+        targetType: llm
+      id: guard_route-true-customer_llm
+      source: guard_route
+      sourceHandle: 'true'
+      target: customer_llm
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: if-else
+        targetType: code
+      id: guard_route-false-guard_reply_builder
+      source: guard_route
+      sourceHandle: 'false'
+      target: guard_reply_builder
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: code
+        targetType: assigner
+      id: guard_reply_builder-guard_state_update
+      source: guard_reply_builder
+      sourceHandle: source
+      target: guard_state_update
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: assigner
+        targetType: answer
+      id: guard_state_update-guard_answer
+      source: guard_state_update
+      sourceHandle: source
+      target: guard_answer
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: assigner
+        targetType: code
+      id: init_assigner-safety_code_guard
+      source: init_assigner
+      sourceHandle: source
+      target: safety_code_guard
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: code
+        targetType: llm
+      id: safety_code_guard-safety_llm_guard
+      source: safety_code_guard
+      sourceHandle: source
+      target: safety_llm_guard
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: llm
+        targetType: code
+      id: safety_llm_guard-guard_merge
+      source: safety_llm_guard
+      sourceHandle: source
+      target: guard_merge
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: code
+        targetType: if-else
+      id: guard_merge-guard_route
+      source: guard_merge
+      sourceHandle: source
+      target: guard_route
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    nodes:
+    - data:
+        desc: ''
+        selected: false
+        title: 开始
+        type: start
+        variables:
+        - label: 用户ID
+          max_length: 64
+          options: []
+          required: false
+          type: text-input
+          variable: user_id
+        - label: 训练模块编码（必填，建议传 training_constants 中的模块 code）
+          max_length: 64
+          options:
+          - product_basics
+          - compliance_expression
+          - customer_opening
+          - needs_discovery
+          - objection_handling
+          - combo_recommendation
+          - closing_conversion
+          - independent_service
+          - final_review
+          required: true
+          type: text-input
+          variable: module_code
+        - label: 训练模块名称（可选，不传时自动按模块编码回填）
+          max_length: 64
+          options: []
+          required: false
+          type: text-input
+          variable: module_name
+        - label: 训练周期ID（可选）
+          max_length: 64
+          options: []
+          required: false
+          type: text-input
+          variable: cycle_id
+        - label: 阶段号（可选）
+          max_length: 32
+          options: []
+          required: false
+          type: number
+          variable: stage_no
+        - label: 场景类型（下拉）
+          max_length: 64
+          options:
+          - 顾客嫌贵
+          - 顾客质疑材质真假
+          - 顾客犹豫不决不下单
+          - 其他（手动输入）
+          required: false
+          type: select
+          variable: scenario_type_select
+        - label: 自定义场景
+          max_length: 256
+          options: []
+          required: false
+          type: text-input
+          variable: scenario_type_custom
+        - label: 陪练难度
+          max_length: 32
+          options:
+          - 初级
+          - 标准
+          - 进阶
+          required: false
+          type: select
+          variable: difficulty
+        - label: 学员身份
+          max_length: 64
+          options: []
+          required: false
+          type: text-input
+          variable: trainee_role
+        height: 381
+      height: 213
+      id: start
+      position:
+        x: 0
+        y: 0
+      positionAbsolute:
+        x: 0
+        y: 0
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: |-
+          def main(
+              start_user_id: str = "",
+              start_module_code: str = "",
+              start_module_name: str = "",
+              start_cycle_id: str = "",
+              start_stage_no = 0,
+              start_scenario_type_select: str = "",
+              start_scenario_type_custom: str = "",
+              start_difficulty: str = "",
+              start_trainee_role: str = "",
+              cv_user_id: str = "",
+              cv_module_code: str = "",
+              cv_module_name: str = "",
+              cv_cycle_id: str = "",
+              cv_stage_no = 0,
+              cv_scenario_type: str = "",
+              cv_difficulty: str = "",
+              cv_trainee_role: str = "",
+              cv_scenario_card: str = "",
+              cv_stage: str = "",
+              cv_round_count: int = 0,
+              cv_opening_sent: int = 0,
+              cv_end_flag: int = 0,
+              cv_risk_hit_count: int = 0,
+              dialogue_count: int = 1
+          ) -> dict:
+              def pick(*vals, default=""):
+                  for v in vals:
+                      if v is None:
+                          continue
+                      s = str(v).strip()
+                      if s != "":
+                          return s
+                  return default
+
+              def pick_int(*vals, default=0):
+                  for v in vals:
+                      try:
+                          if v is None or str(v).strip() == "":
+                              continue
+                          return int(round(float(v)))
+                      except Exception:
+                          continue
+                  return default
+
+              module_name_map = {
+                  "product_basics": "产品基础",
+                  "compliance_expression": "合规表达",
+                  "customer_opening": "接待开场",
+                  "needs_discovery": "需求挖掘",
+                  "objection_handling": "异议处理",
+                  "combo_recommendation": "搭配推荐",
+                  "closing_conversion": "成交推进",
+                  "independent_service": "独立上岗",
+                  "final_review": "综合复盘"
+              }
+
+              module_focus_map = {
+                  "product_basics": "重点看学员是否能把黄金、K金、铂金、钻石、翡翠等基础概念讲清楚，遇到材质、证书、工艺类问题时不能乱说。",
+                  "compliance_expression": "重点看学员是否避免绝对化、保值升值、最低价、无法核实保证等红线表达，并能用稳妥说法接住顾客。",
+                  "customer_opening": "重点看学员是否能自然开场、快速建立信任、不过度推销，并通过首轮追问识别顾客来意。",
+                  "needs_discovery": "重点看学员是否主动问预算、用途、送礼对象、佩戴场景与偏好，逐步把需求问清楚。",
+                  "objection_handling": "重点看学员是否能正面回应嫌贵、真假、犹豫等异议，而不是回避或硬碰硬。",
+                  "combo_recommendation": "重点看学员是否能基于主品自然延伸搭配推荐，说明搭配逻辑、场景和价值，不生硬加购。",
+                  "closing_conversion": "重点看学员是否能识别成交信号，做轻推进、给选择、引导试戴或下单，不逼单。",
+                  "independent_service": "重点看学员能否把开场、需求、介绍、异议、推进串成完整接待过程，表现出基本独立上岗能力。",
+                  "final_review": "重点看学员在综合场景下是否能兼顾专业度、合规、安全、成交推进和服务体验。"
+              }
+
+              effective_user_id = pick(cv_user_id, start_user_id, default="")
+              effective_difficulty = pick(cv_difficulty, start_difficulty, default="标准")
+              effective_trainee_role = pick(cv_trainee_role, start_trainee_role, default="珠宝门店销售")
+              effective_stage = pick(cv_stage, default="init")
+
+              effective_module_code = pick(cv_module_code, start_module_code, default="")
+              effective_module_name = pick(cv_module_name, start_module_name, default="")
+              effective_cycle_id = pick(cv_cycle_id, start_cycle_id, default="")
+              effective_stage_no = pick_int(cv_stage_no, start_stage_no, default=0)
+
+              module_required_ok = 1
+              module_required_reason = ""
+              if not effective_module_code:
+                  module_required_ok = 0
+                  module_required_reason = "缺少训练模块编码，请先从前端模块下拉中选择本次练习模块。"
+              elif effective_module_code not in module_name_map:
+                  module_required_ok = 0
+                  module_required_reason = "训练模块编码不在系统允许范围内，请传 training_constants 中定义的模块 code。"
+
+              if not effective_module_name:
+                  effective_module_name = module_name_map.get(effective_module_code, "")
+
+              module_focus = module_focus_map.get(
+                  effective_module_code,
+                  "重点看学员是否围绕当前模块目标完成真实门店接待表达。"
+              )
+
+              current_conversation_scene = pick(cv_scenario_type, default="")
+              current_start_select = pick(start_scenario_type_select, default="")
+              current_start_custom = pick(start_scenario_type_custom, default="")
+
+              if current_conversation_scene:
+                  final_scenario_type = current_conversation_scene
+              else:
+                  if current_start_custom:
+                      final_scenario_type = current_start_custom
+                  elif current_start_select and current_start_select != "其他（手动输入）":
+                      final_scenario_type = current_start_select
+                  else:
+                      final_scenario_type = "顾客嫌贵"
+
+              alias_map = {
+                  "嫌贵": "顾客嫌贵",
+                  "太贵": "顾客嫌贵",
+                  "价格高": "顾客嫌贵",
+                  "真假": "顾客质疑材质真假",
+                  "质疑真假": "顾客质疑材质真假",
+                  "材质真假": "顾客质疑材质真假",
+                  "犹豫": "顾客犹豫不决不下单",
+                  "不下单": "顾客犹豫不决不下单",
+                  "犹豫不决": "顾客犹豫不决不下单"
+              }
+
+              normalized = alias_map.get(final_scenario_type, final_scenario_type)
+
+              presets = {
+                  "顾客嫌贵": {
+                      "scene_name": "顾客嫌贵",
+                      "customer_role": "预算敏感型顾客",
+                      "customer_goal": "想买，但会持续比较价格，希望听到更有说服力的价值说明或替代方案",
+                      "hidden_objection": "担心买贵、担心被硬推、担心性价比不高",
+                      "opening": "你这款看着还行，就是价格有点高了，有没有更划算一点的？",
+                      "success_signal": "学员先共情，再解释价值，并能提出合理替代方案、活动说明或购买建议，让顾客愿意继续了解。"
+                  },
+                  "顾客质疑材质真假": {
+                      "scene_name": "顾客质疑材质真假",
+                      "customer_role": "谨慎求证型顾客",
+                      "customer_goal": "确认材质、证书、工艺与售后说明是否可信",
+                      "hidden_objection": "担心买到假货、担心销售讲不清楚、担心售后没保障",
+                      "opening": "你怎么证明这个材质是真的？不会只是说得好听吧？",
+                      "success_signal": "学员能清楚说明材质依据、证书/标签/检测逻辑与售后保障，不夸大、不含糊，让顾客降低疑虑。"
+                  },
+                  "顾客犹豫不决不下单": {
+                      "scene_name": "顾客犹豫不决不下单",
+                      "customer_role": "反复比较型顾客",
+                      "customer_goal": "迟迟下不了决定，需要更多购买理由或决策推动",
+                      "hidden_objection": "担心冲动消费、担心不适合、担心买完后后悔",
+                      "opening": "我再看看吧，感觉还不错，但现在还没想好要不要买。",
+                      "success_signal": "学员能识别顾客犹豫点，做出针对性澄清和轻推进，让顾客愿意继续比较、试戴或进入下一步。"
+                  }
+              }
+
+              if normalized in presets:
+                  preset = presets[normalized]
+              else:
+                  preset = {
+                      "scene_name": normalized,
+                      "customer_role": "真实门店顾客",
+                      "customer_goal": "围绕当前自定义场景提出问题、异议或犹豫点",
+                      "hidden_objection": "对价格、材质、售后、款式、活动或购买决策存在顾虑",
+                      "opening": f"我这边现在主要想咨询一下“{normalized}”这个情况，你帮我看看？",
+                      "success_signal": "学员能识别顾客核心顾虑，给出自然、合理、不过度承诺的回应，让顾客愿意继续交流。"
+                  }
+
+              scenario_card = f"""场景名称：{preset['scene_name']}
+          训练模块编码：{effective_module_code or '未选择'}
+          训练模块名称：{effective_module_name or '未选择'}
+          模块训练重点：{module_focus}
+          训练周期ID：{effective_cycle_id or '未提供'}
+          阶段号：{effective_stage_no}
+          学员身份：{effective_trainee_role}
+          陪练难度：{effective_difficulty}
+          顾客画像：{preset['customer_role']}
+          顾客目标：{preset['customer_goal']}
+          隐藏顾虑：{preset['hidden_objection']}
+          本场成功信号：{preset['success_signal']}"""
+
+              customer_reply_rules = """1. 你只能扮演顾客，不能扮演老师、评分器、系统管理员或旁白。
+          2. 回复必须像真实门店顾客，口语化、自然、克制，每轮只说 1~3 句。
+          3. 不要一次性说完全部顾虑，每轮最多抛出 1 个核心异议、问题或态度变化。
+          4. 要优先围绕“训练模块重点”给学员出题、施压和追问，让本次对话能体现该模块训练价值。
+          5. 如果学员出现夸大宣传、绝对化承诺、保值升值保证、虚假最低价等表述，你要继续以顾客身份质疑。
+          6. 当学员已经基本完成异议处理、达到成交推进条件时，你在最后一轮另起一行单独输出 [PRACTICE_END]。
+          7. 如果用户输入“结束陪练”“结束”“停止”，你也要自然收尾，并在最后一行单独输出 [PRACTICE_END]。
+          8. 不输出评分、不输出建议、不输出解析、不输出 JSON。
+          9. 严禁输出思考过程、推理过程、分析说明、隐藏策略、内部备注，严禁输出 <think>、<thinking>、<reasoning> 标签。
+          10. 你最终只能输出“顾客真的会说出口的话”，除最后一行可单独输出 [PRACTICE_END] 外，不允许任何角色前缀、解释、标题或旁白。"""
+
+              return {
+                  "effective_user_id": effective_user_id,
+                  "effective_module_code": effective_module_code,
+                  "effective_module_name": effective_module_name,
+                  "effective_cycle_id": effective_cycle_id,
+                  "effective_stage_no": effective_stage_no,
+                  "module_focus": module_focus,
+                  "module_required_ok": module_required_ok,
+                  "module_required_reason": module_required_reason,
+                  "effective_scenario_type": preset["scene_name"],
+                  "effective_difficulty": effective_difficulty,
+                  "effective_trainee_role": effective_trainee_role,
+                  "scenario_card": scenario_card,
+                  "opening_line": preset["opening"],
+                  "customer_reply_rules": customer_reply_rules,
+                  "opening_sent": int(cv_opening_sent or 0),
+                  "stage": effective_stage,
+                  "round_count": int(cv_round_count or 0),
+                  "end_flag": int(cv_end_flag or 0),
+                  "risk_hit_count": int(cv_risk_hit_count or 0),
+                  "dialogue_count": int(dialogue_count or 1)
+              }
+        code_language: python3
+        desc: 初始化用户、模块、周期、阶段与场景上下文，禁止缺失模块时默认落到任意模块。
+        outputs:
+          effective_user_id:
+            type: string
+          effective_module_code:
+            type: string
+          effective_module_name:
+            type: string
+          effective_cycle_id:
+            type: string
+          effective_stage_no:
+            type: number
+          module_focus:
+            type: string
+          module_required_ok:
+            type: number
+          module_required_reason:
+            type: string
+          effective_scenario_type:
+            type: string
+          effective_difficulty:
+            type: string
+          effective_trainee_role:
+            type: string
+          scenario_card:
+            type: string
+          opening_line:
+            type: string
+          customer_reply_rules:
+            type: string
+          opening_sent:
+            type: number
+          stage:
+            type: string
+          round_count:
+            type: number
+          end_flag:
+            type: number
+          risk_hit_count:
+            type: number
+          dialogue_count:
+            type: number
+        selected: false
+        title: 初始化上下文
+        type: code
+        variables:
+        - variable: start_user_id
+          value_selector:
+          - start
+          - user_id
+        - variable: start_module_code
+          value_selector:
+          - start
+          - module_code
+        - variable: start_module_name
+          value_selector:
+          - start
+          - module_name
+        - variable: start_cycle_id
+          value_selector:
+          - start
+          - cycle_id
+        - variable: start_stage_no
+          value_selector:
+          - start
+          - stage_no
+        - variable: start_scenario_type_select
+          value_selector:
+          - start
+          - scenario_type_select
+        - variable: start_scenario_type_custom
+          value_selector:
+          - start
+          - scenario_type_custom
+        - variable: start_difficulty
+          value_selector:
+          - start
+          - difficulty
+        - variable: start_trainee_role
+          value_selector:
+          - start
+          - trainee_role
+        - variable: cv_user_id
+          value_selector:
+          - conversation
+          - cv_user_id
+        - variable: cv_module_code
+          value_selector:
+          - conversation
+          - cv_module_code
+        - variable: cv_module_name
+          value_selector:
+          - conversation
+          - cv_module_name
+        - variable: cv_cycle_id
+          value_selector:
+          - conversation
+          - cv_cycle_id
+        - variable: cv_stage_no
+          value_selector:
+          - conversation
+          - cv_stage_no
+        - variable: cv_scenario_type
+          value_selector:
+          - conversation
+          - cv_scenario_type
+        - variable: cv_difficulty
+          value_selector:
+          - conversation
+          - cv_difficulty
+        - variable: cv_trainee_role
+          value_selector:
+          - conversation
+          - cv_trainee_role
+        - variable: cv_scenario_card
+          value_selector:
+          - conversation
+          - cv_scenario_card
+        - variable: cv_stage
+          value_selector:
+          - conversation
+          - cv_stage
+        - variable: cv_round_count
+          value_selector:
+          - conversation
+          - cv_round_count
+        - variable: cv_opening_sent
+          value_selector:
+          - conversation
+          - cv_opening_sent
+        - variable: cv_end_flag
+          value_selector:
+          - conversation
+          - cv_end_flag
+        - variable: cv_risk_hit_count
+          value_selector:
+          - conversation
+          - cv_risk_hit_count
+        - variable: dialogue_count
+          value_selector:
+          - sys
+          - dialogue_count
+      height: 52
+      id: init_context
+      position:
+        x: 342
+        y: 81
+      positionAbsolute:
+        x: 342
+        y: 81
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        desc: ''
+        items:
+        - input_type: variable
+          operation: over-write
+          value:
+          - init_context
+          - effective_user_id
+          variable_selector:
+          - conversation
+          - cv_user_id
+          write_mode: over-write
+        - input_type: variable
+          operation: over-write
+          value:
+          - init_context
+          - effective_module_code
+          variable_selector:
+          - conversation
+          - cv_module_code
+          write_mode: over-write
+        - input_type: variable
+          operation: over-write
+          value:
+          - init_context
+          - effective_module_name
+          variable_selector:
+          - conversation
+          - cv_module_name
+          write_mode: over-write
+        - input_type: variable
+          operation: over-write
+          value:
+          - init_context
+          - effective_cycle_id
+          variable_selector:
+          - conversation
+          - cv_cycle_id
+          write_mode: over-write
+        - input_type: variable
+          operation: over-write
+          value:
+          - init_context
+          - effective_stage_no
+          variable_selector:
+          - conversation
+          - cv_stage_no
+          write_mode: over-write
+        - input_type: variable
+          operation: over-write
+          value:
+          - init_context
+          - effective_scenario_type
+          variable_selector:
+          - conversation
+          - cv_scenario_type
+          write_mode: over-write
+        - input_type: variable
+          operation: over-write
+          value:
+          - init_context
+          - effective_difficulty
+          variable_selector:
+          - conversation
+          - cv_difficulty
+          write_mode: over-write
+        - input_type: variable
+          operation: over-write
+          value:
+          - init_context
+          - effective_trainee_role
+          variable_selector:
+          - conversation
+          - cv_trainee_role
+          write_mode: over-write
+        - input_type: variable
+          operation: over-write
+          value:
+          - init_context
+          - scenario_card
+          variable_selector:
+          - conversation
+          - cv_scenario_card
+          write_mode: over-write
+        selected: false
+        title: 写入基础会话变量
+        type: assigner
+        version: '2'
+      height: 188
+      id: init_assigner
+      position:
+        x: 684
+        y: 13
+      positionAbsolute:
+        x: 684
+        y: 13
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: |-
+          def main(
+              user_query: str = "",
+              module_code: str = "",
+              module_name: str = "",
+              scenario_type: str = "",
+              opening_sent: int = 0,
+              end_flag: int = 0,
+              current_round_count: int = 0,
+              current_risk_hit_count: int = 0,
+              last_customer_reply: str = ""
+          ) -> dict:
+              def clean(v):
+                  return str(v or "").strip()
+
+              query = clean(user_query)
+              module_code = clean(module_code)
+              module_name = clean(module_name)
+              scenario = clean(scenario_type)
+              normalized_query = query.lower()
+
+              allowed_modules = {
+                  "product_basics", "compliance_expression", "customer_opening", "needs_discovery",
+                  "objection_handling", "combo_recommendation", "closing_conversion",
+                  "independent_service", "final_review"
+              }
+
+              module_missing_flag = 0
+              module_missing_reason = ""
+              if not module_code:
+                  module_missing_flag = 1
+                  module_missing_reason = "未选择训练模块，请先选择模块再开始陪练。"
+              elif module_code not in allowed_modules:
+                  module_missing_flag = 1
+                  module_missing_reason = "训练模块编码不在允许范围内，请传 training_constants 中定义的模块 code。"
+
+              hard_redline_map = {
+                  "违法违规": ["伪造证书", "假证书", "造假", "骗客户", "诈骗", "洗钱", "偷税", "逃税", "虚开发票"],
+                  "保值升值承诺": ["保证升值", "一定升值", "绝对保值", "稳赚不赔", "包你升值", "收益保证"],
+                  "绝对化宣传": ["100%真", "绝对真", "全国最低价", "全网最低", "永不褪色", "绝不会坏", "百分百"],
+                  "隐私敏感": ["银行卡号", "支付密码", "身份证号", "客户隐私", "导出手机号"],
+              }
+
+              soft_offtopic_keywords = [
+                  "天气", "股票", "彩票", "贷款", "移民", "编程作业", "写论文", "政治", "色情", "暴力", "外挂", "破解"
+              ]
+
+              end_words = ["结束陪练", "结束", "停止"]
+
+              redline_hits = []
+              redline_types = []
+              for category, keywords in hard_redline_map.items():
+                  for kw in keywords:
+                      if kw.lower() in normalized_query:
+                          redline_hits.append(kw)
+                          if category not in redline_types:
+                              redline_types.append(category)
+
+              code_is_redline = 1 if redline_types else 0
+              code_off_topic = 1 if any(kw in normalized_query for kw in soft_offtopic_keywords) else 0
+              is_end_command = 1 if query in end_words else 0
+
+              return {
+                  "clean_query": query,
+                  "module_code_out": module_code,
+                  "module_name_out": module_name,
+                  "scenario_type_out": scenario,
+                  "opening_sent": int(opening_sent or 0),
+                  "end_flag": int(end_flag or 0),
+                  "current_round_count": int(current_round_count or 0),
+                  "current_risk_hit_count": int(current_risk_hit_count or 0),
+                  "last_customer_reply_safe": clean(last_customer_reply),
+                  "module_missing_flag": module_missing_flag,
+                  "module_missing_reason": module_missing_reason,
+                  "code_is_redline": code_is_redline,
+                  "code_redline_types": "；".join(redline_types),
+                  "code_redline_hits": "；".join(redline_hits),
+                  "code_off_topic": code_off_topic,
+                  "is_end_command": is_end_command,
+              }
+        code_language: python3
+        desc: 代码侧红线/跑题/结束指令检测，并补充训练模块必填校验。
+        outputs:
+          clean_query:
+            type: string
+          module_code_out:
+            type: string
+          module_name_out:
+            type: string
+          scenario_type_out:
+            type: string
+          opening_sent:
+            type: number
+          end_flag:
+            type: number
+          current_round_count:
+            type: number
+          current_risk_hit_count:
+            type: number
+          last_customer_reply_safe:
+            type: string
+          module_missing_flag:
+            type: number
+          module_missing_reason:
+            type: string
+          code_is_redline:
+            type: number
+          code_redline_types:
+            type: string
+          code_redline_hits:
+            type: string
+          code_off_topic:
+            type: number
+          is_end_command:
+            type: number
+        selected: false
+        title: 代码红线检测
+        type: code
+        variables:
+        - variable: user_query
+          value_selector:
+          - sys
+          - query
+        - variable: module_code
+          value_selector:
+          - conversation
+          - cv_module_code
+        - variable: module_name
+          value_selector:
+          - conversation
+          - cv_module_name
+        - variable: scenario_type
+          value_selector:
+          - conversation
+          - cv_scenario_type
+        - variable: opening_sent
+          value_selector:
+          - conversation
+          - cv_opening_sent
+        - variable: end_flag
+          value_selector:
+          - conversation
+          - cv_end_flag
+        - variable: current_round_count
+          value_selector:
+          - conversation
+          - cv_round_count
+        - variable: current_risk_hit_count
+          value_selector:
+          - conversation
+          - cv_risk_hit_count
+        - variable: last_customer_reply
+          value_selector:
+          - conversation
+          - cv_last_customer_reply
+      height: 96
+      id: safety_code_guard
+      position:
+        x: 1026
+        y: 59
+      positionAbsolute:
+        x: 1026
+        y: 59
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        desc: LLM 辅助判断红线与跑题，不负责代替模块必填校验。
+        memory:
+          role_prefix:
+            assistant: ''
+            user: ''
+          window:
+            enabled: false
+            size: 10
+        model:
+          completion_params:
+            max_tokens: 500
+          mode: chat
+          name: deepseek-r1
+          provider: langgenius/tongyi/tongyi
+        prompt_template:
+        - id: guard-llm-system
+          role: system
+          text: |-
+            你是珠宝门店陪练系统的安全审查节点。
+
+            任务：判断学员本轮输入是否涉及销售红线，或是否明显偏离珠宝门店陪练主题。
+
+            红线类型优先识别：
+            1. 违法违规
+            2. 保值升值/收益承诺
+            3. 绝对化宣传
+            4. 虚假最低价
+            5. 隐私敏感
+            6. 不当引导或欺骗顾客
+
+            如果只是普通销售表达、不成熟表达、或正常结束陪练指令，不算红线。
+
+            输出要求：只输出 JSON，不要解释，不要 markdown。
+
+            JSON Schema:
+            {
+              "llm_redline": 0,
+              "llm_off_topic": 0,
+              "risk_types": [""],
+              "reason": "",
+              "confidence": "low | medium | high"
+            }
+        - id: guard-llm-user
+          role: user
+          text: |-
+            【当前训练模块】
+            {{#init_context.effective_module_code#}} / {{#init_context.effective_module_name#}}
+
+            【当前场景】
+            {{#safety_code_guard.scenario_type_out#}}
+
+            【学员输入】
+            {{#safety_code_guard.clean_query#}}
+
+            请严格输出合法 JSON。
+        selected: false
+        title: LLM红线辅助检测
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 132
+      id: safety_llm_guard
+      position:
+        x: 1368
+        y: 41
+      positionAbsolute:
+        x: 1368
+        y: 41
+      selected: true
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: |-
+          def main(
+              clean_query: str = "",
+              module_code_out: str = "",
+              module_name_out: str = "",
+              module_missing_flag: int = 0,
+              module_missing_reason: str = "",
+              scenario_type_out: str = "",
+              code_is_redline: int = 0,
+              code_redline_types: str = "",
+              code_redline_hits: str = "",
+              code_off_topic: int = 0,
+              is_end_command: int = 0,
+              opening_sent: int = 0,
+              end_flag: int = 0,
+              current_round_count: int = 0,
+              current_risk_hit_count: int = 0,
+              llm_text: str = ""
+          ) -> dict:
+              import json
+              import re
+
+              def to_int(v, default=0):
+                  try:
+                      return int(v)
+                  except Exception:
+                      return default
+
+              def clean(v):
+                  return str(v or "").strip()
+
+              def parse_json(text: str):
+                  raw = clean(text)
+                  if not raw:
+                      return {}
+                  match = re.search(r"\{[\s\S]*\}", raw)
+                  raw = match.group(0) if match else raw
+                  try:
+                      data = json.loads(raw)
+                      return data if isinstance(data, dict) else {}
+                  except Exception:
+                      return {}
+
+              query = clean(clean_query)
+              module_code = clean(module_code_out)
+              module_name = clean(module_name_out)
+              scenario = clean(scenario_type_out)
+              round_count = to_int(current_round_count, 0)
+              risk_hit_count = to_int(current_risk_hit_count, 0)
+
+              parsed = parse_json(llm_text)
+              llm_redline = to_int(parsed.get("llm_redline"), 0)
+              llm_off_topic = to_int(parsed.get("llm_off_topic"), 0)
+              llm_reason = clean(parsed.get("reason"))
+              llm_confidence = clean(parsed.get("confidence")) or "medium"
+
+              redline_types = []
+              raw_types = clean(code_redline_types)
+              if raw_types:
+                  redline_types.extend([x.strip() for x in raw_types.split("；") if x.strip()])
+
+              llm_types = parsed.get("risk_types") or []
+              if isinstance(llm_types, list):
+                  for item in llm_types:
+                      s = str(item).strip()
+                      if s and s not in redline_types:
+                          redline_types.append(s)
+
+              redline_hit = 1 if to_int(code_is_redline, 0) == 1 or llm_redline == 1 else 0
+              off_topic_hit = 1 if to_int(code_off_topic, 0) == 1 or llm_off_topic == 1 else 0
+              module_missing = 1 if to_int(module_missing_flag, 0) == 1 else 0
+
+              should_continue = 1
+              guard_reason = "allow"
+              guard_reply = ""
+              guard_stage = "in_progress"
+              guard_end_flag = 0
+              guard_opening_sent = to_int(opening_sent, 0)
+              guard_round_count = round_count
+              guard_risk_hit_count = risk_hit_count
+
+              if module_missing == 1:
+                  should_continue = 0
+                  guard_reason = "module_missing"
+                  guard_reply = module_missing_reason or "请先选择训练模块后再开始陪练。"
+                  guard_stage = "init"
+                  guard_end_flag = 0
+              elif redline_hit == 1:
+                  should_continue = 0
+                  guard_reason = "redline_blocked"
+                  joined_types = "、".join(redline_types) if redline_types else "红线表达"
+                  guard_reply = f"这句话我不能按真实顾客陪你继续演练，因为已触发{joined_types}。你可以改成合规表达后继续，我会按顾客身份接着往下练。"
+                  guard_stage = "guarded"
+                  guard_risk_hit_count = risk_hit_count + 1
+              elif off_topic_hit == 1:
+                  should_continue = 0
+                  guard_reason = "off_topic_redirect"
+                  guard_reply = "当前是珠宝门店销售陪练，请围绕顾客接待、产品介绍、异议处理或成交推进继续练习。"
+                  guard_stage = "in_progress"
+              elif to_int(end_flag, 0) == 1:
+                  should_continue = 0
+                  guard_reason = "already_finished"
+                  guard_reply = "本场陪练已结束，请重新选择模块和场景开始新一轮训练。"
+                  guard_stage = "finished"
+                  guard_end_flag = 1
+              elif to_int(is_end_command, 0) == 1:
+                  should_continue = 1
+                  guard_reason = "natural_finish"
+              else:
+                  should_continue = 1
+                  guard_reason = "allow"
+
+              return {
+                  "should_continue": should_continue,
+                  "guard_reason": guard_reason,
+                  "guard_reply": guard_reply,
+                  "guard_stage": guard_stage,
+                  "guard_end_flag": guard_end_flag,
+                  "guard_opening_sent": guard_opening_sent,
+                  "guard_round_count": guard_round_count,
+                  "guard_risk_hit_count": guard_risk_hit_count,
+                  "redline_hit": redline_hit,
+                  "redline_types": "；".join(redline_types),
+                  "llm_reason": llm_reason,
+                  "llm_confidence": llm_confidence,
+                  "last_customer_reply_safe": query
+              }
+        code_language: python3
+        desc: 融合代码与 LLM 风险判断，并把“未选择训练模块”作为最高优先级拦截。
+        outputs:
+          should_continue:
+            type: number
+          guard_reason:
+            type: string
+          guard_reply:
+            type: string
+          guard_stage:
+            type: string
+          guard_end_flag:
+            type: number
+          guard_opening_sent:
+            type: number
+          guard_round_count:
+            type: number
+          guard_risk_hit_count:
+            type: number
+          redline_hit:
+            type: number
+          redline_types:
+            type: string
+          llm_reason:
+            type: string
+          llm_confidence:
+            type: string
+          last_customer_reply_safe:
+            type: string
+        selected: false
+        title: 融合检测结果
+        type: code
+        variables:
+        - variable: clean_query
+          value_selector:
+          - safety_code_guard
+          - clean_query
+        - variable: module_code_out
+          value_selector:
+          - safety_code_guard
+          - module_code_out
+        - variable: module_name_out
+          value_selector:
+          - safety_code_guard
+          - module_name_out
+        - variable: module_missing_flag
+          value_selector:
+          - safety_code_guard
+          - module_missing_flag
+        - variable: module_missing_reason
+          value_selector:
+          - safety_code_guard
+          - module_missing_reason
+        - variable: scenario_type_out
+          value_selector:
+          - safety_code_guard
+          - scenario_type_out
+        - variable: code_is_redline
+          value_selector:
+          - safety_code_guard
+          - code_is_redline
+        - variable: code_redline_types
+          value_selector:
+          - safety_code_guard
+          - code_redline_types
+        - variable: code_redline_hits
+          value_selector:
+          - safety_code_guard
+          - code_redline_hits
+        - variable: code_off_topic
+          value_selector:
+          - safety_code_guard
+          - code_off_topic
+        - variable: is_end_command
+          value_selector:
+          - safety_code_guard
+          - is_end_command
+        - variable: opening_sent
+          value_selector:
+          - safety_code_guard
+          - opening_sent
+        - variable: end_flag
+          value_selector:
+          - safety_code_guard
+          - end_flag
+        - variable: current_round_count
+          value_selector:
+          - safety_code_guard
+          - current_round_count
+        - variable: current_risk_hit_count
+          value_selector:
+          - safety_code_guard
+          - current_risk_hit_count
+        - variable: llm_text
+          value_selector:
+          - safety_llm_guard
+          - text
+      height: 96
+      id: guard_merge
+      position:
+        x: 1710
+        y: 59
+      positionAbsolute:
+        x: 1710
+        y: 59
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        cases:
+        - case_id: 'true'
+          conditions:
+          - comparison_operator: '='
+            id: guard-route-cond-1
+            value: '1'
+            varType: number
+            variable_selector:
+            - guard_merge
+            - should_continue
+          id: 'true'
+          logical_operator: and
+        desc: 通过安全检测则进入正常陪练，否则走拒答/兜底回复
+        selected: false
+        title: 是否继续正常陪练
+        type: if-else
+      height: 168
+      id: guard_route
+      position:
+        x: 2052
+        y: 23
+      positionAbsolute:
+        x: 2052
+        y: 23
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: |
+          def main(
+              guard_reply: str = "",
+              guard_stage: str = "in_progress",
+              guard_end_flag: int = 0,
+              guard_opening_sent: int = 0,
+              guard_round_count: int = 0,
+              guard_risk_hit_count: int = 0
+          ) -> dict:
+              return {
+                  "reply_text": str(guard_reply or "").strip(),
+                  "next_round_count": int(guard_round_count or 0),
+                  "next_risk_hit_count": int(guard_risk_hit_count or 0),
+                  "next_opening_sent": int(guard_opening_sent or 0),
+                  "next_stage": str(guard_stage or "in_progress"),
+                  "next_end_flag": int(guard_end_flag or 0),
+                  "risk_hit_this_turn": 0
+              }
+        code_language: python3
+        desc: 构造拒答/兜底分支输出
+        outputs:
+          next_end_flag:
+            type: number
+          next_opening_sent:
+            type: number
+          next_risk_hit_count:
+            type: number
+          next_round_count:
+            type: number
+          next_stage:
+            type: string
+          reply_text:
+            type: string
+          risk_hit_this_turn:
+            type: number
+        selected: false
+        title: 拒答与兜底结果构造
+        type: code
+        variables:
+        - value_selector:
+          - guard_merge
+          - guard_reply
+          variable: guard_reply
+        - value_selector:
+          - guard_merge
+          - guard_stage
+          variable: guard_stage
+        - value_selector:
+          - guard_merge
+          - guard_end_flag
+          variable: guard_end_flag
+        - value_selector:
+          - guard_merge
+          - guard_opening_sent
+          variable: guard_opening_sent
+        - value_selector:
+          - guard_merge
+          - guard_round_count
+          variable: guard_round_count
+        - value_selector:
+          - guard_merge
+          - guard_risk_hit_count
+          variable: guard_risk_hit_count
+      height: 80
+      id: guard_reply_builder
+      position:
+        x: 2414
+        y: 297
+      positionAbsolute:
+        x: 2414
+        y: 297
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        desc: ''
+        items:
+        - input_type: variable
+          operation: over-write
+          value:
+          - guard_reply_builder
+          - next_round_count
+          variable_selector:
+          - conversation
+          - cv_round_count
+          write_mode: over-write
+        - input_type: variable
+          operation: over-write
+          value:
+          - guard_reply_builder
+          - next_risk_hit_count
+          variable_selector:
+          - conversation
+          - cv_risk_hit_count
+          write_mode: over-write
+        - input_type: variable
+          operation: over-write
+          value:
+          - guard_reply_builder
+          - next_opening_sent
+          variable_selector:
+          - conversation
+          - cv_opening_sent
+          write_mode: over-write
+        - input_type: variable
+          operation: over-write
+          value:
+          - guard_reply_builder
+          - next_stage
+          variable_selector:
+          - conversation
+          - cv_stage
+          write_mode: over-write
+        - input_type: variable
+          operation: over-write
+          value:
+          - guard_reply_builder
+          - next_end_flag
+          variable_selector:
+          - conversation
+          - cv_end_flag
+          write_mode: over-write
+        - input_type: variable
+          operation: over-write
+          value:
+          - guard_reply_builder
+          - reply_text
+          variable_selector:
+          - conversation
+          - cv_last_customer_reply
+          write_mode: over-write
+        selected: false
+        title: 写入拒答/兜底状态
+        type: assigner
+        version: '2'
+      height: 214
+      id: guard_state_update
+      position:
+        x: 2756
+        y: 230
+      positionAbsolute:
+        x: 2756
+        y: 230
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        answer: '{{#guard_reply_builder.reply_text#}}'
+        desc: ''
+        selected: false
+        title: 拒答/兜底直接回复
+        type: answer
+        variables: []
+      height: 103
+      id: guard_answer
+      position:
+        x: 3118
+        y: 311
+      positionAbsolute:
+        x: 3118
+        y: 311
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        desc: ''
+        memory:
+          query_prompt_template: '{{#sys.query#}}'
+          role_prefix:
+            assistant: ''
+            user: ''
+          window:
+            enabled: true
+            size: 12
+        model:
+          completion_params: {}
+          mode: chat
+          name: deepseek-r1
+          provider: langgenius/tongyi/tongyi
+        prompt_template:
+        - edition_type: basic
+          id: 5fe8a4a1-0c01-4f84-b100-222222222001
+          role: system
+          text: |-
+            你是“珠宝门店实战陪练”中的模拟顾客，只能扮演顾客，不能扮演老师、评分器、系统或旁白。
+
+            【场景设定】
+            {{#init_context.scenario_card#}}
+
+            【本轮训练模块】
+            模块编码：{{#init_context.effective_module_code#}}
+            模块名称：{{#init_context.effective_module_name#}}
+            模块重点：{{#init_context.module_focus#}}
+
+            【顾客回复规则】
+            {{#init_context.customer_reply_rules#}}
+
+            【首轮开场白】
+            {{#init_context.opening_line#}}
+
+            【当前状态】
+            当前会话轮次：{{#sys.dialogue_count#}}
+            已发送开场：{{#init_context.opening_sent#}}
+            当前阶段：{{#init_context.stage#}}
+            当前是否已结束：{{#init_context.end_flag#}}
+            已累计风险表达次数：{{#init_context.risk_hit_count#}}
+
+            【学员本轮输入】
+            {{#sys.query#}}
+
+            严格执行以下逻辑：
+            1. 如果当前会话已经结束（end_flag = 1），你只回复“本场陪练已结束，请重新选择模块和场景开始新一轮训练。”
+               并在最后一行单独输出：[PRACTICE_END]
+            2. 如果当前仍未发送开场（opening_sent = 0），并且学员没有输入“结束陪练/结束/停止”，则直接输出首轮开场白。
+            3. 除首轮外，你只以真实顾客身份回复学员本轮输入，并结合历史对话自然推进。
+            4. 每次只回复 1~3 句，不要长篇大论，不要一次性暴露全部顾虑。
+            5. 追问优先围绕本次训练模块展开，例如：接待开场就多看首轮信任建立，需求挖掘就多问预算/用途，异议处理就持续施压，成交推进就看能否自然推进下一步。
+            6. 如果学员回答较好，你可以逐步松口；如果仍未被说服，就继续追问、比较、犹豫或表达顾虑。
+            7. 如果学员使用夸大宣传、绝对化承诺、保值升值保证、虚假最低价等表述，你必须继续质疑。
+            8. 当对话达到自然收束点时，在最后一行单独输出 [PRACTICE_END]。
+            9. 你的最终输出里严禁出现思考过程、推理过程、分析说明、策略说明、内部备注。
+            10. 严禁输出 <think>、<thinking>、<reasoning> 标签，严禁输出“思考过程：”“分析：”这类前缀。
+            11. 你最终只能输出顾客会直接说出口的话；除了最后一行可单独输出 [PRACTICE_END] 外，不允许任何解释、标题、角色标签或旁白。
+        selected: false
+        title: 模拟顾客对话引擎
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 88
+      id: customer_llm
+      position:
+        x: 2414
+        y: 80
+      positionAbsolute:
+        x: 2414
+        y: 80
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: |
+          def main(
+              customer_text: str,
+              user_query: str = "",
+              current_round_count: int = 0,
+              current_risk_hit_count: int = 0
+          ) -> dict:
+              import re
+
+              text = (customer_text or "").strip()
+              query = (user_query or "").strip()
+
+              text = re.sub(
+                  r"<(?:think|thinking|reasoning)>[\s\S]*?</(?:think|thinking|reasoning)>",
+                  "",
+                  text,
+                  flags=re.IGNORECASE,
+              )
+              text = re.sub(
+                  r"^\s*(?:思考(?:过程|如下)?|分析(?:如下)?|推理(?:过程|如下)?|内部思考|解题思路|思路|策略|计划|判断依据|回应策略|输出说明|说明|备注|reasoning|analysis|thought(?: process)?|internal(?: reasoning| thought)?|plan|strategy|note|notes)\s*[:：-].*$",
+                  "",
+                  text,
+                  flags=re.IGNORECASE | re.MULTILINE,
+              )
+              text = re.sub(
+                  r"^\s*(?:顾客|客户|客人|买家|消费者|Customer|Client)\s*[:：]\s*",
+                  "",
+                  text,
+                  count=1,
+                  flags=re.IGNORECASE,
+              )
+              text = "\n".join(line.strip() for line in text.splitlines() if line.strip()).strip()
+
+              has_end = 1 if "[PRACTICE_END]" in text else 0
+
+              risk_keywords = [
+                  "保证升值", "一定升值", "绝对", "全国最低价", "最低价",
+                  "绝对保真", "假一赔十", "永不褪色", "不会坏", "百分百"
+              ]
+              risk_hit = 1 if any(k in query for k in risk_keywords) else 0
+
+              next_round_count = int(current_round_count or 0) + 1
+              next_risk_hit_count = int(current_risk_hit_count or 0) + risk_hit
+              next_opening_sent = 1
+              next_stage = "finished" if has_end == 1 else "in_progress"
+              next_end_flag = has_end
+
+              return {
+                  "reply_text": text,
+                  "next_round_count": next_round_count,
+                  "next_risk_hit_count": next_risk_hit_count,
+                  "next_opening_sent": next_opening_sent,
+                  "next_stage": next_stage,
+                  "next_end_flag": next_end_flag,
+                  "risk_hit_this_turn": risk_hit
+              }
+        code_language: python3
+        desc: ''
+        outputs:
+          next_end_flag:
+            type: number
+          next_opening_sent:
+            type: number
+          next_risk_hit_count:
+            type: number
+          next_round_count:
+            type: number
+          next_stage:
+            type: string
+          reply_text:
+            type: string
+          risk_hit_this_turn:
+            type: number
+        selected: false
+        title: 回合状态更新器
+        type: code
+        variables:
+        - value_selector:
+          - customer_llm
+          - text
+          variable: customer_text
+        - value_selector:
+          - sys
+          - query
+          variable: user_query
+        - value_selector:
+          - conversation
+          - cv_round_count
+          variable: current_round_count
+        - value_selector:
+          - conversation
+          - cv_risk_hit_count
+          variable: current_risk_hit_count
+      height: 52
+      id: post_process
+      position:
+        x: 2756
+        y: 98
+      positionAbsolute:
+        x: 2756
+        y: 98
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        desc: ''
+        items:
+        - input_type: variable
+          operation: over-write
+          value:
+          - post_process
+          - next_round_count
+          variable_selector:
+          - conversation
+          - cv_round_count
+          write_mode: over-write
+        - input_type: variable
+          operation: over-write
+          value:
+          - post_process
+          - next_risk_hit_count
+          variable_selector:
+          - conversation
+          - cv_risk_hit_count
+          write_mode: over-write
+        - input_type: variable
+          operation: over-write
+          value:
+          - post_process
+          - next_opening_sent
+          variable_selector:
+          - conversation
+          - cv_opening_sent
+          write_mode: over-write
+        - input_type: variable
+          operation: over-write
+          value:
+          - post_process
+          - next_stage
+          variable_selector:
+          - conversation
+          - cv_stage
+          write_mode: over-write
+        - input_type: variable
+          operation: over-write
+          value:
+          - post_process
+          - next_end_flag
+          variable_selector:
+          - conversation
+          - cv_end_flag
+          write_mode: over-write
+        - input_type: variable
+          operation: over-write
+          value:
+          - post_process
+          - reply_text
+          variable_selector:
+          - conversation
+          - cv_last_customer_reply
+          write_mode: over-write
+        selected: false
+        title: 写入回合状态
+        type: assigner
+        version: '2'
+      height: 214
+      id: state_update
+      position:
+        x: 3098
+        y: 17
+      positionAbsolute:
+        x: 3098
+        y: 17
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        answer: '{{#post_process.reply_text#}}'
+        desc: ''
+        selected: false
+        title: 直接回复
+        type: answer
+        variables: []
+      height: 103
+      id: answer
+      position:
+        x: 3440
+        y: 72
+      positionAbsolute:
+        x: 3440
+        y: 72
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    viewport:
+      x: -2858.637369183594
+      y: 384.4285411136833
+      zoom: 0.923655537541026
+  rag_pipeline_variables: []

@@ -1,0 +1,152 @@
+.stage-unlock-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10020;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  pointer-events: none;
+  opacity: 0;
+  transform: scale(0.98);
+  transition: opacity 220ms ease, transform 220ms ease;
+}
+
+.stage-unlock-overlay--visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.stage-unlock-overlay--closing {
+  opacity: 0;
+  transform: scale(0.98);
+}
+
+.stage-unlock-card {
+  position: relative;
+  width: min(520px, 100%);
+  min-height: 220px;
+  overflow: hidden;
+  border: 1px solid rgba(96, 165, 250, 0.42);
+  border-radius: 8px;
+  background: rgba(13, 24, 43, 0.92);
+  box-shadow: 0 24px 80px rgba(15, 23, 42, 0.42), 0 0 54px rgba(59, 130, 246, 0.32);
+  color: #f8fafc;
+}
+
+.stage-unlock-aura {
+  position: absolute;
+  inset: -30%;
+  background:
+    radial-gradient(circle at 50% 45%, rgba(147, 197, 253, 0.58), rgba(59, 130, 246, 0.14) 34%, transparent 58%),
+    linear-gradient(135deg, rgba(14, 165, 233, 0.2), rgba(16, 185, 129, 0.14));
+  animation: stage-unlock-pulse 1.8s ease-in-out infinite;
+}
+
+.stage-unlock-badge {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 76px;
+  height: 76px;
+  margin: 30px auto 18px;
+  border: 1px solid rgba(191, 219, 254, 0.66);
+  border-radius: 50%;
+  background: rgba(15, 23, 42, 0.72);
+  box-shadow: 0 0 34px rgba(96, 165, 250, 0.48);
+}
+
+.stage-unlock-badge span {
+  display: block;
+  width: 34px;
+  height: 34px;
+  border-right: 4px solid #bfdbfe;
+  border-bottom: 4px solid #bfdbfe;
+  transform: rotate(45deg) translate(-3px, -3px);
+  animation: stage-unlock-check 520ms ease 120ms both;
+}
+
+.stage-unlock-copy {
+  position: relative;
+  z-index: 1;
+  padding: 0 28px 24px;
+  text-align: center;
+}
+
+.stage-unlock-kicker {
+  margin: 0 0 8px;
+  color: #93c5fd;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.stage-unlock-copy h2 {
+  margin: 0;
+  color: #ffffff;
+  font-size: 25px;
+  font-weight: 800;
+  line-height: 1.22;
+  letter-spacing: 0;
+}
+
+.stage-unlock-copy p:last-child {
+  margin: 12px 0 0;
+  color: #dbeafe;
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+.stage-unlock-score {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 20px 20px;
+  color: #bfdbfe;
+}
+
+.stage-unlock-score strong {
+  color: #ffffff;
+  font-size: 30px;
+  line-height: 1;
+}
+
+@keyframes stage-unlock-pulse {
+  0%, 100% {
+    transform: scale(0.92);
+    opacity: 0.86;
+  }
+  50% {
+    transform: scale(1.08);
+    opacity: 1;
+  }
+}
+
+@keyframes stage-unlock-check {
+  0% {
+    opacity: 0;
+    transform: rotate(45deg) translate(-3px, -3px) scale(0.65);
+  }
+  100% {
+    opacity: 1;
+    transform: rotate(45deg) translate(-3px, -3px) scale(1);
+  }
+}
+
+@media (max-width: 520px) {
+  .stage-unlock-card {
+    min-height: 210px;
+  }
+
+  .stage-unlock-copy h2 {
+    font-size: 21px;
+  }
+
+  .stage-unlock-score strong {
+    font-size: 26px;
+  }
+}

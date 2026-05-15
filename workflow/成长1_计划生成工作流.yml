@@ -1,0 +1,1009 @@
+app:
+  description: 成长计划模块｜工作流1：14天2阶段成长计划生成（计划书改造版）
+  icon: 🤖
+  icon_background: '#FFEAD5'
+  icon_type: emoji
+  mode: workflow
+  name: 成长计划生成工作流
+  use_icon_as_answer_icon: false
+dependencies:
+- current_identifier: null
+  type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: langgenius/tongyi:0.1.32@20a5454088fa017b72490e1cbaeebff21094d11b13e41197591734d1c08cdbb5
+    version: null
+kind: app
+version: 0.6.0
+workflow:
+  conversation_variables: []
+  environment_variables: []
+  features:
+    file_upload:
+      allowed_file_extensions:
+      - .JPG
+      - .JPEG
+      - .PNG
+      - .GIF
+      - .WEBP
+      - .SVG
+      allowed_file_types:
+      - image
+      allowed_file_upload_methods:
+      - local_file
+      - remote_url
+      enabled: false
+      fileUploadConfig:
+        attachment_image_file_size_limit: 2
+        audio_file_size_limit: 50
+        batch_count_limit: 5
+        file_size_limit: 15
+        file_upload_limit: 50
+        image_file_batch_limit: 10
+        image_file_size_limit: 10
+        single_chunk_attachment_limit: 10
+        video_file_size_limit: 100
+        workflow_file_upload_limit: 10
+      image:
+        enabled: false
+        number_limits: 3
+        transfer_methods:
+        - local_file
+        - remote_url
+      number_limits: 3
+    opening_statement: ''
+    retriever_resource:
+      enabled: true
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions: []
+    suggested_questions_after_answer:
+      enabled: false
+    text_to_speech:
+      enabled: false
+      language: ''
+      voice: ''
+  graph:
+    edges:
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: start
+        targetType: code
+      id: start_node-source-normalize_input-target
+      source: start_node
+      sourceHandle: source
+      target: normalize_input
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: llm
+      id: normalize_input-source-kb_precheck_llm-target
+      source: normalize_input
+      sourceHandle: source
+      target: kb_precheck_llm
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: llm
+        targetType: code
+      id: kb_precheck_llm-source-precheck_parser-target
+      source: kb_precheck_llm
+      sourceHandle: source
+      target: precheck_parser
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: knowledge-retrieval
+      id: precheck_parser-source-knowledge_retrieval-target
+      source: precheck_parser
+      sourceHandle: source
+      target: knowledge_retrieval
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: knowledge-retrieval
+        targetType: code
+      id: knowledge_retrieval-source-merge_context-target
+      source: knowledge_retrieval
+      sourceHandle: source
+      target: merge_context
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: end
+      id: format_output-source-end_node-target
+      source: format_output
+      sourceHandle: source
+      target: end_node
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: if-else
+      id: merge_context-source-knowledge_hit_if-target
+      source: merge_context
+      sourceHandle: source
+      target: knowledge_hit_if
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: if-else
+        targetType: llm
+      id: knowledge_hit_if-true-generate_growth_plan-target
+      source: knowledge_hit_if
+      sourceHandle: 'true'
+      target: generate_growth_plan
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: if-else
+        targetType: llm
+      id: knowledge_hit_if-false-fallback_generate_growth_plan-target
+      source: knowledge_hit_if
+      sourceHandle: 'false'
+      target: fallback_generate_growth_plan
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: llm
+        targetType: code
+      id: generate_growth_plan-source-format_output-target
+      source: generate_growth_plan
+      sourceHandle: source
+      target: format_output
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: llm
+        targetType: code
+      id: fallback_generate_growth_plan-source-format_output-target
+      source: fallback_generate_growth_plan
+      sourceHandle: source
+      target: format_output
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    nodes:
+    - data:
+        desc: 收集员工基础信息，用于生成初始画像与成长计划
+        selected: false
+        title: 开始
+        type: start
+        variables:
+        - label: 用户ID
+          max_length: 64
+          options: []
+          required: true
+          type: text-input
+          variable: user_id
+        - label: 调用来源 source
+          max_length: 64
+          options: []
+          required: false
+          type: text-input
+          variable: source
+        - label: 链路追踪ID trace_id
+          max_length: 128
+          options: []
+          required: false
+          type: text-input
+          variable: trace_id
+        - label: 员工姓名
+          max_length: 64
+          options: []
+          required: false
+          type: text-input
+          variable: employee_name
+        - label: 岗位
+          max_length: 64
+          options: []
+          required: true
+          type: text-input
+          variable: job_title
+        - label: 自我介绍
+          max_length: 2000
+          options: []
+          required: true
+          type: paragraph
+          variable: self_intro
+        - label: 历史学习记录
+          max_length: 3000
+          options: []
+          required: false
+          type: paragraph
+          variable: historical_learning
+        - label: 初始能力信息
+          max_length: 1500
+          options: []
+          required: false
+          type: paragraph
+          variable: initial_ability
+        - label: 员工阶段（如：新人首训/老员工重训）
+          max_length: 64
+          options: []
+          required: false
+          type: text-input
+          variable: employee_stage
+        - label: 璁″垝鍛ㄦ湡 plan_cycle
+          max_length: 64
+          options: []
+          required: false
+          type: text-input
+          variable: plan_cycle
+        - label: 宸窛鎸囨爣 gap_metrics
+          max_length: 2000
+          options: []
+          required: false
+          type: paragraph
+          variable: gap_metrics
+        - label: 涓氱哗鑳屾櫙 performance_context
+          max_length: 2000
+          options: []
+          required: false
+          type: paragraph
+          variable: performance_context
+        - label: 目标方向
+          max_length: 256
+          options: []
+          required: false
+          type: text-input
+          variable: target_direction
+        - label: 当前业绩/表现
+          max_length: 512
+          options: []
+          required: false
+          type: paragraph
+          variable: current_performance
+        - label: 目标业绩/目标表现
+          max_length: 512
+          options: []
+          required: false
+          type: paragraph
+          variable: target_performance
+        - label: 重置模式 reset_mode
+          max_length: 64
+          options:
+          - auto
+          - normal
+          - force_reset
+          required: false
+          type: select
+          variable: reset_mode
+      height: 520
+      id: start_node
+      position:
+        x: 0
+        y: 0
+      positionAbsolute:
+        x: 0
+        y: 0
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "import json\nimport re\n\n\ndef _clean(v, default='未提供'):\n    if v is None:\n        return default\n    s = str(v).strip()\n    return s if s else default\n\n\ndef _safe_source(v: str) -> str:\n    s = str(v or '').strip()\n    return s if s else 'fastapi'\n\n\ndef _safe_trace(v: str) -> str:\n    s = str(v or '').strip()\n    return s if s else 'trace_growth_plan_auto'\n\n\ndef _classify_stage(employee_stage: str, reset_mode: str, historical_learning: str, current_performance: str) -> str:\n    text = ' '.join([str(employee_stage or ''), str(reset_mode or ''), str(historical_learning or ''), str(current_performance or '')]).lower()\n    retrain_keys = ['重训', '老员工', '返训', '补训', 'retrain', 'force_reset']\n    if any(k in text for k in retrain_keys):\n        return '老员工重训'\n    return '新人首训'\n\n\ndef _normalize_job(job_title: str) -> str:\n    t = str(job_title or '').strip()\n    if not t:\n        return '珠宝门店销售'\n    mapping = {\n        '黄金导购': '黄金导购',\n        '珠宝顾问': '珠宝顾问',\n        '店员': '珠宝门店销售',\n        '导购': '珠宝门店销售',\n        '销售': '珠宝门店销售',\n    }\n    for k, v in mapping.items():\n        if k in t:\n            return v\n    return t\n\n\ndef _data_quality(fields):\n    score = 0\n    for item in fields:\n        t = str(item or '').strip()\n        if t and t not in {'未提供', '无'}:\n            score += 1\n    if score >= 7:\n        return 'high'\n    if score >= 4:\n        return 'medium'\n    return 'low'\n\n\ndef _focus_modules(target_direction: str, initial_ability: str, self_intro: str):\n    text = ' '.join([str(target_direction or ''), str(initial_ability or ''), str(self_intro or '')])\n    modules = []\n    rules = [\n        ('产品知识', ['产品', '材质', '工艺', '证书', '黄金', 'k金', '钻石', '翡翠']),\n        ('合规表达', ['合规', '禁语', '红线', '承诺', '保值', '升值']),\n        ('销售沟通', ['销售', '沟通', '接待', '成交', '连带', '客单价']),\n        ('客户应答', ['应答', '异议', '嫌贵', '真假', '犹豫', '先看看']),\n    ]\n    lower = text.lower()\n    for name, keywords in rules:\n        if any(k.lower() in lower for k in keywords):\n            modules.append(name)\n    if not modules:\n        modules = ['产品知识', '合规表达', '销售沟通', '客户应答']\n    return modules[:4]\n\n\ndef main(\n    user_id: str = '',\n    source: str = '',\n    trace_id: str = '',\n    employee_name: str = '',\n    job_title: str = '',\n    self_intro: str = '',\n    historical_learning: str = '',\n    initial_ability: str = '',\n    employee_stage: str = '',\n    target_direction: str = '',\n    current_performance: str = '',\n    target_performance: str = '',\n    reset_mode: str = ''\n) -> dict:\n    user_id = _clean(user_id, 'UNKNOWN_USER')\n    source = _safe_source(source)\n    trace_id = _safe_trace(trace_id)\n    employee_name = _clean(employee_name)\n    job_title_raw = _clean(job_title, '珠宝门店销售')\n    job_title_norm = _normalize_job(job_title_raw)\n    self_intro = _clean(self_intro, '未提供自我介绍')\n    historical_learning = _clean(historical_learning)\n    initial_ability = _clean(initial_ability)\n    employee_stage_input = _clean(employee_stage)\n    employee_stage_norm = _classify_stage(employee_stage_input, reset_mode, historical_learning, current_performance)\n    target_direction = _clean(target_direction)\n    current_performance = _clean(current_performance)\n    target_performance = _clean(target_performance)\n    reset_mode = str(reset_mode or 'auto').strip() or 'auto'\n\n    data_quality = _data_quality([\n        employee_name, job_title_norm, self_intro, historical_learning, initial_ability,\n        employee_stage_input, target_direction, current_performance, target_performance\n    ])\n    data_quality_label = {\n        'high': '信息完整，可做强个性化计划',\n        'medium': '信息中等，采用半个性化计划',\n        'low': '信息有限，采用稳妥模板计划',\n    }[data_quality]\n\n    focus_modules = _focus_modules(target_direction, initial_ability, self_intro)\n    plan_cycle_days = 14\n    stage_count = 2\n    template_name = '14天2阶段成长计划'\n\n    normalized_profile = {\n        'user_id': user_id,\n        'source': source,\n        'trace_id': trace_id,\n        'employee_name': employee_name,\n        'job_title': job_title_norm,\n        'self_intro': self_intro,\n        'historical_learning': historical_learning,\n        'initial_ability': initial_ability,\n        'employee_stage': employee_stage_norm,\n        'target_direction': target_direction,\n        'current_performance': current_performance,\n        'target_performance': target_performance,\n        'reset_mode': reset_mode,\n        'data_quality': data_quality,\n        'stage_count': stage_count,\n        'plan_cycle_days': plan_cycle_days,\n        'focus_modules': focus_modules,\n        'template_name': template_name,\n    }\n\n    profile_card = f\"\"\"【员工基础信息】\nuser_id：{user_id}\nsource：{source}\ntrace_id：{trace_id}\n员工姓名：{employee_name}\n岗位：{job_title_norm}\n员工阶段：{employee_stage_norm}\nreset_mode：{reset_mode}\n\n【员工画像】\n自我介绍：{self_intro}\n历史学习记录：{historical_learning}\n初始能力：{initial_ability}\n目标方向：{target_direction}\n当前表现：{current_performance}\n目标表现：{target_performance}\n\n【计划硬约束】\n固定模板：{template_name}\n阶段数：2\n总天数：14\n重点模块：{'、'.join(focus_modules)}\n数据质量：{data_quality_label}\n\"\"\"\n\n    retrieval_query = (\n        f\"珠宝门店 培训计划 14天 2阶段 岗位 {job_title_norm} 阶段 {employee_stage_norm} \"\n        f\"重点 {' '.join(focus_modules)} 目标 {target_direction}\"\n    )\n\n    fallback_knowledge = \"\"\"【成长计划兜底框架】\n1. 本工作流必须固定输出 14 天、2 阶段结构：阶段1 为基础建构（Day1-Day7），阶段2 为实战强化（Day8-Day14）。\n2. 阶段1优先夯实产品知识、合规表达、标准接待与高频问答；阶段2优先强化异议处理、成交推进、连带销售和复盘改进。\n3. 对新人首训，应先补基础、再上实战；对老员工重训，应优先围绕历史薄弱项、近期问题和目标业绩做针对性补强。\n4. 每天都要有学习主题、学习任务、练习任务和验证方式，不能只写空泛目标。\n5. 输出必须兼容前端展示和后端落库，不能夹带思考过程。\"\"\"\n\n    return {\n        'profile_card': profile_card,\n        'normalized_profile': json.dumps(normalized_profile, ensure_ascii=False),\n        'retrieval_query': retrieval_query,\n        'fallback_knowledge': fallback_knowledge,\n        'data_quality_label': data_quality_label,\n        'employee_stage_norm': employee_stage_norm,\n        'plan_cycle_days': plan_cycle_days,\n        'stage_count_default': stage_count,\n        'focus_modules_hint': json.dumps(focus_modules, ensure_ascii=False)\n    }\n"
+        code_language: python3
+        desc: 清洗输入、识别新人/重训、固定14天2阶段模板，并输出标准化画像。
+        outputs:
+          profile_card:
+            children: null
+            type: string
+          normalized_profile:
+            children: null
+            type: string
+          retrieval_query:
+            children: null
+            type: string
+          fallback_knowledge:
+            children: null
+            type: string
+          data_quality_label:
+            children: null
+            type: string
+          employee_stage_norm:
+            children: null
+            type: string
+          plan_cycle_days:
+            children: null
+            type: number
+          stage_count_default:
+            children: null
+            type: number
+          focus_modules_hint:
+            children: null
+            type: string
+        selected: false
+        title: 输入规范化与计划策略
+        type: code
+        variables:
+        - value_selector:
+          - start_node
+          - user_id
+          variable: user_id
+        - value_selector:
+          - start_node
+          - source
+          variable: source
+        - value_selector:
+          - start_node
+          - trace_id
+          variable: trace_id
+        - value_selector:
+          - start_node
+          - employee_name
+          variable: employee_name
+        - value_selector:
+          - start_node
+          - job_title
+          variable: job_title
+        - value_selector:
+          - start_node
+          - self_intro
+          variable: self_intro
+        - value_selector:
+          - start_node
+          - historical_learning
+          variable: historical_learning
+        - value_selector:
+          - start_node
+          - initial_ability
+          variable: initial_ability
+        - value_selector:
+          - start_node
+          - employee_stage
+          variable: employee_stage
+        - value_selector:
+          - start_node
+          - target_direction
+          variable: target_direction
+        - value_selector:
+          - start_node
+          - current_performance
+          variable: current_performance
+        - value_selector:
+          - start_node
+          - target_performance
+          variable: target_performance
+        - value_selector:
+          - start_node
+          - reset_mode
+          variable: reset_mode
+      height: 96
+      id: normalize_input
+      position:
+        x: 342
+        y: 81
+      positionAbsolute:
+        x: 342
+        y: 81
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        dataset_ids:
+        - J3feDEiEmkB+GBiKZO8R//BmAAyH2m2FzEaE1FTYz4nfkghitO6iGOqrsfs2Bsle
+        desc: 先经LLM做知识检索意图与查询改写，再检索珠宝新人培训知识库
+        multiple_retrieval_config:
+          reranking_enable: true
+          reranking_mode: reranking_model
+          reranking_model:
+            model: gte-rerank
+            provider: langgenius/tongyi/tongyi
+          top_k: 3
+        query_attachment_selector: []
+        query_variable_selector:
+        - precheck_parser
+        - retrieval_query_final
+        retrieval_mode: multiple
+        selected: false
+        title: 知识检索
+        type: knowledge-retrieval
+      height: 134
+      id: knowledge_retrieval
+      position:
+        x: 1368
+        y: 62
+      positionAbsolute:
+        x: 1368
+        y: 62
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "import json\n\n\ndef _safe_text(v, default=''):\n    if v is None:\n        return default\n    s = str(v).strip()\n    return s if s else default\n\n\ndef _parse_list_text(v):\n    try:\n        data = json.loads(str(v or '[]'))\n        if isinstance(data, list):\n            return [str(x).strip() for x in data if str(x).strip()]\n    except Exception:\n        pass\n    return []\n\n\ndef main(\n    profile_card: str = '',\n    normalized_profile: str = '',\n    fallback_knowledge: str = '',\n    data_quality_label: str = '',\n    knowledge_gate: str = 'yes',\n    kb_match_expectation: str = 'medium',\n    precheck_reason: str = '',\n    focus_modules_final: str = '[]',\n    stage_count_default = 2,\n    plan_cycle_days = 14,\n    retrieved_docs=None\n) -> dict:\n    docs = retrieved_docs or []\n    blocks = []\n    effective_count = 0\n    total_len = 0\n    for idx, doc in enumerate(docs[:4], 1):\n        title = ''\n        content = ''\n        if isinstance(doc, dict):\n            title = str(doc.get('title') or doc.get('name') or '')\n            content = str(doc.get('content') or doc.get('segment') or doc.get('text') or '')\n            if not content:\n                metadata = doc.get('metadata') or {}\n                doc_meta = metadata.get('doc_metadata') or {}\n                content = str(doc_meta.get('content') or '')\n        else:\n            content = str(doc or '')\n        title = title.strip()\n        content = content.strip()\n        if content:\n            effective_count += 1\n            total_len += len(content)\n        block = f\"[知识片段{idx}]\"\n        if title:\n            block += f\"\\n标题：{title}\"\n        if content:\n            block += f\"\\n内容：{content}\"\n        blocks.append(block)\n\n    knowledge_gate = _safe_text(knowledge_gate, 'yes').lower()\n    if knowledge_gate == 'no':\n        knowledge_hit_status = 'skip'\n        route_reason = '检索前预判认为无需依赖知识库，直接走通用训练框架。'\n    elif effective_count >= 2 and total_len >= 300:\n        knowledge_hit_status = 'hit'\n        route_reason = f'命中 {effective_count} 条有效知识片段，适合做知识增强成长计划。'\n    elif effective_count >= 1 and total_len >= 100:\n        knowledge_hit_status = 'weak_hit'\n        route_reason = '命中知识片段有限，采用知识片段 + 通用框架联合生成。'\n    else:\n        knowledge_hit_status = 'miss'\n        route_reason = '知识片段不足，转入通用训练框架兜底。'\n\n    source_strategy = 'knowledge_base' if knowledge_hit_status == 'hit' else ('hybrid' if knowledge_hit_status == 'weak_hit' else 'llm_fallback')\n    focus_modules = _parse_list_text(focus_modules_final)\n    if not focus_modules:\n        focus_modules = ['产品知识', '合规表达', '销售沟通', '客户应答']\n\n    return {\n        'profile_card': profile_card,\n        'normalized_profile_out': normalized_profile,\n        'fallback_knowledge': fallback_knowledge,\n        'data_quality_label_out': data_quality_label,\n        'knowledge_hit_status': knowledge_hit_status,\n        'route_reason': route_reason,\n        'knowledge_context': '\\n\\n'.join(blocks) if blocks else '未命中有效知识片段。',\n        'retrieved_count': effective_count,\n        'source_strategy': source_strategy,\n        'precheck_reason_out': precheck_reason,\n        'focus_modules_out': json.dumps(focus_modules, ensure_ascii=False),\n        'stage_count_default_out': int(stage_count_default or 2),\n        'plan_cycle_days_out': int(plan_cycle_days or 14)\n    }\n"
+        code_language: python3
+        desc: 判断知识命中质量，输出命中状态、上下文与路由原因。
+        outputs:
+          profile_card:
+            children: null
+            type: string
+          normalized_profile_out:
+            children: null
+            type: string
+          fallback_knowledge:
+            children: null
+            type: string
+          data_quality_label_out:
+            children: null
+            type: string
+          knowledge_hit_status:
+            children: null
+            type: string
+          route_reason:
+            children: null
+            type: string
+          knowledge_context:
+            children: null
+            type: string
+          retrieved_count:
+            children: null
+            type: number
+          source_strategy:
+            children: null
+            type: string
+          precheck_reason_out:
+            children: null
+            type: string
+          focus_modules_out:
+            children: null
+            type: string
+          stage_count_default_out:
+            children: null
+            type: number
+          plan_cycle_days_out:
+            children: null
+            type: number
+        selected: false
+        title: 命中判定
+        type: code
+        variables:
+        - value_selector:
+          - normalize_input
+          - profile_card
+          variable: profile_card
+        - value_selector:
+          - normalize_input
+          - normalized_profile
+          variable: normalized_profile
+        - value_selector:
+          - normalize_input
+          - fallback_knowledge
+          variable: fallback_knowledge
+        - value_selector:
+          - normalize_input
+          - data_quality_label
+          variable: data_quality_label
+        - value_selector:
+          - precheck_parser
+          - knowledge_gate
+          variable: knowledge_gate
+        - value_selector:
+          - precheck_parser
+          - kb_match_expectation
+          variable: kb_match_expectation
+        - value_selector:
+          - precheck_parser
+          - precheck_reason
+          variable: precheck_reason
+        - value_selector:
+          - precheck_parser
+          - focus_modules_final
+          variable: focus_modules_final
+        - value_selector:
+          - normalize_input
+          - stage_count_default
+          variable: stage_count_default
+        - value_selector:
+          - normalize_input
+          - plan_cycle_days
+          variable: plan_cycle_days
+        - value_selector:
+          - knowledge_retrieval
+          - result
+          variable: retrieved_docs
+      height: 96
+      id: merge_context
+      position:
+        x: 1710
+        y: 81
+      positionAbsolute:
+        x: 1710
+        y: 81
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        desc: 基于知识片段生成 14 天 2 阶段成长计划。
+        memory:
+          role_prefix:
+            assistant: ''
+            user: ''
+          window:
+            enabled: false
+            size: 10
+        model:
+          completion_params:
+            temperature: 0.2
+            max_tokens: 2200
+          mode: chat
+          name: qwen-plus
+          provider: langgenius/tongyi/tongyi
+        prompt_template:
+        - id: knowledge-plan-system
+          role: system
+          text: "你是“珠宝门店培训规划师”。\n当前为【知识库命中/弱命中分支】。\n\n职责：基于员工画像与知识片段，输出严格 JSON，用于生成 14 天、2 阶段成长计划。\n\n只输出 JSON，不要解释，不要 Markdown，不要代码块。\n\n硬性要求：\n1. 必须固定输出 2 个阶段、总计 14 天。\n2. 阶段1为基础建构（Day1-Day7），阶段2为实战强化（Day8-Day14）。\n3. 计划要围绕珠宝门店培训，重点覆盖产品知识、合规表达、销售沟通、客户应答中的相关模块。\n4. 不要输出“根据知识库”之类系统话术。\n5. 若知识片段较弱，可以结合员工画像做稳妥补充，但不能编造具体制度或门店政策。\n\nJSON Schema：\n{\n  \"profile_summary\": {\n    \"岗位定位\": \"\",\n    \"当前阶段\": \"\",\n    \"主要优势\": [\"\"],\n    \"主要短板\": [\"\"],\n    \"培养重点\": [\"\"]\n  },\n  \"stage_plans\": [\n    {\n      \"stage_no\": 1,\n      \"stage_name\": \"阶段1 基础建构\",\n      \"days_range\": \"Day1-Day7\",\n      \"stage_goal\": \"\",\n      \"focus_modules\": [\"\"],\n      \"daily_plan\": [\n        {\n          \"day_no\": 1,\n          \"day_label\": \"Day1\",\n          \"theme\": \"\",\n          \"learning_task\": \"\",\n          \"practice_task\": \"\",\n          \"checkpoint\": \"\"\n        }\n      ],\n      \"stage_checkpoint\": \"\"\n    },\n    {\n      \"stage_no\": 2,\n      \"stage_name\": \"阶段2 实战强化\",\n      \"days_range\": \"Day8-Day14\",\n      \"stage_goal\": \"\",\n      \"focus_modules\": [\"\"],\n      \"daily_plan\": [\n        {\n          \"day_no\": 8,\n          \"day_label\": \"Day8\",\n          \"theme\": \"\",\n          \"learning_task\": \"\",\n          \"practice_task\": \"\",\n          \"checkpoint\": \"\"\n        }\n      ],\n      \"stage_checkpoint\": \"\"\n    }\n  ],\n  \"focus_modules\": [\"\"],\n  \"first_round_focus\": [\"\"],\n  \"plan_summary\": \"\"\n}"
+        - id: knowledge-plan-user
+          role: user
+          text: '请基于以下信息生成成长计划 JSON：
+
+
+            【员工画像】
+
+            {{#merge_context.profile_card#}}
+
+
+            【知识命中状态】
+
+            {{#merge_context.knowledge_hit_status#}}
+
+
+            【命中原因】
+
+            {{#merge_context.route_reason#}}
+
+
+            【训练焦点模块】
+
+            {{#merge_context.focus_modules_out#}}
+
+
+            【知识库上下文】
+
+            {{#merge_context.knowledge_context#}}'
+        selected: false
+        title: 知识库上下文生成
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 132
+      id: generate_growth_plan
+      position:
+        x: 2414
+        y: 81
+      positionAbsolute:
+        x: 2414
+        y: 81
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "import json\nimport re\n\n\ndef _extract_json(text: str) -> dict:\n    raw = str(text or '').strip()\n    raw = re.sub(r'^```json\\s*', '', raw, flags=re.I)\n    raw = re.sub(r'^```\\s*', '', raw)\n    raw = re.sub(r'\\s*```$', '', raw)\n    raw = re.sub(r'<think>[\\s\\S]*?</think>', '', raw, flags=re.I)\n    if not raw:\n        return {}\n    try:\n        data = json.loads(raw)\n        return data if isinstance(data, dict) else {}\n    except Exception:\n        pass\n    m = re.search(r'\\{[\\s\\S]*\\}', raw)\n    if m:\n        try:\n            data = json.loads(m.group(0))\n            return data if isinstance(data, dict) else {}\n        except Exception:\n            pass\n    return {}\n\n\ndef _safe_list(v, default=None):\n    default = default or []\n    if isinstance(v, list):\n        arr = [str(x).strip() for x in v if str(x).strip()]\n        return arr or default\n    return default\n\n\ndef _safe_text(v, default=''):\n    if v is None:\n        return default\n    s = str(v).strip()\n    return s if s else default\n\n\ndef _fallback_plan(focus_modules):\n    stage1_days = []\n    stage2_days = []\n    s1_themes = ['岗位与产品基础', '黄金/K金/铂金基础', '证书与材质表达', '合规禁语与替代表达', '标准接待开场', '高频问答训练', '阶段1复盘']\n    s2_themes = ['价格异议处理', '真假质疑应答', '犹豫顾客推进', '连带销售与客单提升', '真实话术复练', '模拟顾客对练', '阶段2总结']\n    for i, theme in enumerate(s1_themes, 1):\n        stage1_days.append({\n            'day_no': i, 'day_label': f'Day{i}', 'theme': theme,\n            'learning_task': f'围绕“{theme}”完成知识学习与要点记录。',\n            'practice_task': f'完成 1 次与“{theme}”相关的口头复述或书面演练。',\n            'checkpoint': f'能用 1 分钟说清“{theme}”的核心表达。'\n        })\n    for idx, theme in enumerate(s2_themes, 8):\n        stage2_days.append({\n            'day_no': idx, 'day_label': f'Day{idx}', 'theme': theme,\n            'learning_task': f'围绕“{theme}”完成场景化学习与错题复盘。',\n            'practice_task': f'完成 1 次“{theme}”相关模拟对练或情景作答。',\n            'checkpoint': f'在对应场景下给出自然、合规、可成交的回应。'\n        })\n    return {\n        'profile_summary': {\n            '岗位定位': '珠宝门店销售',\n            '当前阶段': '基础成长阶段',\n            '主要优势': ['愿意学习', '具备基础服务意识'],\n            '主要短板': ['产品知识体系不稳', '高频场景表达不够成熟'],\n            '培养重点': focus_modules[:3] or ['产品知识', '合规表达', '销售沟通']\n        },\n        'stage_plans': [\n            {\n                'stage_no': 1,\n                'stage_name': '阶段1 基础建构',\n                'days_range': 'Day1-Day7',\n                'stage_goal': '先补基础知识与标准表达，建立门店接待底盘。',\n                'focus_modules': focus_modules[:3] or ['产品知识', '合规表达', '销售沟通'],\n                'daily_plan': stage1_days,\n                'stage_checkpoint': '能完成基础接待与高频问答。'\n            },\n            {\n                'stage_no': 2,\n                'stage_name': '阶段2 实战强化',\n                'days_range': 'Day8-Day14',\n                'stage_goal': '围绕真实顾客场景做异议处理与成交推进训练。',\n                'focus_modules': focus_modules[:4] or ['客户应答', '销售沟通', '合规表达'],\n                'daily_plan': stage2_days,\n                'stage_checkpoint': '能在关键异议场景中稳定应答并推进下一步。'\n            }\n        ],\n        'focus_modules': focus_modules[:4] or ['产品知识', '合规表达', '销售沟通', '客户应答'],\n        'first_round_focus': focus_modules[:2] or ['产品知识', '合规表达'],\n        'plan_summary': '先夯实基础、再进入场景强化，形成14天闭环训练节奏。'\n    }\n\n\ndef main(\n    knowledge_plan_text: str = '',\n    fallback_plan_text: str = '',\n    normalized_profile: str = '',\n    data_quality_label: str = '',\n    retrieved_count = 0,\n    knowledge_hit_status: str = 'miss',\n    source_strategy: str = 'llm_fallback',\n    focus_modules_out: str = '[]',\n    plan_cycle_days = 14,\n    stage_count_default = 2\n) -> dict:\n    data = _extract_json(knowledge_plan_text) or _extract_json(fallback_plan_text)\n    focus_modules = []\n    try:\n        focus_modules = json.loads(str(focus_modules_out or '[]'))\n        if not isinstance(focus_modules, list):\n            focus_modules = []\n    except Exception:\n        focus_modules = []\n    focus_modules = [str(x).strip() for x in focus_modules if str(x).strip()]\n\n    if not data:\n        data = _fallback_plan(focus_modules)\n\n    profile = data.get('profile_summary') or {}\n    stage_plans = data.get('stage_plans') or []\n    if not isinstance(stage_plans, list) or len(stage_plans) != 2:\n        data = _fallback_plan(focus_modules)\n        profile = data.get('profile_summary') or {}\n        stage_plans = data.get('stage_plans') or []\n\n    # Ensure 14 days total\n    normalized_stage_plans = []\n    all_days = []\n    for idx, stage in enumerate(stage_plans[:2], 1):\n        daily_plan = stage.get('daily_plan') if isinstance(stage, dict) else []\n        if not isinstance(daily_plan, list):\n            daily_plan = []\n        expected_start = 1 if idx == 1 else 8\n        normalized_days = []\n        for day_index in range(7):\n            source_item = daily_plan[day_index] if day_index < len(daily_plan) and isinstance(daily_plan[day_index], dict) else {}\n            day_no = expected_start + day_index\n            normalized_days.append({\n                'day_no': day_no,\n                'day_label': f'Day{day_no}',\n                'theme': _safe_text(source_item.get('theme'), f'训练主题{day_no}'),\n                'learning_task': _safe_text(source_item.get('learning_task'), '完成当日知识学习。'),\n                'practice_task': _safe_text(source_item.get('practice_task'), '完成当日练习任务。'),\n                'checkpoint': _safe_text(source_item.get('checkpoint'), '完成当日复盘与自查。')\n            })\n            all_days.append(day_no)\n        normalized_stage_plans.append({\n            'stage_no': idx,\n            'stage_name': _safe_text(stage.get('stage_name'), '阶段1 基础建构' if idx == 1 else '阶段2 实战强化'),\n            'days_range': _safe_text(stage.get('days_range'), 'Day1-Day7' if idx == 1 else 'Day8-Day14'),\n            'stage_goal': _safe_text(stage.get('stage_goal'), '完成本阶段重点训练目标。'),\n            'focus_modules': _safe_list(stage.get('focus_modules'), focus_modules[:3] if idx == 1 else focus_modules[:4]),\n            'daily_plan': normalized_days,\n            'stage_checkpoint': _safe_text(stage.get('stage_checkpoint'), '完成本阶段检查点。')\n        })\n\n    final_focus_modules = _safe_list(data.get('focus_modules'), focus_modules or ['产品知识', '合规表达', '销售沟通', '客户应答'])\n    first_round_focus = _safe_list(data.get('first_round_focus'), final_focus_modules[:2])\n    plan_summary = _safe_text(data.get('plan_summary'), '本计划采用14天2阶段结构，先打基础再练场景。')\n\n    markdown_lines = []\n    markdown_lines.append('# 成长计划')\n    markdown_lines.append('## 画像概览')\n    markdown_lines.append(f\"- 岗位定位：{_safe_text(profile.get('岗位定位'), '珠宝门店销售')}\")\n    markdown_lines.append(f\"- 当前阶段：{_safe_text(profile.get('当前阶段'), '成长阶段')}\")\n    markdown_lines.append(f\"- 主要优势：{'；'.join(_safe_list(profile.get('主要优势'), ['愿意学习']))}\")\n    markdown_lines.append(f\"- 主要短板：{'；'.join(_safe_list(profile.get('主要短板'), ['需要进一步观察']))}\")\n    markdown_lines.append(f\"- 培养重点：{'；'.join(_safe_list(profile.get('培养重点'), final_focus_modules[:3]))}\")\n    markdown_lines.append('')\n    markdown_lines.append('## 阶段重点模块')\n    for item in final_focus_modules:\n        markdown_lines.append(f'- {item}')\n    markdown_lines.append('')\n\n    for stage in normalized_stage_plans:\n        markdown_lines.append(f\"## {stage['stage_name']}（{stage['days_range']}）\")\n        markdown_lines.append(f\"- 阶段目标：{stage['stage_goal']}\")\n        markdown_lines.append(f\"- 阶段重点：{'、'.join(stage['focus_modules'])}\")\n        markdown_lines.append(f\"- 阶段检查点：{stage['stage_checkpoint']}\")\n        markdown_lines.append('')\n        for day in stage['daily_plan']:\n            markdown_lines.append(f\"### {day['day_label']}｜{day['theme']}\")\n            markdown_lines.append(f\"- 学习任务：{day['learning_task']}\")\n            markdown_lines.append(f\"- 练习任务：{day['practice_task']}\")\n            markdown_lines.append(f\"- 自查点：{day['checkpoint']}\")\n            markdown_lines.append('')\n\n    markdown_lines.append('## 首轮训练重点')\n    for item in first_round_focus:\n        markdown_lines.append(f'- {item}')\n    markdown_lines.append('')\n    markdown_lines.append('## 计划说明')\n    markdown_lines.append(f'- {plan_summary}')\n\n    final_markdown = '\\n'.join(markdown_lines).strip()\n    workflow_result = {\n        'growth_plan_markdown': final_markdown,\n        'stage_count': 2,\n        'stage_plans': normalized_stage_plans,\n        'focus_modules': final_focus_modules,\n        'plan_cycle_days': int(plan_cycle_days or 14),\n        'plan_summary': plan_summary,\n        'first_round_focus': first_round_focus,\n        'knowledge_hit_status': str(knowledge_hit_status or 'miss'),\n        'retrieved_count': int(retrieved_count or 0),\n        'source_strategy': str(source_strategy or 'llm_fallback'),\n        'data_quality_label': data_quality_label,\n        'normalized_profile': json.loads(normalized_profile) if str(normalized_profile or '').strip().startswith('{') else normalized_profile,\n    }\n\n    return {\n        'final_markdown': final_markdown,\n        'stage_count': 2,\n        'stage_plans_json': json.dumps(normalized_stage_plans, ensure_ascii=False),\n        'focus_modules_json': json.dumps(final_focus_modules, ensure_ascii=False),\n        'plan_cycle_days': int(plan_cycle_days or 14),\n        'plan_summary': plan_summary,\n        'workflow_result': json.dumps(workflow_result, ensure_ascii=False),\n        'normalized_profile_out': normalized_profile\n    }\n"
+        code_language: python3
+        desc: 将成长计划整理成统一 Markdown 和结构化 JSON，固定输出 14 天 2 阶段。
+        outputs:
+          final_markdown:
+            children: null
+            type: string
+          stage_count:
+            children: null
+            type: number
+          stage_plans_json:
+            children: null
+            type: string
+          focus_modules_json:
+            children: null
+            type: string
+          plan_cycle_days:
+            children: null
+            type: number
+          plan_summary:
+            children: null
+            type: string
+          workflow_result:
+            children: null
+            type: string
+          normalized_profile_out:
+            children: null
+            type: string
+        selected: false
+        title: 结果后处理
+        type: code
+        variables:
+        - value_selector:
+          - generate_growth_plan
+          - text
+          variable: knowledge_plan_text
+        - value_selector:
+          - fallback_generate_growth_plan
+          - text
+          variable: fallback_plan_text
+        - value_selector:
+          - merge_context
+          - normalized_profile_out
+          variable: normalized_profile
+        - value_selector:
+          - merge_context
+          - data_quality_label_out
+          variable: data_quality_label
+        - value_selector:
+          - merge_context
+          - retrieved_count
+          variable: retrieved_count
+        - value_selector:
+          - merge_context
+          - knowledge_hit_status
+          variable: knowledge_hit_status
+        - value_selector:
+          - merge_context
+          - source_strategy
+          variable: source_strategy
+        - value_selector:
+          - merge_context
+          - focus_modules_out
+          variable: focus_modules_out
+        - value_selector:
+          - merge_context
+          - plan_cycle_days_out
+          variable: plan_cycle_days
+        - value_selector:
+          - merge_context
+          - stage_count_default_out
+          variable: stage_count_default
+      height: 112
+      id: format_output
+      position:
+        x: 2776
+        y: 111
+      positionAbsolute:
+        x: 2776
+        y: 111
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        desc: 返回成长计划和结构化结果
+        outputs:
+        - value_selector:
+          - format_output
+          - final_markdown
+          variable: growth_plan_markdown
+        - value_selector:
+          - format_output
+          - stage_count
+          variable: stage_count
+        - value_selector:
+          - format_output
+          - stage_plans_json
+          variable: stage_plans
+        - value_selector:
+          - format_output
+          - focus_modules_json
+          variable: focus_modules
+        - value_selector:
+          - format_output
+          - plan_cycle_days
+          variable: plan_cycle_days
+        - value_selector:
+          - format_output
+          - plan_summary
+          variable: plan_summary
+        - value_selector:
+          - format_output
+          - normalized_profile_out
+          variable: normalized_profile
+        - value_selector:
+          - format_output
+          - workflow_result
+          variable: workflow_result
+        - value_selector:
+          - format_output
+          - workflow_result
+          variable: plan_meta
+        selected: false
+        title: 结束
+        type: end
+      height: 168
+      id: end_node
+      position:
+        x: 3118
+        y: 83
+      positionAbsolute:
+        x: 3118
+        y: 83
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        desc: 先由 LLM 规划检索主题、关键词和模块焦点。
+        memory:
+          role_prefix:
+            assistant: ''
+            user: ''
+          window:
+            enabled: false
+            size: 10
+        model:
+          completion_params:
+            temperature: 0.1
+            max_tokens: 320
+          mode: chat
+          name: qwen-plus
+          provider: langgenius/tongyi/tongyi
+        prompt_template:
+        - id: kb-precheck-system
+          role: system
+          text: "你是“成长计划生成工作流”的检索前预判节点。\n\n任务：\n1. 判断当前画像最值得检索的知识主题。\n2. 输出更聚焦的知识库检索 query。\n3. 给出 2~4 个训练焦点模块。\n\n只输出 JSON，不要解释，不要代码块。\n\n输出 Schema：\n{\n  \"retrieval_needed\": \"yes | no\",\n  \"optimized_query\": \"\",\n  \"knowledge_focus_tags\": [\"\"],\n  \"focus_modules\": [\"产品知识\", \"合规表达\"],\n  \"precheck_reason\": \"\"\n}\n\n要求：\n- 本工作流最终必须生成 14 天、2 阶段成长计划。\n- focus_modules 必须是训练模块，不要输出空泛概念。\n- optimized_query 要保留岗位、阶段、目标方向、重点模块。"
+        - id: kb-precheck-user
+          role: user
+          text: '请对以下成长计划输入做检索前预判：
+
+
+            【标准化画像】
+
+            {{#normalize_input.profile_card#}}
+
+
+            【原始检索查询】
+
+            {{#normalize_input.retrieval_query#}}'
+        selected: false
+        title: 检索前LLM预判
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 148
+      id: kb_precheck_llm
+      position:
+        x: 684
+        y: 55
+      positionAbsolute:
+        x: 684
+        y: 55
+      selected: true
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "import json\nimport re\n\n\ndef _extract_json(text: str) -> dict:\n    raw = str(text or '').strip()\n    raw = re.sub(r'^```json\\s*', '', raw, flags=re.I)\n    raw = re.sub(r'^```\\s*', '', raw)\n    raw = re.sub(r'\\s*```$', '', raw)\n    if not raw:\n        return {}\n    try:\n        data = json.loads(raw)\n        return data if isinstance(data, dict) else {}\n    except Exception:\n        pass\n    m = re.search(r'\\{[\\s\\S]*\\}', raw)\n    if m:\n        try:\n            data = json.loads(m.group(0))\n            return data if isinstance(data, dict) else {}\n        except Exception:\n            pass\n    return {}\n\n\ndef _to_list(v):\n    if isinstance(v, list):\n        return [str(x).strip() for x in v if str(x).strip()]\n    if isinstance(v, str) and v.strip():\n        parts = re.split(r'[,，；;、|]+', v)\n        return [p.strip() for p in parts if p.strip()]\n    return []\n\n\ndef main(precheck_text: str = '', original_query: str = '', focus_modules_hint: str = '') -> dict:\n    data = _extract_json(precheck_text)\n    retrieval_needed = str(data.get('retrieval_needed') or 'yes').strip().lower()\n    if retrieval_needed not in {'yes', 'no'}:\n        retrieval_needed = 'yes'\n\n    optimized_query = str(data.get('optimized_query') or '').strip() or str(original_query or '').strip()\n    knowledge_focus_tags = _to_list(data.get('knowledge_focus_tags'))\n    focus_modules = _to_list(data.get('focus_modules'))\n    if not focus_modules:\n        focus_modules = _to_list(focus_modules_hint)\n    if not focus_modules:\n        focus_modules = ['产品知识', '合规表达', '销售沟通', '客户应答']\n\n    precheck_reason = str(data.get('precheck_reason') or '已使用默认检索策略。').strip()\n    kb_match_expectation = 'high' if retrieval_needed == 'yes' else 'low'\n\n    return {\n        'knowledge_gate': retrieval_needed,\n        'retrieval_query_final': optimized_query,\n        'input_topic': '成长计划生成',\n        'kb_match_expectation': kb_match_expectation,\n        'precheck_reason': precheck_reason,\n        'knowledge_focus_tags': json.dumps(knowledge_focus_tags, ensure_ascii=False),\n        'focus_modules_final': json.dumps(focus_modules, ensure_ascii=False)\n    }\n"
+        code_language: python3
+        desc: 将 LLM 预判结果解析成可执行检索关键词和模块焦点。
+        outputs:
+          knowledge_gate:
+            children: null
+            type: string
+          retrieval_query_final:
+            children: null
+            type: string
+          input_topic:
+            children: null
+            type: string
+          kb_match_expectation:
+            children: null
+            type: string
+          precheck_reason:
+            children: null
+            type: string
+          knowledge_focus_tags:
+            children: null
+            type: string
+          focus_modules_final:
+            children: null
+            type: string
+        selected: false
+        title: 预判结果解析
+        type: code
+        variables:
+        - value_selector:
+          - kb_precheck_llm
+          - text
+          variable: precheck_text
+        - value_selector:
+          - normalize_input
+          - retrieval_query
+          variable: original_query
+        - value_selector:
+          - normalize_input
+          - focus_modules_hint
+          variable: focus_modules_hint
+      height: 96
+      id: precheck_parser
+      position:
+        x: 1026
+        y: 81
+      positionAbsolute:
+        x: 1026
+        y: 81
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        desc: 知识未命中时，按通用训练框架输出 14 天 2 阶段成长计划。
+        memory:
+          role_prefix:
+            assistant: ''
+            user: ''
+          window:
+            enabled: false
+            size: 10
+        model:
+          completion_params:
+            temperature: 0.2
+            max_tokens: 2200
+          mode: chat
+          name: qwen-plus
+          provider: langgenius/tongyi/tongyi
+        prompt_template:
+        - id: fallback-plan-system
+          role: system
+          text: '你是“珠宝门店培训规划师”。
+
+            当前为【知识库未命中兜底分支】。
+
+
+            职责：在不伪造知识库来源的前提下，依据员工画像与通用训练框架，输出严格 JSON 的 14 天、2 阶段成长计划。
+
+
+            只输出 JSON，不要解释，不要 Markdown，不要代码块。
+
+
+            硬性要求：
+
+            1. 必须固定输出 2 个阶段、总计 14 天。
+
+            2. 阶段1为基础建构（Day1-Day7），阶段2为实战强化（Day8-Day14）。
+
+            3. 新人首训优先夯实基础，老员工重训优先围绕薄弱项与近期表现补强。
+
+            4. 不得写成“来自知识库”。
+
+            5. 每天都要有学习任务、练习任务、检查点。
+
+
+            JSON Schema 与命中分支完全一致。'
+        - id: fallback-plan-user
+          role: user
+          text: '请基于以下输入生成成长计划 JSON：
+
+
+            【员工画像】
+
+            {{#merge_context.profile_card#}}
+
+
+            【未命中原因】
+
+            {{#merge_context.route_reason#}}
+
+
+            【训练焦点模块】
+
+            {{#merge_context.focus_modules_out#}}
+
+
+            【通用兜底框架】
+
+            {{#merge_context.fallback_knowledge#}}'
+        selected: false
+        title: LLM兜底生成
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 132
+      id: fallback_generate_growth_plan
+      position:
+        x: 2414
+        y: 298.3306187614583
+      positionAbsolute:
+        x: 2414
+        y: 298.3306187614583
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        cases:
+        - case_id: 'true'
+          conditions:
+          - comparison_operator: is
+            id: cond1
+            value: hit
+            varType: string
+            variable_selector:
+            - merge_context
+            - knowledge_hit_status
+          - comparison_operator: is
+            id: cond2
+            value: weak_hit
+            varType: string
+            variable_selector:
+            - merge_context
+            - knowledge_hit_status
+          id: 'true'
+          logical_operator: or
+        desc: 命中走知识库生成，未命中走LLM兜底生成
+        selected: false
+        title: 是否命中
+        type: if-else
+      height: 242
+      id: knowledge_hit_if
+      position:
+        x: 2052
+        y: 32
+      positionAbsolute:
+        x: 2052
+        y: 32
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    viewport:
+      x: -1826.3000000000002
+      y: 325.6
+      zoom: 0.7
+  rag_pipeline_variables: []

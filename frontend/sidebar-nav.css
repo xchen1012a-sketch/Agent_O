@@ -1,0 +1,57 @@
+﻿/**
+ * 必须在 Tailwind CDN 注入之后加载（见 index.html 中置于 </body> 前的 link）。
+ * 彻底去掉侧栏菜单「像卡片投影」的 ring/box-shadow（含选中 + 焦点）。
+ */
+/* 非选中项保持无「卡片投影」；选中态由 styles.css 单独赋予柔和弥散阴影 */
+#sidebar #sidebar-menu button.sidebar-nav-item.sidebar-group-item {
+  -webkit-appearance: none;
+  appearance: none;
+  border: none;
+  filter: none !important;
+  text-shadow: none !important;
+  --tw-ring-offset-width: 0px;
+  --tw-ring-offset-color: #fff;
+  --tw-ring-color: transparent;
+  --tw-ring-offset-shadow: 0 0 #0000 !important;
+  --tw-ring-shadow: 0 0 #0000 !important;
+  --tw-shadow: 0 0 #0000 !important;
+  --tw-shadow-colored: 0 0 #0000 !important;
+}
+
+#sidebar #sidebar-menu button.sidebar-nav-item.sidebar-group-item:not(.active) {
+  box-shadow: none !important;
+  -webkit-box-shadow: none !important;
+}
+
+#sidebar #sidebar-menu button.sidebar-nav-item:not(.active):focus,
+#sidebar #sidebar-menu button.sidebar-nav-item:not(.active):focus-visible,
+#sidebar #sidebar-menu button.sidebar-nav-item:not(.active):active {
+  box-shadow: none !important;
+  -webkit-box-shadow: none !important;
+  outline: none !important;
+  --tw-ring-offset-shadow: 0 0 #0000 !important;
+  --tw-ring-shadow: 0 0 #0000 !important;
+  --tw-shadow: 0 0 #0000 !important;
+  --tw-shadow-colored: 0 0 #0000 !important;
+}
+
+#sidebar #sidebar-menu button.sidebar-nav-item.active:focus,
+#sidebar #sidebar-menu button.sidebar-nav-item.active:focus-visible {
+  outline: none !important;
+}
+
+#sidebar #sidebar-menu button.sidebar-accordion-toggle {
+  box-shadow: none !important;
+  -webkit-box-shadow: none !important;
+  --tw-ring-offset-shadow: 0 0 #0000 !important;
+  --tw-ring-shadow: 0 0 #0000 !important;
+  --tw-shadow: 0 0 #0000 !important;
+  --tw-shadow-colored: 0 0 #0000 !important;
+}
+
+#sidebar #sidebar-menu button.sidebar-accordion-toggle:focus,
+#sidebar #sidebar-menu button.sidebar-accordion-toggle:focus-visible,
+#sidebar #sidebar-menu button.sidebar-accordion-toggle:active {
+  box-shadow: none !important;
+  outline: none !important;
+}

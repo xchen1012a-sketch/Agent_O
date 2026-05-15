@@ -1,0 +1,514 @@
+app:
+  description: "标准试卷考试｜WF14：标准阅卷工作流（试卷 JSON + 学员答案 JSON -> 稳定评分结果）"
+  icon: "📝"
+  icon_background: '#EAF7E8'
+  icon_type: emoji
+  mode: workflow
+  name: 标准试卷评阅工作流
+  use_icon_as_answer_icon: false
+dependencies:
+- current_identifier: null
+  type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: langgenius/tongyi:0.1.32@20a5454088fa017b72490e1cbaeebff21094d11b13e41197591734d1c08cdbb5
+    version: null
+kind: app
+version: 0.6.0
+workflow:
+  conversation_variables: []
+  environment_variables: []
+  features:
+    file_upload:
+      enabled: false
+      allowed_file_extensions: [.JPG, .JPEG, .PNG, .GIF, .WEBP, .SVG]
+      allowed_file_types: [image]
+      allowed_file_upload_methods: [local_file, remote_url]
+      fileUploadConfig:
+        attachment_image_file_size_limit: 2
+        audio_file_size_limit: 50
+        batch_count_limit: 5
+        file_size_limit: 15
+        file_upload_limit: 20
+        image_file_batch_limit: 10
+        image_file_size_limit: 10
+        single_chunk_attachment_limit: 10
+        video_file_size_limit: 100
+        workflow_file_upload_limit: 10
+      image:
+        enabled: false
+        number_limits: 3
+        transfer_methods: [local_file, remote_url]
+      number_limits: 3
+    opening_statement: ''
+    retriever_resource:
+      enabled: false
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions: []
+    suggested_questions_after_answer:
+      enabled: false
+    text_to_speech:
+      enabled: false
+      language: ''
+      voice: ''
+  graph:
+    edges:
+    - data: {isInIteration: false, isInLoop: false, sourceType: start, targetType: code}
+      id: start-to-precheck
+      source: paper_grade_start
+      sourceHandle: source
+      target: grade_precheck
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data: {isInIteration: false, isInLoop: false, sourceType: code, targetType: if-else}
+      id: precheck-to-if
+      source: grade_precheck
+      sourceHandle: source
+      target: if_grade_valid
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data: {isInIteration: false, isInLoop: false, sourceType: if-else, targetType: llm}
+      id: if-valid-to-llm
+      source: if_grade_valid
+      sourceHandle: 'true'
+      target: paper_grade_llm
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data: {isInIteration: false, isInLoop: false, sourceType: llm, targetType: code}
+      id: llm-to-merge
+      source: paper_grade_llm
+      sourceHandle: source
+      target: paper_grade_merge
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data: {isInIteration: false, isInLoop: false, sourceType: code, targetType: end}
+      id: merge-to-end
+      source: paper_grade_merge
+      sourceHandle: source
+      target: end_grade_success
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data: {isInIteration: false, isInLoop: false, sourceType: if-else, targetType: code}
+      id: if-invalid-to-builder
+      source: if_grade_valid
+      sourceHandle: 'false'
+      target: invalid_grade_builder
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data: {isInIteration: false, isInLoop: false, sourceType: code, targetType: end}
+      id: invalid-to-end
+      source: invalid_grade_builder
+      sourceHandle: source
+      target: end_grade_invalid
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    nodes:
+    - data:
+        desc: 接收标准试卷 JSON 和作答 JSON
+        selected: false
+        title: 开始
+        type: start
+        variables:
+        - {label: 考试记录ID, max_length: 64, options: [], required: false, type: text-input, variable: record_id}
+        - {label: 任务ID, max_length: 64, options: [], required: false, type: text-input, variable: task_id}
+        - {label: 试卷标题, max_length: 128, options: [], required: false, type: text-input, variable: exam_title}
+        - {label: 试卷JSON, max_length: 120000, options: [], required: true, type: paragraph, variable: paper_config_json}
+        - {label: 答案JSON, max_length: 120000, options: [], required: true, type: paragraph, variable: answers_json}
+        - {label: 及格线, max_length: 32, options: [], required: false, type: number, variable: pass_score}
+      height: 264
+      id: paper_grade_start
+      position: {x: 16, y: 260}
+      positionAbsolute: {x: 16, y: 260}
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: |-
+          import json, re
+          def t(v,d=""): s=str(v or "").strip(); return s if s else d
+          def f(v,d=0.0):
+              try: return float(v)
+              except: return float(d)
+          def j(raw):
+              if isinstance(raw,(dict,list)): return raw
+              s=t(raw)
+              s=re.sub(r"<think>[\s\S]*?</think>","",s,flags=re.I)
+              s=re.sub(r"^```json\s*","",s,flags=re.I); s=re.sub(r"^```\s*","",s); s=re.sub(r"\s*```$","",s)
+              if not s: return {}
+              try: return json.loads(s)
+              except:
+                  m=re.search(r"(\{[\s\S]*\}|\[[\s\S]*\])",s)
+                  if not m: return {}
+                  try: return json.loads(m.group(1))
+                  except: return {}
+          def a(raw):
+              obj=j(raw)
+              if isinstance(obj,dict) and isinstance(obj.get("answers"),(dict,list)): obj=obj["answers"]
+              if isinstance(obj,list): return {f"q{i}":v for i,v in enumerate(obj,1)}
+              return obj if isinstance(obj,dict) else {}
+          def norm_multi(v):
+              if isinstance(v,list): arr=v
+              else: arr=re.split(r"[,，/\s]+", t(v)) if t(v) else []
+              out=[]
+              for x in arr:
+                  x=t(x).upper()
+                  if x and x not in out: out.append(x)
+              return out
+          def main(record_id="", task_id="", exam_title="", paper_config_json="", answers_json="", pass_score=85):
+              paper=j(paper_config_json); answers=a(answers_json)
+              qs=paper.get("questions") if isinstance(paper,dict) and isinstance(paper.get("questions"),list) else []
+              if not qs:
+                  return {"is_valid":0,"invalid_reason":"paper_config_json 中缺少 questions，无法阅卷。","record_id_out":t(record_id),"task_id_out":t(task_id),"exam_title_out":t(exam_title),"pass_score_out":round(f(pass_score,85),1),"question_count":0,"objective_gained_score":0.0,"objective_full_score":0.0,"objective_results_json":"[]","subjective_items_json":"[]"}
+              title=t(exam_title) or t(paper.get("exam_title")) or "标准考试"
+              pass_line=round(f(paper.get("pass_score"),f(pass_score,85)),1)
+              score_default=round(100.0/max(len(qs),1),2)
+              obj=[]; sub=[]; og=0.0; of=0.0
+              for i,q in enumerate(qs,1):
+                  qid=t(q.get("id")) or f"q{i}"
+                  qtype=t(q.get("type"),"single").lower()
+                  if qtype not in {"single","multiple","judge","short"}: qtype="single"
+                  qscore=round(f(q.get("score"),score_default),2)
+                  ans=answers.get(qid, answers.get(str(i), answers.get(f"q{i}","")))
+                  if qtype in {"single","judge"}:
+                      exp=t(q.get("answer")).upper(); act=t(ans).upper(); ok=1 if act and act==exp else 0; got=qscore if ok else 0.0; og+=got; of+=qscore
+                      obj.append({"sort_order":i,"question_id":qid,"type":qtype,"title":t(q.get("title")) or qid,"full_score":qscore,"gained_score":round(got,2),"is_correct":ok,"user_answer":act,"expected_answer":exp,"comment":"正确" if ok else "错误"})
+                  elif qtype=="multiple":
+                      exp=sorted(norm_multi(q.get("answer"))); act=sorted(norm_multi(ans)); ok=1 if exp and act==exp else 0; got=qscore if ok else 0.0; og+=got; of+=qscore
+                      obj.append({"sort_order":i,"question_id":qid,"type":qtype,"title":t(q.get("title")) or qid,"full_score":qscore,"gained_score":round(got,2),"is_correct":ok,"user_answer":act,"expected_answer":exp,"comment":"正确" if ok else "错误"})
+                  else:
+                      sub.append({"sort_order":i,"question_id":qid,"type":"short","title":t(q.get("title")) or qid,"full_score":qscore,"user_answer":t(ans),"keywords":[str(x).strip() for x in (q.get("keywords") or []) if str(x).strip()]})
+              return {"is_valid":1,"invalid_reason":"","record_id_out":t(record_id),"task_id_out":t(task_id),"exam_title_out":title,"pass_score_out":pass_line,"question_count":len(qs),"objective_gained_score":round(og,2),"objective_full_score":round(of,2),"objective_results_json":json.dumps(obj,ensure_ascii=False),"subjective_items_json":json.dumps(sub,ensure_ascii=False)}
+        code_language: python3
+        desc: 规则判分客观题并抽取简答题
+        outputs:
+          exam_title_out: {type: string}
+          invalid_reason: {type: string}
+          is_valid: {type: number}
+          objective_full_score: {type: number}
+          objective_gained_score: {type: number}
+          objective_results_json: {type: string}
+          pass_score_out: {type: number}
+          question_count: {type: number}
+          record_id_out: {type: string}
+          subjective_items_json: {type: string}
+          task_id_out: {type: string}
+        selected: false
+        title: 阅卷预处理
+        type: code
+        variables:
+        - {value_selector: [paper_grade_start, record_id], variable: record_id}
+        - {value_selector: [paper_grade_start, task_id], variable: task_id}
+        - {value_selector: [paper_grade_start, exam_title], variable: exam_title}
+        - {value_selector: [paper_grade_start, paper_config_json], variable: paper_config_json}
+        - {value_selector: [paper_grade_start, answers_json], variable: answers_json}
+        - {value_selector: [paper_grade_start, pass_score], variable: pass_score}
+      height: 80
+      id: grade_precheck
+      position: {x: 328, y: 260}
+      positionAbsolute: {x: 328, y: 260}
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        cases:
+        - case_id: 'true'
+          conditions:
+          - comparison_operator: '>'
+            id: valid-cond
+            value: '0'
+            varType: number
+            variable_selector: [grade_precheck, is_valid]
+          id: 'true'
+          logical_operator: and
+        desc: 输入有效则继续 AI 阅卷
+        selected: false
+        title: 是否有效
+        type: if-else
+      height: 126
+      id: if_grade_valid
+      position: {x: 636, y: 260}
+      positionAbsolute: {x: 636, y: 260}
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        desc: 只对简答题评分，客观题分数不允许改写
+        model:
+          completion_params:
+            temperature: 0.1
+            max_tokens: 2200
+          mode: chat
+          name: qwen-plus
+          provider: langgenius/tongyi/tongyi
+        prompt_template:
+        - id: grade-system
+          role: system
+          text: |-
+            你是标准试卷 AI 阅卷器。
+            你只负责简答题评分，客观题已经由规则引擎完成判分。
+            只输出 JSON，不要 markdown，不要解释。
+            score 必须在 0 到 full_score 之间。
+            若 subjective_items_json 为空，返回空数组。
+            输出 Schema：
+            {
+              "subjective_scores":[
+                {"question_id":"","score":0,"full_score":0,"hit_keywords":[""],"missing_keywords":[""],"comment":""}
+              ],
+              "summary_comment":"",
+              "weak_points":[""],
+              "recommended_actions":[""]
+            }
+        - id: grade-user
+          role: user
+          text: |-
+            试卷标题：{{#grade_precheck.exam_title_out#}}
+            及格线：{{#grade_precheck.pass_score_out#}}
+            客观题已得分：{{#grade_precheck.objective_gained_score#}} / {{#grade_precheck.objective_full_score#}}
+
+            请仅对以下简答题评分：
+            {{#grade_precheck.subjective_items_json#}}
+        selected: false
+        title: AI阅卷
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 132
+      id: paper_grade_llm
+      position: {x: 960, y: 160}
+      positionAbsolute: {x: 960, y: 160}
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: |-
+          import json, re
+          def t(v,d=""): s=str(v or "").strip(); return s if s else d
+          def f(v,d=0.0):
+              try: return float(v)
+              except: return float(d)
+          def j(raw):
+              if isinstance(raw,(dict,list)): return raw
+              s=t(raw)
+              s=re.sub(r"<think>[\s\S]*?</think>","",s,flags=re.I)
+              s=re.sub(r"^```json\s*","",s,flags=re.I); s=re.sub(r"^```\s*","",s); s=re.sub(r"\s*```$","",s)
+              if not s: return {}
+              try: return json.loads(s)
+              except:
+                  m=re.search(r"(\{[\s\S]*\}|\[[\s\S]*\])",s)
+                  if not m: return {}
+                  try: return json.loads(m.group(1))
+                  except: return {}
+          def clamp(v,lo,hi): n=f(v,lo); return max(lo,min(hi,n))
+          def fallback(item):
+              full=f(item.get("full_score"),0); ans=t(item.get("user_answer")).lower(); kws=[str(x).strip().lower() for x in (item.get("keywords") or []) if str(x).strip()]
+              if not ans: return 0.0,[],kws
+              if not kws: return round(full*0.7,2),[],[]
+              hit=[k for k in kws if k in ans]; miss=[k for k in kws if k not in ans]; return round(full*min(len(hit)/len(kws),1.0),2),hit,miss
+          def main(record_id_out="", task_id_out="", exam_title_out="", pass_score_out=85, question_count=0, objective_gained_score=0, objective_full_score=0, objective_results_json="", subjective_items_json="", raw_output="") -> dict:
+              obj=j(objective_results_json); obj=obj if isinstance(obj,list) else []
+              sub=j(subjective_items_json); sub=sub if isinstance(sub,list) else []
+              llm=j(raw_output); scores=llm.get("subjective_scores") if isinstance(llm,dict) and isinstance(llm.get("subjective_scores"),list) else []
+              smap={t(x.get("question_id")):x for x in scores if isinstance(x,dict) and t(x.get("question_id"))}
+              results=[]; strengths=[]; risks=[]; sg=0.0; sf=0.0
+              for x in obj:
+                  if not isinstance(x,dict): continue
+                  results.append(x)
+                  (strengths if int(f(x.get("is_correct"),0))==1 else risks).append(t(x.get("title")))
+              for x in sub:
+                  if not isinstance(x,dict): continue
+                  qid=t(x.get("question_id")); full=round(f(x.get("full_score"),0),2); sf+=full; ll=smap.get(qid,{})
+                  fb_score, fb_hit, fb_miss=fallback(x); score=clamp(ll.get("score",fb_score),0.0,full); sg+=score
+                  hit=ll.get("hit_keywords") if isinstance(ll.get("hit_keywords"),list) else fb_hit
+                  miss=ll.get("missing_keywords") if isinstance(ll.get("missing_keywords"),list) else fb_miss
+                  comment=t(ll.get("comment")) or ("简答题得分较好" if score>=full*0.7 else "简答题仍需补充关键点")
+                  results.append({"sort_order":int(f(x.get("sort_order"),999)),"question_id":qid,"type":"short","title":t(x.get("title")) or qid,"full_score":full,"gained_score":round(score,2),"is_correct":1 if score>=full*0.7 and full>0 else 0,"user_answer":t(x.get("user_answer")),"hit_keywords":hit,"missing_keywords":miss,"comment":comment})
+                  (strengths if score>=full*0.7 else risks).append(t(x.get("title")) or qid)
+              results=sorted(results,key=lambda x:int(f(x.get("sort_order"),999)))
+              full_total=round(f(objective_full_score,0)+sf,2); gained_total=round(f(objective_gained_score,0)+sg,2); total_score=round((gained_total/full_total)*100,2) if full_total>0 else 0.0
+              pass_line=round(f(pass_score_out,85),1); is_pass=1 if total_score>=pass_line else 0
+              weak=[str(x).strip() for x in (llm.get("weak_points") if isinstance(llm,dict) and isinstance(llm.get("weak_points"),list) else []) if str(x).strip()][:3] or [x for x in risks if x][:3]
+              actions=[str(x).strip() for x in (llm.get("recommended_actions") if isinstance(llm,dict) and isinstance(llm.get("recommended_actions"),list) else []) if str(x).strip()][:3] or ([f"复盘题目：{x}" for x in weak[:3]] if weak else ["继续巩固高频考点"])
+              comment=t(llm.get("summary_comment")) if isinstance(llm,dict) else ""
+              if not comment:
+                  comment="本次标准试卷已完成自动阅卷。"
+                  comment += " 总体达到通过标准。" if is_pass else " 总体未达到通过标准。"
+                  if strengths: comment += " 表现较好的题目包括：" + "、".join([x for x in strengths if x][:2]) + "。"
+                  if risks: comment += " 建议重点复盘：" + "、".join([x for x in risks if x][:2]) + "。"
+              detail={"question_results":results,"strengths":[x for x in strengths if x][:3],"risks":[x for x in risks if x][:3],"objective_gained_score":round(f(objective_gained_score,0),2),"objective_full_score":round(f(objective_full_score,0),2),"subjective_gained_score":round(sg,2),"subjective_full_score":round(sf,2)}
+              result={"score":total_score,"is_pass":is_pass,"comment":comment,"grading_detail":detail,"weak_points":weak,"recommended_actions":actions}
+              return {"workflow_status":"success","grading_status":"graded","record_id":t(record_id_out),"task_id":t(task_id_out),"exam_title":t(exam_title_out,"标准考试"),"question_count":int(f(question_count,0)),"total_score":total_score,"pass_score":pass_line,"is_pass":is_pass,"summary_comment":comment,"grading_detail_json":json.dumps(detail,ensure_ascii=False),"paper_result_json":json.dumps(result,ensure_ascii=False),"weak_points_json":json.dumps(weak,ensure_ascii=False),"recommended_actions_json":json.dumps(actions,ensure_ascii=False),"raw_output":t(raw_output),"invalid_reason":""}
+        code_language: python3
+        desc: 融合客观题规则分与简答题 AI 分
+        outputs:
+          exam_title: {type: string}
+          grading_detail_json: {type: string}
+          grading_status: {type: string}
+          invalid_reason: {type: string}
+          is_pass: {type: number}
+          paper_result_json: {type: string}
+          pass_score: {type: number}
+          question_count: {type: number}
+          raw_output: {type: string}
+          record_id: {type: string}
+          recommended_actions_json: {type: string}
+          summary_comment: {type: string}
+          task_id: {type: string}
+          total_score: {type: number}
+          weak_points_json: {type: string}
+          workflow_status: {type: string}
+        selected: false
+        title: 阅卷结果融合
+        type: code
+        variables:
+        - {value_selector: [grade_precheck, record_id_out], variable: record_id_out}
+        - {value_selector: [grade_precheck, task_id_out], variable: task_id_out}
+        - {value_selector: [grade_precheck, exam_title_out], variable: exam_title_out}
+        - {value_selector: [grade_precheck, pass_score_out], variable: pass_score_out}
+        - {value_selector: [grade_precheck, question_count], variable: question_count}
+        - {value_selector: [grade_precheck, objective_gained_score], variable: objective_gained_score}
+        - {value_selector: [grade_precheck, objective_full_score], variable: objective_full_score}
+        - {value_selector: [grade_precheck, objective_results_json], variable: objective_results_json}
+        - {value_selector: [grade_precheck, subjective_items_json], variable: subjective_items_json}
+        - {value_selector: [paper_grade_llm, text], variable: raw_output}
+      height: 80
+      id: paper_grade_merge
+      position: {x: 1268, y: 160}
+      positionAbsolute: {x: 1268, y: 160}
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: |-
+          import json
+          def t(v,d=""): s=str(v or "").strip(); return s if s else d
+          def main(record_id_out="", task_id_out="", exam_title_out="", invalid_reason="") -> dict:
+              reason=t(invalid_reason,"输入无效，无法执行标准阅卷。")
+              detail={"question_results":[],"strengths":[],"risks":[]}
+              result={"score":0.0,"is_pass":0,"comment":reason,"grading_detail":detail,"weak_points":[],"recommended_actions":[]}
+              return {"workflow_status":"invalid","grading_status":"invalid","record_id":t(record_id_out),"task_id":t(task_id_out),"exam_title":t(exam_title_out),"question_count":0,"total_score":0.0,"pass_score":0.0,"is_pass":0,"summary_comment":reason,"grading_detail_json":json.dumps(detail,ensure_ascii=False),"paper_result_json":json.dumps(result,ensure_ascii=False),"weak_points_json":"[]","recommended_actions_json":"[]","raw_output":"","invalid_reason":reason}
+        code_language: python3
+        desc: 无效输入兜底
+        outputs:
+          exam_title: {type: string}
+          grading_detail_json: {type: string}
+          grading_status: {type: string}
+          invalid_reason: {type: string}
+          is_pass: {type: number}
+          paper_result_json: {type: string}
+          pass_score: {type: number}
+          question_count: {type: number}
+          raw_output: {type: string}
+          record_id: {type: string}
+          recommended_actions_json: {type: string}
+          summary_comment: {type: string}
+          task_id: {type: string}
+          total_score: {type: number}
+          weak_points_json: {type: string}
+          workflow_status: {type: string}
+        selected: false
+        title: 无效输入构建
+        type: code
+        variables:
+        - {value_selector: [grade_precheck, record_id_out], variable: record_id_out}
+        - {value_selector: [grade_precheck, task_id_out], variable: task_id_out}
+        - {value_selector: [grade_precheck, exam_title_out], variable: exam_title_out}
+        - {value_selector: [grade_precheck, invalid_reason], variable: invalid_reason}
+      height: 80
+      id: invalid_grade_builder
+      position: {x: 960, y: 420}
+      positionAbsolute: {x: 960, y: 420}
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        desc: 输出标准阅卷结果
+        outputs:
+        - {value_selector: [paper_grade_merge, workflow_status], variable: workflow_status}
+        - {value_selector: [paper_grade_merge, grading_status], variable: grading_status}
+        - {value_selector: [paper_grade_merge, record_id], variable: record_id}
+        - {value_selector: [paper_grade_merge, task_id], variable: task_id}
+        - {value_selector: [paper_grade_merge, exam_title], variable: exam_title}
+        - {value_selector: [paper_grade_merge, question_count], variable: question_count}
+        - {value_selector: [paper_grade_merge, total_score], variable: total_score}
+        - {value_selector: [paper_grade_merge, pass_score], variable: pass_score}
+        - {value_selector: [paper_grade_merge, is_pass], variable: is_pass}
+        - {value_selector: [paper_grade_merge, summary_comment], variable: summary_comment}
+        - {value_selector: [paper_grade_merge, grading_detail_json], variable: grading_detail_json}
+        - {value_selector: [paper_grade_merge, paper_result_json], variable: paper_result_json}
+        - {value_selector: [paper_grade_merge, weak_points_json], variable: weak_points_json}
+        - {value_selector: [paper_grade_merge, recommended_actions_json], variable: recommended_actions_json}
+        - {value_selector: [paper_grade_merge, raw_output], variable: raw_output}
+        - {value_selector: [paper_grade_merge, invalid_reason], variable: invalid_reason}
+        selected: false
+        title: 结束-成功
+        type: end
+      height: 488
+      id: end_grade_success
+      position: {x: 1588, y: 160}
+      positionAbsolute: {x: 1588, y: 160}
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        desc: 输出无效输入说明
+        outputs:
+        - {value_selector: [invalid_grade_builder, workflow_status], variable: workflow_status}
+        - {value_selector: [invalid_grade_builder, grading_status], variable: grading_status}
+        - {value_selector: [invalid_grade_builder, record_id], variable: record_id}
+        - {value_selector: [invalid_grade_builder, task_id], variable: task_id}
+        - {value_selector: [invalid_grade_builder, exam_title], variable: exam_title}
+        - {value_selector: [invalid_grade_builder, question_count], variable: question_count}
+        - {value_selector: [invalid_grade_builder, total_score], variable: total_score}
+        - {value_selector: [invalid_grade_builder, pass_score], variable: pass_score}
+        - {value_selector: [invalid_grade_builder, is_pass], variable: is_pass}
+        - {value_selector: [invalid_grade_builder, summary_comment], variable: summary_comment}
+        - {value_selector: [invalid_grade_builder, grading_detail_json], variable: grading_detail_json}
+        - {value_selector: [invalid_grade_builder, paper_result_json], variable: paper_result_json}
+        - {value_selector: [invalid_grade_builder, weak_points_json], variable: weak_points_json}
+        - {value_selector: [invalid_grade_builder, recommended_actions_json], variable: recommended_actions_json}
+        - {value_selector: [invalid_grade_builder, raw_output], variable: raw_output}
+        - {value_selector: [invalid_grade_builder, invalid_reason], variable: invalid_reason}
+        selected: false
+        title: 结束-无效输入
+        type: end
+      height: 488
+      id: end_grade_invalid
+      position: {x: 1276, y: 420}
+      positionAbsolute: {x: 1276, y: 420}
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    viewport:
+      x: -46
+      y: 22
+      zoom: 0.88
+  rag_pipeline_variables: []

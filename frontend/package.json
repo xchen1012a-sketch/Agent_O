@@ -1,0 +1,26 @@
+{
+  "name": "frontend",
+  "version": "2.0.0",
+  "description": "",
+  "main": "e2e-test.js",
+  "scripts": {
+    "test": "node assessment-center-state.test.js && node conversation-persistence.test.js",
+    "test:assessment-center-state": "node assessment-center-state.test.js",
+    "test:assessment-coach-state": "node assessment-coach-state.test.js",
+    "test:assessment-scroll": "node assessment-scroll.test.js",
+    "test:digital-human-ui": "node digital-human-ui.test.js",
+    "test:digital-human-preferences": "node digital-human-preferences.test.js",
+    "test:assistant-voice-advice": "node assistant-voice-advice.test.js",
+    "test:knowledge-qa-followup": "node knowledge-qa-followup.test.js",
+    "test:knowledge-qa-voice-advice": "node knowledge-qa-voice-advice.test.js",
+    "test:system-settings-digital-human": "node system-settings-digital-human.test.js",
+    "test:conversation-persistence": "node conversation-persistence.test.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "playwright": "^1.59.1"
+  }
+}

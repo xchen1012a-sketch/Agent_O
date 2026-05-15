@@ -1,0 +1,543 @@
+app:
+  description: 在岗助手模块｜工作流B：异步问题分析与能力沉淀
+  icon: 🤖
+  icon_background: '#FFEAD5'
+  mode: workflow
+  name: 在岗助手沉淀分析工作流
+  use_icon_as_answer_icon: false
+dependencies:
+- current_identifier: null
+  type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: langgenius/tongyi:0.1.32@20a5454088fa017b72490e1cbaeebff21094d11b13e41197591734d1c08cdbb5
+    version: null
+kind: app
+version: 0.6.0
+workflow:
+  conversation_variables: []
+  environment_variables: []
+  features:
+    file_upload:
+      allowed_file_extensions:
+      - .JPG
+      - .JPEG
+      - .PNG
+      - .GIF
+      - .WEBP
+      - .SVG
+      allowed_file_types:
+      - image
+      allowed_file_upload_methods:
+      - local_file
+      - remote_url
+      enabled: false
+      fileUploadConfig:
+        attachment_image_file_size_limit: 2
+        audio_file_size_limit: 50
+        batch_count_limit: 5
+        file_size_limit: 15
+        file_upload_limit: 20
+        image_file_batch_limit: 10
+        image_file_size_limit: 10
+        single_chunk_attachment_limit: 10
+        video_file_size_limit: 100
+        workflow_file_upload_limit: 10
+      image:
+        enabled: false
+        number_limits: 3
+        transfer_methods:
+        - local_file
+        - remote_url
+      number_limits: 3
+    opening_statement: ''
+    retriever_resource:
+      enabled: false
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions: []
+    suggested_questions_after_answer:
+      enabled: false
+    text_to_speech:
+      enabled: false
+      language: ''
+      voice: ''
+  graph:
+    edges:
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: start
+        targetType: llm
+      id: 1743521000001-source-1743521000002-target
+      source: '1743521000001'
+      sourceHandle: source
+      target: '1743521000002'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: llm
+        targetType: code
+      id: 1743521000002-source-1743521000003-target
+      source: '1743521000002'
+      sourceHandle: source
+      target: '1743521000003'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: end
+      id: 1743521000003-source-1743521000004-target
+      source: '1743521000003'
+      sourceHandle: source
+      target: '1743521000004'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    nodes:
+    - data:
+        desc: 后台异步使用｜接收单输入场景描述与在岗1结果，输出结构化沉淀分析
+        selected: false
+        title: Start
+        type: start
+        variables:
+        - label: 用户ID
+          max_length: 64
+          options: []
+          required: true
+          type: text-input
+          variable: user_id
+        - label: 门店ID
+          max_length: 64
+          options: []
+          required: false
+          type: text-input
+          variable: store_id
+        - label: 顾客问题或现场情况
+          max_length: 3000
+          options: []
+          required: true
+          type: paragraph
+          variable: scene_input
+        - label: 在岗助手输出话术
+          max_length: 3000
+          options: []
+          required: false
+          type: paragraph
+          variable: assistant_reply
+        - label: 话术合规标签
+          max_length: 64
+          options: []
+          required: false
+          type: text-input
+          variable: reply_compliance_tag
+        - label: 命中知识片段
+          max_length: 5000
+          options: []
+          required: false
+          type: paragraph
+          variable: matched_knowledge
+      height: 283
+      id: '1743521000001'
+      position:
+        x: 30
+        y: 250
+      positionAbsolute:
+        x: 30
+        y: 250
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        desc: 单输入对齐版｜后台异步分析问题类型、知识点、风险、薄弱项与训练建议
+        model:
+          completion_params:
+            enable_thinking: false
+            temperature: 0.1
+          mode: chat
+          name: qwen-flash
+          provider: langgenius/tongyi/tongyi
+        prompt_template:
+        - edition_type: basic
+          id: 7d1c7f74-1f2a-4f12-b001-1743521000002a
+          role: system
+          text: "你是“珠宝企业培训智能体系统”的后台分析节点，属于【在岗助手】模块的【工作流B：问题分析与能力沉淀】。\n\n输入是：\n1. 一线员工记录的顾客问题或现场情况\n\
+            2. 在岗助手已生成的话术\n3. 话术合规标签\n4. 命中知识片段\n\n你的职责：把本次接待记录转成可入库、可统计、可用于后续训练的结构化结果。\n\
+            \n判断范围只限珠宝门店销售与培训场景。优先考虑：黄金、K金、铂金、钻石、翡翠、证书、工艺、保养、售后、价格异议、真假信任、活动促销、送礼推荐、尺寸佩戴等场景。\n\
+            \n固定枚举：\nquestion_type：咨询型 / 异议型 / 比较型 / 犹豫型 / 风险型 / 售后型 / 其他\ncustomer_intent：想了解\
+            \ / 想比价 / 想确认真假 / 想压价 / 想拖延决策 / 想确认适配 / 想了解售后 / 想建立信任 / 其他\nknowledge_tag：材质真假\
+            \ / 价格异议 / 证书鉴定 / 工艺卖点 / 保养售后 / 保值收藏 / 款式推荐 / 赠礼送礼 / 尺寸佩戴 / 活动促销 / 品牌信任\
+            \ / 其他\nscene_stage：需求沟通 / 产品介绍 / 异议处理 / 信任建立 / 成交推进 / 售后解释 / 其他\nobjection_strength：low\
+            \ / medium / high\nrisk_level：low / medium / high\ncompliance_tag：safe\
+            \ / caution / high_risk\nweak_dimension：产品知识 / 价格应对 / 需求挖掘 / 信任建立 / 合规表达\
+            \ / 成交推进 / 售后说明 / 服务礼仪\nweak_severity：low / medium / high\nrecommended_action：加强知识补学\
+            \ / 增加陪练次数 / 加强合规训练 / 增加异议处理训练 / 增加成交推进训练 / 持续观察\n\n输出要求：\n- 只输出 JSON，不要\
+            \ markdown，不要解释\n- 所有字段必须存在，不能为空，不能为 null\n- risk_points 输出数组，没有则 []\n\
+            - internal_tags 输出 4~8 个简洁标签\n- record_summary 控制在 60 字以内\n- weak_reason\
+            \ 具体\n- followup_training_advice 可直接给培训系统使用\n- ability_update_hint 适合写入能力画像更新日志\n\
+            - manager_attention_needed 只能输出 true 或 false\n- training_priority_score\
+            \ 输出 0~100 整数\n\n严格输出：\n{\n  \"question_type\": \"\",\n  \"customer_intent\"\
+            : \"\",\n  \"knowledge_tag\": \"\",\n  \"knowledge_subtag\": \"\",\n \
+            \ \"scene_stage\": \"\",\n  \"objection_strength\": \"\",\n  \"risk_level\"\
+            : \"\",\n  \"compliance_tag\": \"\",\n  \"risk_points\": [],\n  \"weak_dimension\"\
+            : \"\",\n  \"weak_severity\": \"\",\n  \"weak_reason\": \"\",\n  \"followup_training_topic\"\
+            : \"\",\n  \"followup_training_advice\": \"\",\n  \"recommended_action\"\
+            : \"\",\n  \"internal_tags\": [],\n  \"manager_attention_needed\": false,\n\
+            \  \"training_priority_score\": 0,\n  \"ability_update_hint\": \"\",\n\
+            \  \"record_summary\": \"\"\n}"
+        - edition_type: basic
+          id: e6ad3d3c-c4ae-4d12-b002-1743521000002b
+          role: user
+          text: '请分析以下在岗助手记录，输出严格 JSON：
+
+
+            user_id: {{#1743521000001.user_id#}}
+
+            store_id: {{#1743521000001.store_id#}}
+
+
+            scene_input:
+
+            {{#1743521000001.scene_input#}}
+
+
+            assistant_reply:
+
+            {{#1743521000001.assistant_reply#}}
+
+
+            reply_compliance_tag:
+
+            {{#1743521000001.reply_compliance_tag#}}
+
+
+            matched_knowledge:
+
+            {{#1743521000001.matched_knowledge#}}'
+        selected: true
+        title: 问题分析与能力沉淀
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 132
+      id: '1743521000002'
+      position:
+        x: 360
+        y: 250
+      positionAbsolute:
+        x: 360
+        y: 250
+      selected: true
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "import json\nimport re\n\ndef _strip_code_fence(text: str) -> str:\n\
+          \    text = str(text or \"\").strip()\n    text = re.sub(r\"^```json\\s*\"\
+          , \"\", text, flags=re.IGNORECASE)\n    text = re.sub(r\"^```\\s*\", \"\"\
+          , text)\n    text = re.sub(r\"\\s*```$\", \"\", text)\n    return text.strip()\n\
+          \ndef _extract_json(text: str) -> dict:\n    cleaned = _strip_code_fence(text)\n\
+          \    try:\n        return json.loads(cleaned)\n    except Exception:\n \
+          \       pass\n\n    match = re.search(r\"\\{[\\s\\S]*\\}\", cleaned)\n \
+          \   if match:\n        try:\n            return json.loads(match.group(0))\n\
+          \        except Exception:\n            pass\n    return {}\n\ndef _to_str(value,\
+          \ default=\"\"):\n    if value is None:\n        return default\n    if\
+          \ isinstance(value, (dict, list)):\n        try:\n            return json.dumps(value,\
+          \ ensure_ascii=False)\n        except Exception:\n            return default\n\
+          \    value = str(value).strip()\n    return value if value else default\n\
+          \ndef _to_list_str(value):\n    if value is None:\n        return []\n \
+          \   if isinstance(value, list):\n        arr = []\n        for item in value:\n\
+          \            s = str(item).strip()\n            if s:\n                arr.append(s)\n\
+          \        return arr\n\n    text = str(value).strip()\n    if not text:\n\
+          \        return []\n    parts = re.split(r\"[,\\n，；;|]+\", text)\n    arr\
+          \ = []\n    for item in parts:\n        item = item.strip()\n        if\
+          \ item:\n            arr.append(item)\n    return arr\n\ndef _to_bool(value,\
+          \ default=False):\n    if isinstance(value, bool):\n        return value\n\
+          \    if value is None:\n        return default\n    text = str(value).strip().lower()\n\
+          \    if text in {\"true\", \"1\", \"yes\", \"y\", \"是\"}:\n        return\
+          \ True\n    if text in {\"false\", \"0\", \"no\", \"n\", \"否\"}:\n     \
+          \   return False\n    return default\n\ndef _to_int(value, default=0):\n\
+          \    try:\n        return int(float(value))\n    except Exception:\n   \
+          \     return default\n\ndef _clamp(n, low, high):\n    return max(low, min(high,\
+          \ n))\n\ndef main(text: str) -> dict:\n    data = _extract_json(text)\n\n\
+          \    allowed_question_type = {\"咨询型\", \"异议型\", \"比较型\", \"犹豫型\", \"风险型\"\
+          , \"售后型\", \"其他\"}\n    allowed_customer_intent = {\"想了解\", \"想比价\", \"\
+          想确认真假\", \"想压价\", \"想拖延决策\", \"想确认适配\", \"想了解售后\", \"想建立信任\", \"其他\"}\n\
+          \    allowed_knowledge_tag = {\"材质真假\", \"价格异议\", \"证书鉴定\", \"工艺卖点\", \"\
+          保养售后\", \"保值收藏\", \"款式推荐\", \"赠礼送礼\", \"尺寸佩戴\", \"活动促销\", \"品牌信任\", \"其他\"\
+          }\n    allowed_scene_stage = {\"需求沟通\", \"产品介绍\", \"异议处理\", \"信任建立\", \"\
+          成交推进\", \"售后解释\", \"其他\"}\n    allowed_strength = {\"low\", \"medium\",\
+          \ \"high\"}\n    allowed_risk = {\"low\", \"medium\", \"high\"}\n    allowed_compliance\
+          \ = {\"safe\", \"caution\", \"high_risk\"}\n    allowed_weak_dimension =\
+          \ {\"产品知识\", \"价格应对\", \"需求挖掘\", \"信任建立\", \"合规表达\", \"成交推进\", \"售后说明\"\
+          , \"服务礼仪\"}\n    allowed_weak_severity = {\"low\", \"medium\", \"high\"\
+          }\n    allowed_action = {\"加强知识补学\", \"增加陪练次数\", \"加强合规训练\", \"增加异议处理训练\"\
+          , \"增加成交推进训练\", \"持续观察\"}\n\n    question_type = _to_str(data.get(\"question_type\"\
+          ), \"其他\")\n    if question_type not in allowed_question_type:\n       \
+          \ question_type = \"其他\"\n\n    customer_intent = _to_str(data.get(\"customer_intent\"\
+          ), \"其他\")\n    if customer_intent not in allowed_customer_intent:\n   \
+          \     customer_intent = \"其他\"\n\n    knowledge_tag = _to_str(data.get(\"\
+          knowledge_tag\"), \"其他\")\n    if knowledge_tag not in allowed_knowledge_tag:\n\
+          \        knowledge_tag = \"其他\"\n\n    knowledge_subtag = _to_str(data.get(\"\
+          knowledge_subtag\"), \"未细分\")\n\n    scene_stage = _to_str(data.get(\"scene_stage\"\
+          ), \"其他\")\n    if scene_stage not in allowed_scene_stage:\n        scene_stage\
+          \ = \"其他\"\n\n    objection_strength = _to_str(data.get(\"objection_strength\"\
+          ), \"low\")\n    if objection_strength not in allowed_strength:\n      \
+          \  objection_strength = \"low\"\n\n    risk_level = _to_str(data.get(\"\
+          risk_level\"), \"low\")\n    if risk_level not in allowed_risk:\n      \
+          \  risk_level = \"low\"\n\n    compliance_tag = _to_str(data.get(\"compliance_tag\"\
+          ), \"safe\")\n    if compliance_tag not in allowed_compliance:\n       \
+          \ compliance_tag = \"safe\"\n\n    risk_points = _to_list_str(data.get(\"\
+          risk_points\"))\n\n    weak_dimension = _to_str(data.get(\"weak_dimension\"\
+          ), \"产品知识\")\n    if weak_dimension not in allowed_weak_dimension:\n   \
+          \     weak_dimension = \"产品知识\"\n\n    weak_severity = _to_str(data.get(\"\
+          weak_severity\"), \"low\")\n    if weak_severity not in allowed_weak_severity:\n\
+          \        weak_severity = \"low\"\n\n    weak_reason = _to_str(data.get(\"\
+          weak_reason\"), \"需继续观察具体薄弱原因。\")\n    followup_training_topic = _to_str(data.get(\"\
+          followup_training_topic\"), \"通用接待训练\")\n    followup_training_advice =\
+          \ _to_str(\n        data.get(\"followup_training_advice\"),\n        \"\
+          建议围绕该问题对应知识点进行补学，并补充一次针对性场景陪练。\"\n    )\n\n    recommended_action = _to_str(data.get(\"\
+          recommended_action\"), \"持续观察\")\n    if recommended_action not in allowed_action:\n\
+          \        recommended_action = \"持续观察\"\n\n    internal_tags = _to_list_str(data.get(\"\
+          internal_tags\"))\n    manager_attention_needed = _to_bool(data.get(\"manager_attention_needed\"\
+          ), False)\n    training_priority_score = _to_int(data.get(\"training_priority_score\"\
+          ), 0)\n    ability_update_hint = _to_str(\n        data.get(\"ability_update_hint\"\
+          ),\n        \"建议将本次问题记录为后续训练依据，并持续观察对应能力维度。\"\n    )\n    record_summary\
+          \ = _to_str(\n        data.get(\"record_summary\"),\n        \"已记录本次客户问题，待纳入训练分析。\"\
+          \n    )\n\n    if not internal_tags:\n        internal_tags = [\"在岗助手\"\
+          , knowledge_tag, weak_dimension, risk_level]\n\n    internal_tags = [x for\
+          \ x in internal_tags if x][:8]\n\n    # 若模型未给出合理分数，则自动估算训练优先级\n    if training_priority_score\
+          \ <= 0:\n        base = 20\n        if weak_severity == \"medium\":\n  \
+          \          base += 20\n        elif weak_severity == \"high\":\n       \
+          \     base += 35\n\n        if risk_level == \"medium\":\n            base\
+          \ += 15\n        elif risk_level == \"high\":\n            base += 30\n\n\
+          \        if compliance_tag == \"caution\":\n            base += 10\n   \
+          \     elif compliance_tag == \"high_risk\":\n            base += 20\n\n\
+          \        if question_type in {\"异议型\", \"风险型\", \"比较型\"}:\n            base\
+          \ += 10\n\n        training_priority_score = _clamp(base, 0, 100)\n\n  \
+          \  # 风险高时自动提升管理关注\n    if risk_level == \"high\" or compliance_tag == \"\
+          high_risk\" or weak_severity == \"high\":\n        manager_attention_needed\
+          \ = True\n\n    result = {\n        \"question_type\": question_type,\n\
+          \        \"customer_intent\": customer_intent,\n        \"knowledge_tag\"\
+          : knowledge_tag,\n        \"knowledge_subtag\": knowledge_subtag,\n    \
+          \    \"scene_stage\": scene_stage,\n        \"objection_strength\": objection_strength,\n\
+          \        \"risk_level\": risk_level,\n        \"compliance_tag\": compliance_tag,\n\
+          \        \"risk_points\": risk_points,\n        \"weak_dimension\": weak_dimension,\n\
+          \        \"weak_severity\": weak_severity,\n        \"weak_reason\": weak_reason,\n\
+          \        \"followup_training_topic\": followup_training_topic,\n       \
+          \ \"followup_training_advice\": followup_training_advice,\n        \"recommended_action\"\
+          : recommended_action,\n        \"internal_tags\": internal_tags,\n     \
+          \   \"manager_attention_needed\": manager_attention_needed,\n        \"\
+          training_priority_score\": training_priority_score,\n        \"ability_update_hint\"\
+          : ability_update_hint,\n        \"record_summary\": record_summary\n   \
+          \ }\n\n    return {\n        **result,\n        \"analysis_json\": json.dumps(result,\
+          \ ensure_ascii=False)\n    }\n"
+        code_language: python3
+        desc: 解析 LLM JSON，做值域规范化、优先级兜底、布尔值纠正、标签补全
+        outputs:
+          ability_update_hint:
+            children: null
+            type: string
+          analysis_json:
+            children: null
+            type: string
+          compliance_tag:
+            children: null
+            type: string
+          customer_intent:
+            children: null
+            type: string
+          followup_training_advice:
+            children: null
+            type: string
+          followup_training_topic:
+            children: null
+            type: string
+          internal_tags:
+            children: null
+            type: array[string]
+          knowledge_subtag:
+            children: null
+            type: string
+          knowledge_tag:
+            children: null
+            type: string
+          manager_attention_needed:
+            children: null
+            type: boolean
+          objection_strength:
+            children: null
+            type: string
+          question_type:
+            children: null
+            type: string
+          recommended_action:
+            children: null
+            type: string
+          record_summary:
+            children: null
+            type: string
+          risk_level:
+            children: null
+            type: string
+          risk_points:
+            children: null
+            type: array[string]
+          scene_stage:
+            children: null
+            type: string
+          training_priority_score:
+            children: null
+            type: number
+          weak_dimension:
+            children: null
+            type: string
+          weak_reason:
+            children: null
+            type: string
+          weak_severity:
+            children: null
+            type: string
+        selected: false
+        title: 结构化解析与稳定兜底
+        type: code
+        variables:
+        - value_selector:
+          - '1743521000002'
+          - text
+          variable: text
+      height: 96
+      id: '1743521000003'
+      position:
+        x: 690
+        y: 250
+      positionAbsolute:
+        x: 690
+        y: 250
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        desc: 输出给 FastAPI / Web / 数据库持久化使用
+        outputs:
+        - value_selector:
+          - '1743521000003'
+          - question_type
+          variable: question_type
+        - value_selector:
+          - '1743521000003'
+          - customer_intent
+          variable: customer_intent
+        - value_selector:
+          - '1743521000003'
+          - knowledge_tag
+          variable: knowledge_tag
+        - value_selector:
+          - '1743521000003'
+          - knowledge_subtag
+          variable: knowledge_subtag
+        - value_selector:
+          - '1743521000003'
+          - scene_stage
+          variable: scene_stage
+        - value_selector:
+          - '1743521000003'
+          - objection_strength
+          variable: objection_strength
+        - value_selector:
+          - '1743521000003'
+          - risk_level
+          variable: risk_level
+        - value_selector:
+          - '1743521000003'
+          - compliance_tag
+          variable: compliance_tag
+        - value_selector:
+          - '1743521000003'
+          - risk_points
+          variable: risk_points
+        - value_selector:
+          - '1743521000003'
+          - weak_dimension
+          variable: weak_dimension
+        - value_selector:
+          - '1743521000003'
+          - weak_severity
+          variable: weak_severity
+        - value_selector:
+          - '1743521000003'
+          - weak_reason
+          variable: weak_reason
+        - value_selector:
+          - '1743521000003'
+          - followup_training_topic
+          variable: followup_training_topic
+        - value_selector:
+          - '1743521000003'
+          - followup_training_advice
+          variable: followup_training_advice
+        - value_selector:
+          - '1743521000003'
+          - recommended_action
+          variable: recommended_action
+        - value_selector:
+          - '1743521000003'
+          - internal_tags
+          variable: internal_tags
+        - value_selector:
+          - '1743521000003'
+          - manager_attention_needed
+          variable: manager_attention_needed
+        - value_selector:
+          - '1743521000003'
+          - training_priority_score
+          variable: training_priority_score
+        - value_selector:
+          - '1743521000003'
+          - ability_update_hint
+          variable: ability_update_hint
+        - value_selector:
+          - '1743521000003'
+          - record_summary
+          variable: record_summary
+        - value_selector:
+          - '1743521000003'
+          - analysis_json
+          variable: analysis_json
+        selected: false
+        title: End
+        type: end
+      height: 652
+      id: '1743521000004'
+      position:
+        x: 1020
+        y: 250
+      positionAbsolute:
+        x: 1020
+        y: 250
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    viewport:
+      x: 81.34367010488177
+      y: 111.8446180075295
+      zoom: 0.8697661095763385
+  rag_pipeline_variables: []

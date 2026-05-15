@@ -1,0 +1,216 @@
+from __future__ import annotations
+
+from typing import Any
+
+
+AGENT_ROLE_DEFINITIONS: tuple[dict[str, Any], ...] = (
+    {
+        "id": "tutor",
+        "label": "导师",
+        "agent_name": "导师 Agent",
+        "headline": "规划 14 天成长路径",
+        "responsibility": "识别新人成长阶段，生成学习任务，并在关键节点给出复盘建议。",
+        "color": "#2563EB",
+    },
+    {
+        "id": "practice",
+        "label": "陪练",
+        "agent_name": "陪练 Agent",
+        "headline": "陪员工练到会为止",
+        "responsibility": "围绕珠宝销售场景发起对练、评分和能力更新，沉淀可追踪的实战表现。",
+        "color": "#0F766E",
+    },
+    {
+        "id": "examiner",
+        "label": "考官",
+        "agent_name": "考官 Agent",
+        "headline": "判断是否具备上岗能力",
+        "responsibility": "完成盲盒考核、标准出卷、阅卷和阶段晋级，守住上岗门槛。",
+        "color": "#7C3AED",
+    },
+    {
+        "id": "service",
+        "label": "客服",
+        "agent_name": "客服 Agent",
+        "headline": "支持真实顾客应对",
+        "responsibility": "把标准话术、知识问答和在岗助手能力提供给一线导购。",
+        "color": "#DB2777",
+    },
+    {
+        "id": "analyst",
+        "label": "分析师",
+        "agent_name": "分析师 Agent",
+        "headline": "告诉店长哪里出了问题",
+        "responsibility": "汇总训练、门店和查询数据，输出风险识别、经营洞察和管理建议。",
+        "color": "#D97706",
+    },
+)
+
+
+AGENT_TOPOLOGY_WORKFLOW_CODES: dict[str, tuple[str, ...]] = {
+    "tutor": ("growth1", "growth2"),
+    "practice": ("practice1", "practice2", "practice3"),
+    "examiner": ("wf11", "wf13", "wf14", "wf15"),
+    "service": ("assistant1", "assistant2"),
+    "analyst": ("dashboard", "query1", "query2"),
+}
+
+
+AGENT_TOPOLOGY_EDGES: tuple[dict[str, Any], ...] = (
+    {"source": "user_input", "target": "tutor", "label": "成长目标", "base_weight": 3},
+    {"source": "user_input", "target": "practice", "label": "实战任务", "base_weight": 5},
+    {"source": "user_input", "target": "examiner", "label": "考核请求", "base_weight": 4},
+    {"source": "tutor", "target": "analyst", "label": "学习轨迹", "base_weight": 3},
+    {"source": "practice", "target": "analyst", "label": "能力更新", "base_weight": 6},
+    {"source": "examiner", "target": "analyst", "label": "晋级结果", "base_weight": 4},
+    {"source": "analyst", "target": "service", "label": "经营洞察", "base_weight": 3},
+    {"source": "service", "target": "user_input", "label": "一线支持", "base_weight": 4},
+)
+
+
+DIFY_WORKFLOW_REGISTRY = (
+    {
+        "code": "growth1",
+        "label": "成长计划生成",
+        "api_key_env": "DIFY_GROWTH1_API_KEY",
+        "route_path": "/api/growth/plan",
+        "call_type": "workflow",
+        "agent_role": "tutor",
+    },
+    {
+        "code": "growth2",
+        "label": "成长学习评估",
+        "api_key_env": "DIFY_GROWTH2_API_KEY",
+        "route_path": "/api/growth/evaluate",
+        "call_type": "workflow",
+        "agent_role": "tutor",
+    },
+    {
+        "code": "assistant1",
+        "label": "在岗助手主回复",
+        "api_key_env": "DIFY_ASSISTANT1_API_KEY",
+        "route_path": "/api/assistant/reply",
+        "call_type": "workflow",
+        "agent_role": "service",
+    },
+    {
+        "code": "assistant2",
+        "label": "在岗助手后台沉淀",
+        "api_key_env": "DIFY_ASSISTANT2_API_KEY",
+        "route_path": "/api/assistant/reply",
+        "call_type": "workflow",
+        "agent_role": "service",
+    },
+    {
+        "code": "assistant_chat",
+        "label": "在岗助手对话模式",
+        "api_key_env": "DIFY_ASSISTANT_CHAT_API_KEY",
+        "route_path": "/api/assistant/reply",
+        "call_type": "chat",
+        "agent_role": "service",
+    },
+    {
+        "code": "practice1",
+        "label": "实战对练",
+        "api_key_env": "DIFY_PRACTICE1_API_KEY",
+        "route_path": "/api/practice/chat",
+        "call_type": "chat",
+        "agent_role": "practice",
+    },
+    {
+        "code": "practice2",
+        "label": "实战评分",
+        "api_key_env": "DIFY_PRACTICE2_API_KEY",
+        "route_path": "/api/practice/evaluate",
+        "call_type": "workflow",
+        "agent_role": "practice",
+    },
+    {
+        "code": "practice3",
+        "label": "实战能力更新",
+        "api_key_env": "DIFY_PRACTICE3_API_KEY",
+        "route_path": "/api/practice/update-ability",
+        "call_type": "workflow",
+        "agent_role": "practice",
+    },
+    {
+        "code": "practice_mentor",
+        "label": "实战导师金句",
+        "api_key_env": "DIFY_PRACTICE_MENTOR_API_KEY",
+        "route_path": "/api/practice/mentor-feedback",
+        "call_type": "workflow",
+        "agent_role": "tutor",
+    },
+    {
+        "code": "dashboard",
+        "label": "风险看板",
+        "api_key_env": "DIFY_DASHBOARD_API_KEY",
+        "route_path": "/api/dashboard/risk",
+        "call_type": "workflow",
+        "agent_role": "analyst",
+    },
+    {
+        "code": "query1",
+        "label": "一句话查询解析",
+        "api_key_env": "DIFY_QUERY1_API_KEY",
+        "route_path": "/api/query/parse",
+        "call_type": "workflow",
+        "agent_role": "analyst",
+    },
+    {
+        "code": "query2",
+        "label": "一句话查询总结",
+        "api_key_env": "DIFY_QUERY2_API_KEY",
+        "route_path": "/api/query/summarize",
+        "call_type": "workflow",
+        "agent_role": "analyst",
+    },
+    {
+        "code": "qa1",
+        "label": "知识问答",
+        "api_key_env": "DIFY_QA1_API_KEY",
+        "route_path": "/api/qa/ask",
+        "call_type": "workflow",
+        "agent_role": "service",
+    },
+    {
+        "code": "qa_chat",
+        "label": "知识问答对话模式",
+        "api_key_env": "DIFY_QA_CHAT_API_KEY",
+        "route_path": "/api/qa/ask",
+        "call_type": "chat",
+        "agent_role": "service",
+    },
+    {
+        "code": "wf11",
+        "label": "动态盲盒考核",
+        "api_key_env": "DIFY_WF11_API_KEY",
+        "route_path": "/api/assessment/chat",
+        "call_type": "chat",
+        "agent_role": "examiner",
+    },
+    {
+        "code": "wf13",
+        "label": "标准出卷",
+        "api_key_env": "DIFY_WF13_API_KEY",
+        "route_path": "/api/tasks/generate-paper",
+        "call_type": "workflow",
+        "agent_role": "examiner",
+    },
+    {
+        "code": "wf14",
+        "label": "标准阅卷",
+        "api_key_env": "DIFY_WF14_API_KEY",
+        "route_path": "/api/assessment/submit-paper",
+        "call_type": "workflow",
+        "agent_role": "examiner",
+    },
+    {
+        "code": "wf15",
+        "label": "自动晋级解锁",
+        "api_key_env": "DIFY_WF15_API_KEY",
+        "route_path": "/api/training-cycle/review-stage",
+        "call_type": "workflow",
+        "agent_role": "examiner",
+    },
+)
