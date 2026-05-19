@@ -1,6 +1,7 @@
 ﻿from __future__ import annotations
 
 import os
+import secrets
 from pathlib import Path
 
 LOADED_ENV_FILES: tuple[str, ...] = ()
@@ -96,14 +97,15 @@ def _bool_env(name: str, default: bool = False) -> bool:
     return val in ('1', 'true', 'yes', 'on')
 
 
-JWT_DEFAULT_DEV_SECRET = 'jewelry-qipei-2026-competition-secret'
+JWT_DEFAULT_DEV_SECRET = secrets.token_hex(32)
 JWT_SECRET_KEY = _strip(os.environ.get('JWT_SECRET_KEY')) or JWT_DEFAULT_DEV_SECRET
 JWT_EXPIRE_MINUTES = int(os.environ.get('JWT_EXPIRE_MINUTES', '480'))
 
 if JWT_SECRET_KEY == JWT_DEFAULT_DEV_SECRET:
     import logging as _logging
     _logging.getLogger("jewelry_qipei.config").warning(
-        "JWT_SECRET_KEY is using the default dev secret — set JWT_SECRET_KEY in .env for production!"
+        "JWT_SECRET_KEY not set — using an ephemeral random key (tokens reset on each restart). "
+        "Set JWT_SECRET_KEY in .env for stable sessions."
     )
 
 DIFY_API_BASE = _normalize_dify_api_base(
@@ -149,15 +151,16 @@ APP_USER_ROLES = frozenset(
 
 _DISABLE_SEED = _strip(os.environ.get('DISABLE_DEMO_USER_SEED', '1')).lower()
 DISABLE_DEMO_USER_SEED = _DISABLE_SEED in ('1', 'true', 'yes')
-DEMO_SEED_PASSWORD = _strip(os.environ.get('DEMO_SEED_PASSWORD')) or '123456'
+_DEMO_SEED_FALLBACK = 'Demo@2026'
+DEMO_SEED_PASSWORD = _strip(os.environ.get('DEMO_SEED_PASSWORD')) or _DEMO_SEED_FALLBACK
 LOGIN_LOCK_ENABLED = _bool_env('LOGIN_LOCK_ENABLED', default=True)
 LOGIN_MAX_ATTEMPTS = _int_env('LOGIN_MAX_ATTEMPTS', 5, 1, 100)
 LOGIN_LOCK_MINUTES = _int_env('LOGIN_LOCK_MINUTES', 15, 0, 1440)
 
-if DEMO_SEED_PASSWORD == '123456' and not DISABLE_DEMO_USER_SEED:
+if DEMO_SEED_PASSWORD == _DEMO_SEED_FALLBACK and not DISABLE_DEMO_USER_SEED:
     import logging as _logging
     _logging.getLogger("jewelry_qipei.config").warning(
-        "DEMO_SEED_PASSWORD is using default '123456' — set DEMO_SEED_PASSWORD or disable demo seeding in production!"
+        "DEMO_SEED_PASSWORD is using the built-in default — set DEMO_SEED_PASSWORD in .env before seeding demo users."
     )
 
 UVICORN_HOST = _strip(os.environ.get('UVICORN_HOST')) or '127.0.0.1'
@@ -199,8 +202,50 @@ DIFY_ASSISTANT2_API_BASE = _normalize_dify_api_base(
 DIFY_QA1_API_BASE = _normalize_dify_api_base(
     _env_first('DIFY_QA1_API_BASE', 'DIFY_QA1_API_URL')
 ) or DIFY_API_BASE
+DIFY_EVO_SEMANTIC_API_BASE = _normalize_dify_api_base(
+    _env_first('DIFY_EVO_SEMANTIC_API_BASE', 'DIFY_EVO_SEMANTIC_API_URL')
+) or DIFY_API_BASE
+DIFY_EVO_SEMANTIC_API_KEY = _strip(os.environ.get('DIFY_EVO_SEMANTIC_API_KEY'))
+DIFY_EVO_SEMANTIC_WORKFLOW_ID = _strip(os.environ.get('DIFY_EVO_SEMANTIC_WORKFLOW_ID'))
+DIFY_EVO_SEMANTIC_TIMEOUT = _float_env(
+    'DIFY_EVO_SEMANTIC_TIMEOUT',
+    20.0,
+    1.0,
+)
+DIFY_EVO_REFLECTIVE_API_BASE = _normalize_dify_api_base(
+    _env_first('DIFY_EVO_REFLECTIVE_API_BASE', 'DIFY_EVO_REFLECTIVE_API_URL')
+) or DIFY_API_BASE
+DIFY_EVO_REFLECTIVE_API_KEY = _strip(os.environ.get('DIFY_EVO_REFLECTIVE_API_KEY'))
+DIFY_EVO_REFLECTIVE_WORKFLOW_ID = _strip(os.environ.get('DIFY_EVO_REFLECTIVE_WORKFLOW_ID'))
+DIFY_EVO_REFLECTIVE_TIMEOUT = _float_env(
+    'DIFY_EVO_REFLECTIVE_TIMEOUT',
+    30.0,
+    1.0,
+)
+DIFY_EVO_REFLECTIVE_ENABLED = _bool_env('DIFY_EVO_REFLECTIVE_ENABLED', default=True)
+DIFY_EVO_REFLECTIVE_HOUR = _int_env('DIFY_EVO_REFLECTIVE_HOUR', 2, 0, 23)
+DIFY_EVO_PROCEDURAL_API_BASE = _normalize_dify_api_base(
+    _env_first('DIFY_EVO_PROCEDURAL_API_BASE', 'DIFY_EVO_PROCEDURAL_API_URL')
+) or DIFY_API_BASE
+DIFY_EVO_PROCEDURAL_API_KEY = _strip(os.environ.get('DIFY_EVO_PROCEDURAL_API_KEY'))
+DIFY_EVO_PROCEDURAL_WORKFLOW_ID = _strip(os.environ.get('DIFY_EVO_PROCEDURAL_WORKFLOW_ID'))
+DIFY_EVO_PROCEDURAL_TIMEOUT = _float_env(
+    'DIFY_EVO_PROCEDURAL_TIMEOUT',
+    30.0,
+    1.0,
+)
+DIFY_EVO_PROCEDURAL_ENABLED = _bool_env('DIFY_EVO_PROCEDURAL_ENABLED', default=True)
+DIFY_EVO_PROCEDURAL_WEEKDAY = _int_env('DIFY_EVO_PROCEDURAL_WEEKDAY', 6, 0, 6)
+DIFY_EVO_PROCEDURAL_HOUR = _int_env('DIFY_EVO_PROCEDURAL_HOUR', 3, 0, 23)
+DIFY_EVO_PROMOTION_ENABLED = _bool_env('DIFY_EVO_PROMOTION_ENABLED', default=True)
+DIFY_EVO_PROMOTION_HOUR = _int_env('DIFY_EVO_PROMOTION_HOUR', 4, 0, 23)
+DIFY_EVO_SAFETY_ENABLED = _bool_env('DIFY_EVO_SAFETY_ENABLED', default=True)
+DIFY_EVO_SAFETY_HOUR = _int_env('DIFY_EVO_SAFETY_HOUR', 5, 0, 23)
 DIFY_PRACTICE_MENTOR_API_BASE = _normalize_dify_api_base(
     _env_first('DIFY_PRACTICE_MENTOR_API_BASE', 'DIFY_PRACTICE_MENTOR_API_URL')
+) or DIFY_API_BASE
+DIFY_PRACTICE_TURN_FEEDBACK_API_BASE = _normalize_dify_api_base(
+    _env_first('DIFY_PRACTICE_TURN_FEEDBACK_API_BASE', 'DIFY_PRACTICE_TURN_FEEDBACK_API_URL')
 ) or DIFY_API_BASE
 DIFY_WF11_API_BASE = _normalize_dify_api_base(
     _env_first('DIFY_WF11_API_BASE', 'DIFY_WF11_API_URL')

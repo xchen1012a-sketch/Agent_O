@@ -19,7 +19,9 @@ from routers.training_cycle import router as training_cycle_router
 from routers.audit import router as audit_router
 from routers.system_settings import router as system_settings_router
 from routers.knowledge_feedback import router as knowledge_feedback_router
+from routers.wrong_questions import router as wrong_questions_router
 from routers.tts import router as tts_router
+from routers.evo import router as evo_router
 
 BUSINESS_ROUTERS = [
     agents_router,
@@ -40,6 +42,8 @@ BUSINESS_ROUTERS = [
     training_cycle_router,
     audit_router,
     knowledge_feedback_router,
+    wrong_questions_router,
     system_settings_router,
     tts_router,
+    evo_router,
 ]

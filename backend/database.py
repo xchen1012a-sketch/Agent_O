@@ -339,6 +339,11 @@ def _backfill_sqlite_data(conn: sqlite3.Connection) -> None:
         """,
         """
         UPDATE stores
+        SET id = COALESCE(NULLIF(id, ''), NULLIF(store_id, ''), CAST(rowid AS TEXT))
+        WHERE id IS NULL OR id = ''
+        """,
+        """
+        UPDATE stores
         SET store_id = COALESCE(NULLIF(store_id, ''), CAST(id AS TEXT))
         WHERE store_id IS NULL OR store_id = ''
         """,
@@ -815,6 +820,12 @@ def _ensure_sqlite_indexes(conn: sqlite3.Connection) -> None:
         conn,
         table_name="assistant_records",
         index_name="idx_assistant_records_user_id",
+        column_name="user_id",
+    )
+    _ensure_index(
+        conn,
+        table_name="review_notebook_masteries",
+        index_name="idx_rn_masteries_user_id",
         column_name="user_id",
     )
     _ensure_index(

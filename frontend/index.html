@@ -13,11 +13,11 @@
 <link rel="stylesheet" href="./vendor/tailwind/tailwind.frozen.css?v=20260420-v1" />
 <script src="./vendor/echarts/echarts.min.js?v=20260420-v1"></script>
 <link rel="stylesheet" href="./vendor/flatpickr/flatpickr.min.css?v=20260420-v1" />
-<link rel="stylesheet" href="./styles-digital-human.css?v=20260420-v1" />
-<link rel="stylesheet" href="./styles/stage-unlock.css?v=20260420-v1" />
-<link rel="stylesheet" href="./styles/radar-timeline.css?v=20260420-v1" />
-<link rel="stylesheet" href="./styles/agent-orchestration.css?v=20260420-v1" />
-<link rel="stylesheet" href="./styles/agent-activity.css?v=20260516-a3-compact" />
+<link rel="stylesheet" href="./styles-digital-human.css?v=20260517-evo-v3" />
+<link rel="stylesheet" href="./styles/stage-unlock.css?v=20260517-evo-v3" />
+<link rel="stylesheet" href="./styles/radar-timeline.css?v=20260517-evo-v3" />
+<link rel="stylesheet" href="./styles/agent-orchestration.css?v=20260517-evo-v3" />
+<link rel="stylesheet" href="./styles/agent-activity.css?v=20260517-evo-v3" />
 </head>
 <body class="ios-ui">
 <script>
@@ -500,9 +500,10 @@
 <script src="./vendor/flatpickr/flatpickr.min.js?v=20260420-v1"></script>
 <script src="./vendor/flatpickr/l10n/zh.js?v=20260420-v1"></script>
 <!-- 样式必须在 Tailwind CDN 注入之后加载：先侧栏修正，再全站 styles，最后内联兜底在岗助手 -->
-<link rel="stylesheet" href="./sidebar-nav.css?v=20260420-v1" />
-<link rel="stylesheet" href="./styles.css?v=20260420-v1" />
-<link rel="stylesheet" href="./styles/employee-journey.css?v=20260516-v1" />
+<link rel="stylesheet" href="./sidebar-nav.css?v=20260517-evo-v3" />
+<link rel="stylesheet" href="./styles.css?v=20260517-evo-v3" />
+<link rel="stylesheet" href="./styles/employee-journey.css?v=20260519-journey-picker-v1" />
+<link rel="stylesheet" href="./styles/wrong-questions.css?v=20260517-evo-v3" />
 <style id="assistant-on-duty-inline">
 /* 内联兜底：确保压过 Tailwind 运行时注入（与外链顺序无关时仍生效） */
 #content-area .assistant-cc-page {
@@ -611,14 +612,16 @@ body.theme-dark #content-area .oj-assistant-page .assistant-cc-empty-desc {
   color: #636366 !important;
 }
 </style>
-<script src="js/date-range-calendar.js?v=20260420-v1"></script>
-<script src="js/stage-unlock.js?v=20260420-v1"></script>
-<script src="js/radar-timeline.js?v=20260420-v1"></script>
-<script src="js/employee-journey.js?v=20260516-v1"></script>
-<script src="js/agent-orchestration.js?v=20260420-v1"></script>
-<script src="js/agent-activity.js?v=20260516-a3-compact"></script>
-<script src="js/knowledge-feedback.js?v=20260516-v1"></script>
-<script src="js/app.js?v=20260420-v1"></script>
+<script src="js/date-range-calendar.js?v=20260517-evo-v3"></script>
+<script src="js/stage-unlock.js?v=20260517-evo-v3"></script>
+<script src="js/radar-timeline.js?v=20260517-evo-v3"></script>
+<script src="js/employee-journey.js?v=20260517-evo-v3"></script>
+<script src="js/agent-orchestration.js?v=20260517-agent-topology-v4"></script>
+<script src="js/agent-activity.js?v=20260517-evo-v3"></script>
+<script src="js/knowledge-feedback.js?v=20260517-evo-v3"></script>
+<script src="js/wrong-questions.js?v=20260517-evo-v3"></script>
+<script src="js/evo-governance.js?v=20260518-preflight-v1"></script>
+<script src="js/app.js?v=20260519-journey-picker-v1"></script>
 <!-- 3D Digital Human: importmap for Three.js ES modules -->
 <script type="importmap">
 {
@@ -628,7 +631,7 @@ body.theme-dark #content-area .oj-assistant-page .assistant-cc-empty-desc {
   }
 }
 </script>
-<script type="module" src="./js/digital-human.js?v=20260420-v1"></script>
+<script type="module" src="./js/digital-human.js?v=20260517-evo-v3"></script>
 <script>
 (function () {
   // app.js 语法异常时，提供最小登录兜底，确保可登录继续使用。

@@ -311,6 +311,23 @@ class AssistantRecord(Base):
     payload_json: Mapped[str] = mapped_column(Text, nullable=False, default="{}")
 
 
+class ReviewNotebookMastery(Base):
+    __tablename__ = "review_notebook_masteries"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    user_id: Mapped[str] = mapped_column(String(64), index=True, nullable=False)
+    source: Mapped[str] = mapped_column(String(32), nullable=False)
+    source_record_id: Mapped[int] = mapped_column(Integer, nullable=False)
+    question_id: Mapped[str] = mapped_column(String(128), nullable=False, default="")
+    dimension: Mapped[str] = mapped_column(String(64), nullable=False, default="")
+    knowledge_tag: Mapped[str] = mapped_column(String(100), nullable=False, default="")
+    title: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    remark: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    reason: Mapped[str] = mapped_column(String(32), nullable=False, default="manual")
+    marked_by: Mapped[str] = mapped_column(String(64), nullable=False, default="")
+    created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), default=utc_now)
+
+
 class DashboardSnapshot(Base):
     __tablename__ = "dashboard_snapshots"
 
@@ -602,3 +619,209 @@ class ModuleIndexSnapshot(Base):
     overall_index: Mapped[float] = mapped_column(Float, nullable=False, default=0.0)
     snapshot_date: Mapped[str] = mapped_column(String(32), nullable=False, default="")
     created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), default=utc_now)
+
+
+# ── Hermes self-evolution (Route B) · memory/evolution tables ──────────────
+
+
+class AgentEvoEpisode(Base):
+    """Raw reply, feedback, and correction event stream for the evo subsystem."""
+
+    __tablename__ = "agent_evo_episodes"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    episode_type: Mapped[str] = mapped_column(String(32), nullable=False, default="reply")
+    module: Mapped[str] = mapped_column(String(32), index=True, nullable=False, default="assistant")
+    user_id: Mapped[str] = mapped_column(String(64), index=True, nullable=False, default="")
+    store_id: Mapped[str] = mapped_column(String(64), nullable=False, default="")
+    request_id: Mapped[str] = mapped_column(String(64), nullable=False, default="")
+    query_text: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    response_text: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    signal: Mapped[str] = mapped_column(String(32), nullable=False, default="none")
+    correction_text: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    compliance_tags: Mapped[str] = mapped_column(Text, nullable=False, default="[]")
+    parent_episode_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), default=utc_now)
+    updated_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), default=utc_now, onupdate=utc_now)
+
+
+class AgentEvoSemantic(Base):
+    """Fact-like semantic memory extracted from feedback and corrections."""
+
+    __tablename__ = "agent_evo_semantic"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    scope_type: Mapped[str] = mapped_column(String(16), nullable=False, default="user")
+    scope_id: Mapped[str] = mapped_column(String(64), index=True, nullable=False, default="")
+    content: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    trigger_text: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    source_episode_ids: Mapped[str] = mapped_column(Text, nullable=False, default="[]")
+    confidence: Mapped[float] = mapped_column(Float, nullable=False, default=0.6)
+    status: Mapped[str] = mapped_column(String(32), nullable=False, default="active")
+    write_mode: Mapped[str] = mapped_column(String(16), nullable=False, default="auto")
+    hit_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    last_hit_at: Mapped[DateTime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), default=utc_now)
+
+
+class AgentEvoReflective(Base):
+    """Short-lived reflective lessons used by the agent before formal promotion."""
+
+    __tablename__ = "agent_evo_reflective"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    scope_type: Mapped[str] = mapped_column(String(16), nullable=False, default="user")
+    scope_id: Mapped[str] = mapped_column(String(64), index=True, nullable=False, default="")
+    lesson: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    evidence_episode_ids: Mapped[str] = mapped_column(Text, nullable=False, default="[]")
+    confidence: Mapped[float] = mapped_column(Float, nullable=False, default=0.5)
+    hit_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    status: Mapped[str] = mapped_column(String(32), nullable=False, default="active")
+    promoted_to_procedural_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    last_hit_at: Mapped[DateTime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), default=utc_now)
+    expires_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class AgentEvoProcedural(Base):
+    """Reusable procedural skill rules synthesized from repeated reflective lessons."""
+
+    __tablename__ = "agent_evo_procedural"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    scope_type: Mapped[str] = mapped_column(String(16), nullable=False, default="store")
+    scope_id: Mapped[str] = mapped_column(String(64), index=True, nullable=False, default="")
+    title: Mapped[str] = mapped_column(String(255), nullable=False, default="")
+    trigger_json: Mapped[str] = mapped_column(Text, nullable=False, default="[]")
+    do_json: Mapped[str] = mapped_column(Text, nullable=False, default="[]")
+    dont_json: Mapped[str] = mapped_column(Text, nullable=False, default="[]")
+    example: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    source_reflective_ids_json: Mapped[str] = mapped_column(Text, nullable=False, default="[]")
+    source_episode_ids_json: Mapped[str] = mapped_column(Text, nullable=False, default="[]")
+    confidence: Mapped[float] = mapped_column(Float, nullable=False, default=0.7)
+    status: Mapped[str] = mapped_column(String(32), nullable=False, default="auto")
+    write_mode: Mapped[str] = mapped_column(String(16), nullable=False, default="auto")
+    eval_case_ids_json: Mapped[str] = mapped_column(Text, nullable=False, default="[]")
+    hit_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    last_hit_at: Mapped[DateTime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), default=utc_now)
+
+
+class AgentEvoPromotion(Base):
+    """Cross-scope promotion proposal queue."""
+
+    __tablename__ = "agent_evo_promotions"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    source_memory_type: Mapped[str] = mapped_column(String(32), index=True, nullable=False, default="")
+    source_memory_id: Mapped[int] = mapped_column(Integer, index=True, nullable=False, default=0)
+    current_scope: Mapped[str] = mapped_column(String(128), index=True, nullable=False, default="")
+    target_scope: Mapped[str] = mapped_column(String(128), index=True, nullable=False, default="")
+    reason: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    evidence: Mapped[str] = mapped_column(Text, nullable=False, default="{}")
+    status: Mapped[str] = mapped_column(String(16), index=True, nullable=False, default="pending")
+    suggested_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), default=utc_now)
+    decided_at: Mapped[DateTime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    decided_by: Mapped[str] = mapped_column(String(64), nullable=False, default="")
+
+
+class AgentEvoReviewQueue(Base):
+    """Human review queue for sensitive or cross-scope memory writes."""
+
+    __tablename__ = "agent_evo_review_queue"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    target_type: Mapped[str] = mapped_column(String(32), nullable=False, default="semantic")
+    target_id: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    reason: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    priority: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    status: Mapped[str] = mapped_column(String(16), index=True, nullable=False, default="pending")
+    reviewer_id: Mapped[str] = mapped_column(String(64), nullable=False, default="")
+    created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), default=utc_now)
+    reviewed_at: Mapped[DateTime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
+class AgentEvoAuditLog(Base):
+    """Audit stream for automated evo writes, promotion, rollback, and safety actions."""
+
+    __tablename__ = "agent_evo_audit_log"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    actor: Mapped[str] = mapped_column(String(64), nullable=False, default="system")
+    action: Mapped[str] = mapped_column(String(64), index=True, nullable=False, default="")
+    target_type: Mapped[str] = mapped_column(String(32), nullable=False, default="")
+    target_id: Mapped[str] = mapped_column(String(64), nullable=False, default="")
+    payload: Mapped[str] = mapped_column(Text, nullable=False, default="{}")
+    created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), default=utc_now)
+
+
+class AgentEvoMemoryHit(Base):
+    """Retrieval hit log for semantic, reflective, and procedural memory injection."""
+
+    __tablename__ = "agent_evo_memory_hits"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    memory_type: Mapped[str] = mapped_column(String(32), nullable=False, default="semantic")
+    memory_id: Mapped[int] = mapped_column(Integer, index=True, nullable=False, default=0)
+    user_id: Mapped[str] = mapped_column(String(64), nullable=False, default="")
+    module: Mapped[str] = mapped_column(String(32), nullable=False, default="")
+    query_text: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    score: Mapped[float] = mapped_column(Float, nullable=False, default=0.0)
+    created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), default=utc_now)
+
+
+class AgentEvoEvalCase(Base):
+    """Safety-net regression case bound to agent memory."""
+
+    __tablename__ = "agent_evo_eval_cases"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    module: Mapped[str] = mapped_column(String(32), index=True, nullable=False, default="assistant")
+    question: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    must_contain: Mapped[str] = mapped_column(Text, nullable=False, default="[]")
+    must_not_contain: Mapped[str] = mapped_column(Text, nullable=False, default="[]")
+    scope_type: Mapped[str] = mapped_column(String(16), nullable=False, default="global")
+    scope_id: Mapped[str] = mapped_column(String(64), index=True, nullable=False, default="")
+    severity: Mapped[int] = mapped_column(Integer, nullable=False, default=2)
+    source: Mapped[str] = mapped_column(String(32), nullable=False, default="manual")
+    bound_memory_ids: Mapped[str] = mapped_column(Text, nullable=False, default="[]")
+    status: Mapped[str] = mapped_column(String(16), index=True, nullable=False, default="active")
+    created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), default=utc_now)
+    updated_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), default=utc_now, onupdate=utc_now)
+
+
+class AgentEvoEvalRun(Base):
+    """Safety-net regression run record."""
+
+    __tablename__ = "agent_evo_eval_runs"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    case_id: Mapped[int] = mapped_column(Integer, index=True, nullable=False, default=0)
+    module: Mapped[str] = mapped_column(String(32), nullable=False, default="assistant")
+    scope_type: Mapped[str] = mapped_column(String(16), nullable=False, default="global")
+    scope_id: Mapped[str] = mapped_column(String(64), nullable=False, default="")
+    question: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    answer_text: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    status: Mapped[str] = mapped_column(String(16), index=True, nullable=False, default="passed")
+    failed_checks: Mapped[str] = mapped_column(Text, nullable=False, default="[]")
+    bound_memory_ids: Mapped[str] = mapped_column(Text, nullable=False, default="[]")
+    triggered_by: Mapped[str] = mapped_column(String(64), nullable=False, default="manual")
+    created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), default=utc_now)
+
+
+class AgentEvoAnomaly(Base):
+    """Evo anomaly alert raised by the safety net."""
+
+    __tablename__ = "agent_evo_anomalies"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    anomaly_type: Mapped[str] = mapped_column(String(64), index=True, nullable=False, default="")
+    target_type: Mapped[str] = mapped_column(String(32), nullable=False, default="")
+    target_id: Mapped[str] = mapped_column(String(64), index=True, nullable=False, default="")
+    severity: Mapped[int] = mapped_column(Integer, nullable=False, default=2)
+    status: Mapped[str] = mapped_column(String(16), index=True, nullable=False, default="open")
+    reason: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    evidence: Mapped[str] = mapped_column(Text, nullable=False, default="{}")
+    created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), default=utc_now)
+    resolved_at: Mapped[DateTime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    reviewer_id: Mapped[str] = mapped_column(String(64), nullable=False, default="")

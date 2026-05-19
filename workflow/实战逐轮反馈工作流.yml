@@ -1,0 +1,321 @@
+app:
+  description: 实战陪练模块 - 逐轮反馈工作流：每轮对话后由导师分析学员表现并生成个性化建议
+  icon: "\U0001F3AF"
+  icon_background: "#FFEAD5"
+  icon_type: emoji
+  mode: workflow
+  name: 实战逐轮反馈工作流
+  use_icon_as_answer_icon: false
+dependencies:
+  - current_identifier: null
+    type: marketplace
+    value:
+      marketplace_plugin_unique_identifier: langgenius/tongyi:0.1.32@20a5454088fa017b72490e1cbaeebff21094d11b13e41197591734d1c08cdbb5
+    version: null
+kind: app
+version: 0.6.0
+workflow:
+  conversation_variables: []
+  environment_variables: []
+  features:
+    file_upload:
+      allowed_file_extensions:
+        - .JPG
+        - .JPEG
+        - .PNG
+        - .GIF
+        - .WEBP
+        - .SVG
+      allowed_file_types:
+        - image
+      allowed_file_upload_methods:
+        - local_file
+        - remote_url
+      enabled: false
+      image:
+        enabled: false
+        number_limits: 3
+        transfer_methods:
+          - local_file
+          - remote_url
+      number_limits: 3
+    opening_statement: ""
+    retriever_resource:
+      enabled: false
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions: []
+    suggested_questions_after_answer:
+      enabled: false
+    text_to_speech:
+      enabled: false
+      language: ""
+      voice: ""
+  graph:
+    edges:
+      - data:
+          isInIteration: false
+          isInLoop: false
+          sourceType: start
+          targetType: llm
+        id: tf_start-source-tf_llm-target
+        source: tf_start
+        sourceHandle: source
+        target: tf_llm
+        targetHandle: target
+        type: custom
+        zIndex: 0
+      - data:
+          isInIteration: false
+          isInLoop: false
+          sourceType: llm
+          targetType: code
+        id: tf_llm-source-tf_parse-target
+        source: tf_llm
+        sourceHandle: source
+        target: tf_parse
+        targetHandle: target
+        type: custom
+        zIndex: 0
+      - data:
+          isInIteration: false
+          isInLoop: false
+          sourceType: code
+          targetType: end
+        id: tf_parse-source-tf_end-target
+        source: tf_parse
+        sourceHandle: source
+        target: tf_end
+        targetHandle: target
+        type: custom
+        zIndex: 0
+    nodes:
+      # ========== 节点1: 开始 ==========
+      - data:
+          desc: 接收当前轮次对话上下文
+          title: 开始
+          type: start
+          variables:
+            - label: 学员消息
+              max_length: 2000
+              options: []
+              required: true
+              type: paragraph
+              variable: user_message
+            - label: 顾客回复
+              max_length: 2000
+              options: []
+              required: true
+              type: paragraph
+              variable: assistant_reply
+            - label: 当前轮次
+              max_length: 8
+              options: []
+              required: false
+              type: text-input
+              variable: round_count
+            - label: 场景类型
+              max_length: 128
+              options: []
+              required: false
+              type: text-input
+              variable: scenario_type
+        height: 380
+        id: tf_start
+        position:
+          x: 80
+          y: 250
+        positionAbsolute:
+          x: 80
+          y: 250
+        selected: false
+        sourcePosition: right
+        targetPosition: left
+        type: custom
+        width: 242
+      # ========== 节点2: LLM 分析 ==========
+      - data:
+          context:
+            enabled: false
+            variable_selector: []
+          desc: 分析学员本轮表现，生成个性化导师建议
+          model:
+            completion_params: {}
+            mode: chat
+            name: kimi-k2.5
+            provider: langgenius/tongyi/tongyi
+          prompt_template:
+            - id: tf_system
+              role: system
+              text: |
+                你是一位有10年珠宝销售培训经验的资深导师，正在旁听学员与模拟顾客的实战对话。
+
+                你的任务是：分析学员最新一轮的表现，给出简短、具体、有针对性的指导建议。
+
+                ## 分析维度
+
+                1. **intent_label**：判断顾客当前的核心意图（如：价格试探、材质对比、真假确认、场景匹配、犹豫观望、需求确认、售后确认、成交推进）
+                2. **intent_reason**：一句话解释顾客为什么这么做
+                3. **customer_state**：顾客当前的情绪状态（如：谨慎、权衡、警惕、观望、斟酌、信任、犹豫）
+                4. **mentor_comment**：50-80字的导师点评，具体指出学员本轮做得好的或需要改进的地方，不要泛泛而谈
+                5. **next_action**：建议学员下一步做什么，要具体可执行
+                6. **next_question**：建议学员可以问顾客的一个问题，要自然贴合当前对话
+                7. **voice_advice**：20-40字的简短语音建议，数字人会念出来，要求：
+                   - 口语化、自然流畅
+                   - 一句话，直击要点
+                   - 让学员知道这轮该注意什么
+
+                ## 输出要求
+
+                - 严格输出 JSON 格式，不要有任何其他文字
+                - JSON 的 key 必须是：intent_label, intent_reason, customer_state, mentor_comment, next_action, next_question, voice_advice
+                - 所有值都是字符串
+                - 不要用列表，不要用编号
+                - voice_advice 不要超过 40 个字
+
+                ## 输出示例
+
+                {"intent_label":"价格试探","intent_reason":"顾客反复询问价格，在评估性价比","customer_state":"谨慎","mentor_comment":"这轮顾客把重点放在价格上，你先别急着让价，把材质和工艺的价值讲清楚，让顾客理解贵在哪里，比直接打折更有说服力。","next_action":"用材质、工艺和佩戴效果来解释价格的合理性，不要急于给出优惠。","next_question":"您之前有了解过同类型款式的大致价格区间吗？","voice_advice":"先别急着降价，把贵在哪里讲清楚再谈价格。"}
+            - id: tf_user
+              role: user
+              text: |
+                场景类型：{{#tf_start.scenario_type#}}
+                当前轮次：第{{#tf_start.round_count#}}轮
+
+                学员消息：
+                {{#tf_start.user_message#}}
+
+                顾客回复：
+                {{#tf_start.assistant_reply#}}
+
+                请分析学员本轮表现，输出 JSON。
+          selected: false
+          title: 逐轮导师分析
+          type: llm
+          variables: []
+          vision:
+            enabled: false
+        height: 132
+        id: tf_llm
+        position:
+          x: 400
+          y: 250
+        positionAbsolute:
+          x: 400
+          y: 250
+        selected: false
+        sourcePosition: right
+        targetPosition: left
+        type: custom
+        width: 242
+      # ========== 节点3: JSON 解析 ==========
+      - data:
+          code: |
+            import json
+
+            def main(llm_text: str = "") -> dict:
+                """解析 LLM 输出的 JSON，提取 turn_feedback 各字段。"""
+                text = str(llm_text or "").strip()
+
+                # 尝试从 markdown 代码块中提取 JSON
+                if "```" in text:
+                    parts = text.split("```")
+                    for part in parts:
+                        candidate = part.strip()
+                        if candidate.startswith("json"):
+                            candidate = candidate[4:].strip()
+                        if candidate.startswith("{") and candidate.endswith("}"):
+                            text = candidate
+                            break
+
+                # 尝试提取第一个 JSON 对象
+                if not (text.startswith("{") and text.endswith("}")):
+                    start = text.find("{")
+                    end = text.rfind("}")
+                    if start >= 0 and end > start:
+                        text = text[start:end + 1]
+
+                try:
+                    obj = json.loads(text)
+                except Exception:
+                    obj = {}
+
+                if not isinstance(obj, dict):
+                    obj = {}
+
+                # 提取各字段，确保都是字符串
+                fields = [
+                    "intent_label",
+                    "intent_reason",
+                    "customer_state",
+                    "mentor_comment",
+                    "next_action",
+                    "next_question",
+                    "voice_advice",
+                ]
+                result = {}
+                for key in fields:
+                    val = str(obj.get(key, "") or "").strip()
+                    if val:
+                        result[key] = val
+
+                # 如果解析失败，返回原始文本作为 mentor_comment
+                if not result.get("mentor_comment") and not result.get("voice_advice"):
+                    raw = str(llm_text or "").strip()[:200]
+                    result["mentor_comment"] = raw
+                    result["voice_advice"] = raw[:40] if len(raw) > 40 else raw
+
+                return {"turn_feedback_json": json.dumps(result, ensure_ascii=False)}
+          code_language: python3
+          desc: 解析 LLM 输出的 JSON，提取 turn_feedback 结构化数据
+          outputs:
+            turn_feedback_json:
+              type: string
+          selected: false
+          title: 解析反馈JSON
+          type: code
+          variables:
+            - value_selector:
+                - tf_llm
+                - text
+              variable: llm_text
+        height: 176
+        id: tf_parse
+        position:
+          x: 720
+          y: 250
+        positionAbsolute:
+          x: 720
+          y: 250
+        selected: false
+        sourcePosition: right
+        targetPosition: left
+        type: custom
+        width: 242
+      # ========== 节点4: 结束 ==========
+      - data:
+          desc: 输出逐轮反馈结果
+          outputs:
+            - variable: turn_feedback_json
+              value_selector:
+                - tf_parse
+                - turn_feedback_json
+          selected: false
+          title: 结束
+          type: end
+          variables: []
+        height: 90
+        id: tf_end
+        position:
+          x: 1040
+          y: 250
+        positionAbsolute:
+          x: 1040
+          y: 250
+        selected: false
+        sourcePosition: right
+        targetPosition: left
+        type: custom
+        width: 242

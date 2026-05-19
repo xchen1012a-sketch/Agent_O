@@ -142,30 +142,6 @@
     return '';
   }
 
-  function metricCard(label, value, hint) {
-    return (
-      '<div class="employee-journey-metric">' +
-        '<span>' + escapeHtml(label) + '</span>' +
-        '<strong>' + escapeHtml(value) + '</strong>' +
-        (hint ? '<em>' + escapeHtml(hint) + '</em>' : '') +
-      '</div>'
-    );
-  }
-
-  function renderSummary(data) {
-    var summary = data.summary || {};
-    var delta = Number(summary.scoreDelta || 0);
-    var deltaText = (delta > 0 ? '+' : '') + String(Math.round(delta * 10) / 10).replace(/\.0$/, '');
-    return (
-      '<div class="employee-journey-summary" aria-label="成长摘要">' +
-        metricCard('起点', scoreText(summary.startScore) + ' 分', '入营基线') +
-        metricCard('当前', scoreText(summary.currentScore) + ' 分', summary.passed ? '已通过上岗' : '持续训练') +
-        metricCard('跃迁', deltaText + ' 分', '14 天变化') +
-        metricCard('风险红灯', String(summary.highRiskCount || 0), '自动识别') +
-      '</div>'
-    );
-  }
-
   function renderAbilityBars(node, dimensions) {
     var html = '<div class="employee-journey-bars" aria-label="六维能力">';
     dimensions.forEach(function (dim) {
@@ -229,8 +205,7 @@
             '<span>' + escapeHtml(data.summary.passed ? '已通过' : '训练中') + '</span>' +
             '<strong>' + escapeHtml(scoreText(data.summary.currentScore)) + '</strong>' +
           '</div>' +
-        '</header>' +
-        renderSummary(data);
+        '</header>';
 
     if (!data.nodes.length) {
       html += '<div class="employee-journey-empty">暂无成长轨迹</div></div>';

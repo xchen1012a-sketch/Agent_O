@@ -171,7 +171,9 @@ def _extract_data_and_outputs(result: dict[str, Any]) -> tuple[dict[str, Any], d
     data = result.get("data") if isinstance(result, dict) else {}
     if not isinstance(data, dict):
         data = {}
-    outputs = data.get("raw_outputs") if isinstance(data, dict) else {}
+    outputs = data.get("outputs") if isinstance(data, dict) else {}
+    if not isinstance(outputs, dict):
+        outputs = data.get("raw_outputs") if isinstance(data, dict) else {}
     if not isinstance(outputs, dict):
         outputs = {}
     return data, outputs

@@ -16,8 +16,9 @@ try:
     import config as app_config
     from config import JWT_DEFAULT_DEV_SECRET
 except ImportError:
+    import secrets as _secrets
     app_config = None
-    JWT_DEFAULT_DEV_SECRET = "jewelry-qipei-2026-competition-secret"
+    JWT_DEFAULT_DEV_SECRET = _secrets.token_hex(32)
 
 ALGORITHM = "HS256"
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")

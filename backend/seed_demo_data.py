@@ -4,6 +4,7 @@ import argparse
 import json
 import sqlite3
 from contextlib import closing
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
@@ -25,6 +26,8 @@ DEMO_LEARNING_PREFIX = "demo_learning_"
 DEMO_ASSISTANT_PREFIX = "demo_assistant_"
 DEMO_DASHBOARD_PREFIX = "demo_dashboard_"
 DEMO_QUERY_PREFIX = "demo_query_"
+DEMO_REVIEW_QA_PREFIX = "demo_review_qa_"
+DEMO_EVO_PREFIX = "demo_evo_"
 PROTAGONIST_USERNAME = "trainee_zjx"
 PROTAGONIST_NAME = "赵景行"
 DEMO_ASSISTANT_HISTORY_COUNT = 220
@@ -229,6 +232,281 @@ def protagonist_ability_snapshot(day_index: int, overall_score: float) -> dict[s
     }
 
 
+ASSESSMENT_REVIEW_QUESTIONS: dict[str, list[dict[str, Any]]] = {
+    "product_basics": [
+        {
+            "id": "q_product_material",
+            "type": "single",
+            "title": "顾客问 18K 金是否一定不会变形时，优先说明什么？",
+            "options": [
+                {"key": "A", "text": "结合金属硬度、佩戴习惯和保养边界说明"},
+                {"key": "B", "text": "直接承诺日常佩戴不会变形"},
+                {"key": "C", "text": "只建议顾客购买更贵款式"},
+                {"key": "D", "text": "回避问题并转向促销活动"},
+            ],
+            "answer": "A",
+            "knowledge_tag": "材质工艺",
+            "wrong_answer": "B",
+        },
+        {
+            "id": "q_product_cert",
+            "type": "essay",
+            "title": "简述介绍钻石证书时必须覆盖的要点。",
+            "keywords": ["证书", "4C", "风险边界"],
+            "knowledge_tag": "钻石证书",
+            "wrong_answer": "证书都差不多，重点推荐优惠就可以。",
+        },
+    ],
+    "compliance_expression": [
+        {
+            "id": "q_compliance_value",
+            "type": "single",
+            "title": "顾客追问珠宝能否升值时，哪种回应更合规？",
+            "options": [
+                {"key": "A", "text": "不能承诺收益，转向佩戴价值、工艺和售后说明"},
+                {"key": "B", "text": "暗示热门款长期一定升值"},
+                {"key": "C", "text": "让顾客自行判断，不做任何解释"},
+                {"key": "D", "text": "承诺以后可以高价回收"},
+            ],
+            "answer": "A",
+            "knowledge_tag": "风险边界",
+            "wrong_answer": "B",
+        },
+        {
+            "id": "q_compliance_privacy",
+            "type": "multiple",
+            "title": "登记会员信息时，下列哪些做法正确？",
+            "options": [
+                {"key": "A", "text": "说明用途并征得同意"},
+                {"key": "B", "text": "把手机号发到私人群方便跟进"},
+                {"key": "C", "text": "只收集服务必要信息"},
+                {"key": "D", "text": "默认顾客同意所有营销触达"},
+            ],
+            "answer": ["A", "C"],
+            "knowledge_tag": "个人信息保护",
+            "wrong_answer": ["A", "D"],
+        },
+    ],
+    "needs_discovery": [
+        {
+            "id": "q_needs_gift",
+            "type": "single",
+            "title": "顾客说想送妈妈但不确定款式时，第一步应做什么？",
+            "options": [
+                {"key": "A", "text": "询问佩戴场景、预算、偏好和过敏史"},
+                {"key": "B", "text": "直接推荐店内最高客单款"},
+                {"key": "C", "text": "先介绍所有材质参数"},
+                {"key": "D", "text": "让顾客自己看柜台"},
+            ],
+            "answer": "A",
+            "knowledge_tag": "送礼推荐",
+            "wrong_answer": "B",
+        },
+        {
+            "id": "q_needs_budget",
+            "type": "essay",
+            "title": "写出预算不明确顾客的需求挖掘追问。",
+            "keywords": ["预算", "佩戴场景", "偏好"],
+            "knowledge_tag": "需求五问",
+            "wrong_answer": "您先看喜欢哪款，我们再谈。",
+        },
+    ],
+    "objection_handling": [
+        {
+            "id": "q_objection_price",
+            "type": "single",
+            "title": "顾客说别家同款便宜 1000 元时，应先做什么？",
+            "options": [
+                {"key": "A", "text": "核对参数、证书、工艺和售后是否一致"},
+                {"key": "B", "text": "马上申请最低折扣"},
+                {"key": "C", "text": "直接否定竞品"},
+                {"key": "D", "text": "告诉顾客便宜没好货"},
+            ],
+            "answer": "A",
+            "knowledge_tag": "竞品对比",
+            "wrong_answer": "B",
+        },
+        {
+            "id": "q_objection_after_sale",
+            "type": "essay",
+            "title": "顾客担心维修周期长时，应如何安抚并推进？",
+            "keywords": ["周期", "跟进", "替代方案"],
+            "knowledge_tag": "售后异议",
+            "wrong_answer": "这个没办法，等通知就行。",
+        },
+    ],
+    "closing_conversion": [
+        {
+            "id": "q_closing_signal",
+            "type": "single",
+            "title": "顾客反复试戴并询问保养时，较合适的推进动作是？",
+            "options": [
+                {"key": "A", "text": "总结需求匹配点并给出下一步成交动作"},
+                {"key": "B", "text": "继续无重点介绍更多款式"},
+                {"key": "C", "text": "催促顾客马上付款"},
+                {"key": "D", "text": "停止跟进等待顾客主动开口"},
+            ],
+            "answer": "A",
+            "knowledge_tag": "成交信号",
+            "wrong_answer": "B",
+        },
+        {
+            "id": "q_closing_compare",
+            "type": "essay",
+            "title": "顾客在两款之间犹豫时，如何帮助其决策？",
+            "keywords": ["需求", "对比", "下一步"],
+            "knowledge_tag": "收口推进",
+            "wrong_answer": "两款都不错，您自己决定。",
+        },
+    ],
+    "independent_service": [
+        {
+            "id": "q_service_escalation",
+            "type": "single",
+            "title": "遇到退换边界不清的投诉时，新人应优先怎么做？",
+            "options": [
+                {"key": "A", "text": "记录事实、安抚顾客并按流程升级"},
+                {"key": "B", "text": "现场自行承诺无条件退换"},
+                {"key": "C", "text": "让顾客自行联系总部"},
+                {"key": "D", "text": "强调门店没有责任"},
+            ],
+            "answer": "A",
+            "knowledge_tag": "投诉升级",
+            "wrong_answer": "B",
+        },
+        {
+            "id": "q_service_handover",
+            "type": "essay",
+            "title": "独立接待结束后，应沉淀哪些交接信息？",
+            "keywords": ["顾客需求", "跟进动作", "风险点"],
+            "knowledge_tag": "独立接待",
+            "wrong_answer": "只记录是否成交。",
+        },
+    ],
+}
+
+
+REVIEW_NOTEBOOK_QA_POOL: list[dict[str, str]] = [
+    {
+        "question": "顾客问这枚钻戒证书参数和柜台介绍不一致，应该怎么解释？",
+        "reply": "需要对照证书、4C 参数和商品标签逐项说明，不能用含糊话术带过。",
+        "knowledge_tag": "钻石证书",
+        "weak_dimension": "产品知识",
+    },
+    {
+        "question": "顾客问黄金手链以后能不能保值，怎么说才不踩线？",
+        "reply": "回答需要先明确不能承诺收益，再解释佩戴价值、材质和售后边界。",
+        "knowledge_tag": "风险边界",
+        "weak_dimension": "合规表达",
+    },
+    {
+        "question": "顾客说想送妈妈但不知道款式，第一句话应该问什么？",
+        "reply": "应先问佩戴场景、预算、肤色偏好和过敏史，不能直接推高价款。",
+        "knowledge_tag": "送礼推荐",
+        "weak_dimension": "需求挖掘",
+    },
+    {
+        "question": "顾客说竞品同款便宜，能不能直接说我们品质更好？",
+        "reply": "需要先核对参数、证书、工艺和售后，再做可验证差异说明。",
+        "knowledge_tag": "竞品对比",
+        "weak_dimension": "异议处理",
+    },
+    {
+        "question": "顾客反复试戴后还在犹豫，怎样自然推进下一步？",
+        "reply": "需要复述需求匹配点，再给试戴对比、保养说明或下单确认动作。",
+        "knowledge_tag": "成交信号",
+        "weak_dimension": "成交收口",
+    },
+    {
+        "question": "戒托变形投诉怎样判断是佩戴问题还是质量问题？",
+        "reply": "需要补充留痕、检测、售后边界和升级流程。",
+        "knowledge_tag": "售后异议",
+        "weak_dimension": "独立接待",
+    },
+]
+
+
+REVIEW_NOTEBOOK_QA_EXTRA_SPECS: list[dict[str, str]] = [
+    {
+        "username": PROTAGONIST_USERNAME,
+        "question": "钻石证书上写的 4C 和门店讲解不一致，应该怎么判断？",
+        "reply": "回答缺少证书口径、4C 对照和风险边界，需要回到标准解释流程。",
+        "knowledge_tag": "钻石证书",
+        "weak_dimension": "产品知识",
+    },
+    {
+        "username": PROTAGONIST_USERNAME,
+        "question": "顾客问黄金手链以后能不能保值，怎么说才不踩线？",
+        "reply": "回答需要先明确不能承诺收益，再解释佩戴价值、材质和售后边界。",
+        "knowledge_tag": "风险边界",
+        "weak_dimension": "合规表达",
+    },
+    {
+        "username": PROTAGONIST_USERNAME,
+        "question": "给长辈送珍珠项链，第一句话应该问什么？",
+        "reply": "应先问佩戴场景、预算、肤色偏好和过敏史，不能直接推高价款。",
+        "knowledge_tag": "送礼推荐",
+        "weak_dimension": "需求挖掘",
+    },
+    {
+        "username": PROTAGONIST_USERNAME,
+        "question": "顾客说竞品同款便宜，能不能直接说我们品质更好？",
+        "reply": "需要先核对参数、证书、工艺和售后，再做可验证差异说明。",
+        "knowledge_tag": "竞品对比",
+        "weak_dimension": "异议处理",
+    },
+    {
+        "username": "trainee_gz1",
+        "question": "戒托变形投诉怎样判断是佩戴问题还是质量问题？",
+        "reply": "需要补充留痕、检测、售后边界和升级流程。",
+        "knowledge_tag": "售后异议",
+        "weak_dimension": "独立接待",
+    },
+    {
+        "username": "trainee_bj1",
+        "question": "顾客只说随便看看时，怎样自然开场？",
+        "reply": "需要用低压开场问题识别场景，而不是马上介绍折扣。",
+        "knowledge_tag": "顾客进店接待",
+        "weak_dimension": "需求挖掘",
+    },
+]
+
+
+def build_review_notebook_qa_specs() -> list[dict[str, str]]:
+    specs: list[dict[str, str]] = []
+    for idx, user in enumerate(DEMO_USERS):
+        template = REVIEW_NOTEBOOK_QA_POOL[idx % len(REVIEW_NOTEBOOK_QA_POOL)]
+        spec = dict(template)
+        spec["username"] = user["username"]
+        spec["question"] = f"{user['name']}复盘：{template['question']}"
+        specs.append(spec)
+    specs.extend(REVIEW_NOTEBOOK_QA_EXTRA_SPECS)
+    return specs
+
+
+def build_review_paper_config(module_code: str) -> dict[str, Any]:
+    questions = ASSESSMENT_REVIEW_QUESTIONS.get(module_code) or ASSESSMENT_REVIEW_QUESTIONS["product_basics"]
+    return {
+        "seed_tag": SEED_TAG,
+        "source": "demo_seed_review_notebook",
+        "questions": [
+            {key: value for key, value in question.items() if key != "wrong_answer"}
+            for question in questions
+        ],
+    }
+
+
+def build_review_paper_answers(module_code: str, *, wrong_all: bool) -> dict[str, Any]:
+    questions = ASSESSMENT_REVIEW_QUESTIONS.get(module_code) or ASSESSMENT_REVIEW_QUESTIONS["product_basics"]
+    answers: dict[str, Any] = {}
+    for index, question in enumerate(questions):
+        if wrong_all or index == 0:
+            answers[str(question["id"])] = question["wrong_answer"]
+        else:
+            answers[str(question["id"])] = question.get("answer") or question.get("keywords") or ""
+    return answers
+
+
 def fetch_admin_row(conn: sqlite3.Connection) -> sqlite3.Row:
     row = conn.execute("SELECT id, username, hashed_password FROM users WHERE username = 'admin' LIMIT 1").fetchone()
     if row is None:
@@ -279,6 +557,62 @@ def delete_demo_data(db_path: str | Path | None = None, *, verbose: bool = False
         else:
             for key in ("cycle_daily_tasks", "training_cycles", "training_stage_reviews", "training_unlock_snapshots", "module_index_snapshots", "sales_performance", "dashboard_snapshots", "assistant_records", "practice_eval_records", "ability_update_records", "practice_records", "learning_eval_records", "growth_task_manual_records", "growth_plan_records", "query_records", "assessment_task_targets", "assessment_records", "assessment_tasks", "employee_profiles", "users"):
                 deleted[key] = 0
+        seed_like = f"%{SEED_TAG}%"
+        deleted["agent_evo_eval_runs"] = delete_where(
+            conn,
+            "DELETE FROM agent_evo_eval_runs WHERE triggered_by = 'demo_seed' OR bound_memory_ids LIKE ?",
+            (seed_like,),
+        )
+        deleted["agent_evo_eval_cases"] = delete_where(
+            conn,
+            "DELETE FROM agent_evo_eval_cases WHERE source = 'demo_seed' OR bound_memory_ids LIKE ?",
+            (seed_like,),
+        )
+        deleted["agent_evo_anomalies"] = delete_where(
+            conn,
+            "DELETE FROM agent_evo_anomalies WHERE evidence LIKE ? OR reviewer_id = 'demo_seed'",
+            (seed_like,),
+        )
+        deleted["agent_evo_audit_log"] = delete_where(
+            conn,
+            "DELETE FROM agent_evo_audit_log WHERE actor = 'seed' OR payload LIKE ?",
+            (seed_like,),
+        )
+        deleted["agent_evo_review_queue"] = delete_where(
+            conn,
+            "DELETE FROM agent_evo_review_queue WHERE reason LIKE ?",
+            (seed_like,),
+        )
+        deleted["agent_evo_promotions"] = delete_where(
+            conn,
+            "DELETE FROM agent_evo_promotions WHERE evidence LIKE ? OR reason LIKE ?",
+            (seed_like, seed_like),
+        )
+        deleted["agent_evo_memory_hits"] = delete_where(
+            conn,
+            "DELETE FROM agent_evo_memory_hits WHERE query_text LIKE ?",
+            (seed_like,),
+        )
+        deleted["agent_evo_procedural"] = delete_where(
+            conn,
+            "DELETE FROM agent_evo_procedural WHERE example LIKE ? OR title LIKE ?",
+            (seed_like, f"{DEMO_EVO_PREFIX}%"),
+        )
+        deleted["agent_evo_reflective"] = delete_where(
+            conn,
+            "DELETE FROM agent_evo_reflective WHERE lesson LIKE ?",
+            (seed_like,),
+        )
+        deleted["agent_evo_semantic"] = delete_where(
+            conn,
+            "DELETE FROM agent_evo_semantic WHERE content LIKE ? OR trigger_text LIKE ?",
+            (seed_like, f"{DEMO_EVO_PREFIX}%"),
+        )
+        deleted["agent_evo_episodes"] = delete_where(
+            conn,
+            "DELETE FROM agent_evo_episodes WHERE request_id LIKE ? OR compliance_tags LIKE ?",
+            (f"{DEMO_EVO_PREFIX}%", seed_like),
+        )
         deleted["stores"] = delete_where(conn, f"DELETE FROM stores WHERE store_id IN ({placeholders(DEMO_STORE_IDS)})", tuple(DEMO_STORE_IDS))
         conn.commit()
     summary["deleted_total"] = sum(int(value) for value in summary["deleted"].values())
@@ -418,6 +752,462 @@ def insert_cycle(
             ),
         )
     return {"cycle_id": cycle_id, "stage_no": stage_no, "status": cycle_status, "current_day": current_day}
+
+
+def _seed_agent_evo(
+    conn: sqlite3.Connection,
+    *,
+    user_rows: dict[str, sqlite3.Row],
+    admin_id: str,
+    now: str,
+) -> dict[str, int]:
+    current = datetime.now(timezone.utc)
+    expires_at = (current + timedelta(days=45)).isoformat()
+    module_cycle = ["assistant", "qa", "quick_query", "assistant", "qa"]
+    signal_cycle = ["thumb_up"] * 26 + ["thumb_down"] * 6 + ["correction"] * 8
+    scenario_cycle = [
+        ("保值", "18K 金能不能承诺保值？", "不能承诺保值，应说明材质、工艺、佩戴价值与售后边界。", "risk_expression"),
+        ("竞品比价", "顾客说隔壁同款便宜一千怎么办？", "先核对参数与工艺，再解释服务、证书和售后差异。", "price_objection"),
+        ("送礼推荐", "预算八千给妈妈选什么更合适？", "先确认佩戴场景、风格偏好和过敏史，再给出两档选择。", "needs_discovery"),
+        ("钻石证书", "GIA 和国检证书怎么向顾客解释？", "用通俗语言说明检测维度，避免暗示投资收益。", "product_basics"),
+        ("售后保养", "顾客担心戒托变形要怎么说？", "说明日常保养、复检频率和售后处理范围。", "after_sales"),
+    ]
+    usernames = [
+        PROTAGONIST_USERNAME,
+        "trainee_gz1",
+        "trainee_gz2",
+        "manager_gz",
+        "trainee_bj1",
+        "manager_bj",
+        "trainee_sh1",
+        "manager_sh",
+    ]
+
+    episode_ids: list[int] = []
+    feedback_episode_ids: list[int] = []
+    correction_episode_ids: list[int] = []
+    for idx in range(40):
+        username = usernames[idx % len(usernames)]
+        row = user_rows[username]
+        user = USER_BY_USERNAME[username]
+        tag, question, answer, compliance_tag = scenario_cycle[idx % len(scenario_cycle)]
+        signal = signal_cycle[idx]
+        episode_type = "correction" if signal == "correction" else "reply"
+        correction_text = ""
+        if signal == "correction":
+            correction_text = f"{SEED_TAG}: {tag} 场景需要先确认顾客意图，再给合规边界，不要直接下结论。"
+        created_at = (current - timedelta(hours=40 - idx)).isoformat()
+        cur = conn.execute(
+            """
+            INSERT INTO agent_evo_episodes (
+                episode_type, module, user_id, store_id, request_id, query_text, response_text,
+                signal, correction_text, compliance_tags, parent_episode_id, created_at, updated_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, ?, ?)
+            """,
+            (
+                episode_type,
+                module_cycle[idx % len(module_cycle)],
+                str(row["id"]),
+                user["store_id"],
+                f"{DEMO_EVO_PREFIX}episode_{idx + 1:02d}",
+                f"{question}（{SEED_TAG} 样本 {idx + 1:02d}）",
+                answer,
+                signal,
+                correction_text,
+                json_text({"seed_tag": SEED_TAG, "tags": [compliance_tag, tag]}),
+                created_at,
+                created_at,
+            ),
+        )
+        episode_id = int(cur.lastrowid or 0)
+        episode_ids.append(episode_id)
+        if signal in {"thumb_down", "correction"}:
+            feedback_episode_ids.append(episode_id)
+        if signal == "correction":
+            correction_episode_ids.append(episode_id)
+
+    semantic_specs = [
+        ("store", "STORE_GZ", "保值问题", "18K 金、钻石、黄金饰品都不能承诺保值或升值，应转向材质、工艺、佩戴价值与售后服务。"),
+        ("store", "STORE_BJ", "竞品比价", "顾客提出竞品低价时，先核对参数、证书、工艺和售后，再解释本店服务差异。"),
+        ("user", str(user_rows[PROTAGONIST_USERNAME]["id"]), "送礼推荐", "给长辈送礼要先确认佩戴习惯、预算、过敏史和是否偏好低调款。"),
+        ("store", "STORE_SH", "钻石证书", "解释证书时只说明检测维度和一致性，不暗示投资收益或回购承诺。"),
+        ("global", "global", "售后保养", "戒托变形风险要结合金属硬度、佩戴习惯和定期复检说明，避免绝对化承诺。"),
+        ("store", "STORE_GZ", "预算升级", "推荐升级款时先复述预算上限，再用可感知差异说明价值，不制造焦虑。"),
+        ("user", str(user_rows["trainee_gz1"]["id"]), "异议收口", "处理价格异议后要给下一步动作，例如试戴对比、证书核验或预约复检。"),
+        ("store", "STORE_BJ", "会员权益", "介绍会员权益要明确适用条件、门店范围和有效期，不把权益说成现金收益。"),
+    ]
+    semantic_ids: list[int] = []
+    for idx, (scope_type, scope_id, trigger, content) in enumerate(semantic_specs, start=1):
+        source_ids = feedback_episode_ids[idx - 1 : idx + 2] or episode_ids[:2]
+        hit_count = 2 if idx <= 5 else 1
+        cur = conn.execute(
+            """
+            INSERT INTO agent_evo_semantic (
+                scope_type, scope_id, content, trigger_text, source_episode_ids, confidence,
+                status, write_mode, hit_count, last_hit_at, created_at
+            ) VALUES (?, ?, ?, ?, ?, ?, 'active', 'auto', ?, ?, ?)
+            """,
+            (
+                scope_type,
+                scope_id,
+                f"{content} [{SEED_TAG}]",
+                f"{DEMO_EVO_PREFIX}{trigger}",
+                json_text(source_ids),
+                round(0.64 + idx * 0.03, 2),
+                hit_count,
+                now,
+                (current - timedelta(hours=18 - idx)).isoformat(),
+            ),
+        )
+        semantic_ids.append(int(cur.lastrowid or 0))
+
+    candidate_specs = [
+        (
+            "store",
+            "STORE_GZ",
+            "correction_candidate_value_claim",
+            "用户纠正后沉淀：遇到保值、升值、回购类问题时，先说明不能承诺收益，再回到佩戴价值、工艺和售后边界。",
+            correction_episode_ids[:2],
+            0.52,
+            3,
+            "用户纠正生成候选记忆，需管理层审核后上线",
+        ),
+        (
+            "store",
+            "STORE_BJ",
+            "thumb_down_candidate_competitor_price",
+            "多次没用反馈提示：竞品比价场景不能只解释价格，要先核对证书、参数、工艺和售后范围，再给试戴对比动作。",
+            feedback_episode_ids[1:4],
+            0.46,
+            2,
+            "没用反馈进入模块反馈池，待店长复盘",
+        ),
+        (
+            "global",
+            "global",
+            "global_candidate_return_risk",
+            "全局候选规则：所有模块回答珠宝保值、升值、回购问题时，禁止使用稳赚、保本、guaranteed return 等收益承诺表达。",
+            correction_episode_ids[2:5],
+            0.49,
+            4,
+            "全局范围候选记忆，需管理员审核后上线",
+        ),
+    ]
+    candidate_semantic_ids: list[int] = []
+    for idx, (scope_type, scope_id, trigger, content, source_ids, confidence, priority, reason) in enumerate(candidate_specs, start=1):
+        cur = conn.execute(
+            """
+            INSERT INTO agent_evo_semantic (
+                scope_type, scope_id, content, trigger_text, source_episode_ids, confidence,
+                status, write_mode, hit_count, last_hit_at, created_at
+            ) VALUES (?, ?, ?, ?, ?, ?, 'pending', 'candidate', 0, NULL, ?)
+            """,
+            (
+                scope_type,
+                scope_id,
+                f"{content} [{SEED_TAG}]",
+                f"{DEMO_EVO_PREFIX}{trigger}",
+                json_text(source_ids or feedback_episode_ids[:2]),
+                confidence,
+                (current - timedelta(hours=4, minutes=idx * 8)).isoformat(),
+            ),
+        )
+        candidate_id = int(cur.lastrowid or 0)
+        candidate_semantic_ids.append(candidate_id)
+        conn.execute(
+            """
+            INSERT INTO agent_evo_review_queue (
+                target_type, target_id, reason, priority, status, reviewer_id, created_at, reviewed_at
+            ) VALUES ('semantic', ?, ?, ?, 'pending', ?, ?, NULL)
+            """,
+            (
+                candidate_id,
+                f"{SEED_TAG}: {reason}",
+                priority,
+                admin_id,
+                (current - timedelta(hours=3, minutes=idx * 6)).isoformat(),
+            ),
+        )
+
+    cur = conn.execute(
+        """
+        INSERT INTO agent_evo_semantic (
+            scope_type, scope_id, content, trigger_text, source_episode_ids, confidence,
+            status, write_mode, hit_count, last_hit_at, created_at
+        ) VALUES ('store', 'STORE_GZ', ?, ?, ?, 0.21, 'auto_disabled', 'auto', 0, NULL, ?)
+        """,
+        (
+            f"已下线样例：曾把18K金说成一定保值，连续负反馈后自动停用，等待复盘。 [{SEED_TAG}]",
+            f"{DEMO_EVO_PREFIX}auto_disabled_value_claim",
+            json_text(feedback_episode_ids[:3]),
+            (current - timedelta(hours=2, minutes=20)).isoformat(),
+        ),
+    )
+    disabled_semantic_id = int(cur.lastrowid or 0)
+
+    reflective_specs = [
+        ("store", "STORE_GZ", "保值、升值、回购类问题出现负反馈时，要优先补合规边界，再补佩戴价值。"),
+        ("user", str(user_rows[PROTAGONIST_USERNAME]["id"]), "赵景行在送礼推荐场景容易先推款式，后续要先问佩戴场景和预算。"),
+        ("store", "STORE_BJ", "竞品比价场景不要直接降价，要先拆解证书、工艺、售后和试戴体验。"),
+        ("store", "STORE_SH", "证书解释需要用顾客能听懂的语言，不要堆参数。"),
+    ]
+    reflective_ids: list[int] = []
+    for idx, (scope_type, scope_id, lesson) in enumerate(reflective_specs, start=1):
+        evidence_ids = correction_episode_ids[idx - 1 : idx + 1] or feedback_episode_ids[idx - 1 : idx + 1]
+        cur = conn.execute(
+            """
+            INSERT INTO agent_evo_reflective (
+                scope_type, scope_id, lesson, evidence_episode_ids, confidence, hit_count,
+                status, promoted_to_procedural_id, last_hit_at, created_at, expires_at
+            ) VALUES (?, ?, ?, ?, ?, ?, 'active', NULL, ?, ?, ?)
+            """,
+            (
+                scope_type,
+                scope_id,
+                f"{lesson} [{SEED_TAG}]",
+                json_text(evidence_ids),
+                round(0.58 + idx * 0.05, 2),
+                idx,
+                now,
+                (current - timedelta(hours=10 - idx)).isoformat(),
+                expires_at,
+            ),
+        )
+        reflective_ids.append(int(cur.lastrowid or 0))
+
+    procedural_specs = [
+        (
+            "store",
+            "STORE_GZ",
+            "保值问题三段式回应",
+            ["保值", "升值", "回购", "18K"],
+            ["先说明不能承诺保值或升值", "再解释材质工艺与佩戴价值", "最后给售后保养或证书核验动作"],
+            ["不要承诺回购", "不要使用稳赚、保本等表达"],
+            "顾客问能不能保值时，先说不能做收益承诺，再说明工艺、佩戴价值和售后保障。",
+        ),
+        (
+            "store",
+            "STORE_BJ",
+            "竞品比价拆解回应",
+            ["便宜", "同款", "竞品"],
+            ["核对参数证书", "解释工艺和售后差异", "邀请试戴对比"],
+            ["不要直接攻击竞品", "不要未经确认就降价"],
+            "顾客说别家便宜时，先确认是否同参数同证书，再比较服务和售后范围。",
+        ),
+    ]
+    procedural_ids: list[int] = []
+    for idx, (scope_type, scope_id, title, triggers, dos, donts, example) in enumerate(procedural_specs, start=1):
+        cur = conn.execute(
+            """
+            INSERT INTO agent_evo_procedural (
+                scope_type, scope_id, title, trigger_json, do_json, dont_json, example,
+                source_reflective_ids_json, source_episode_ids_json, confidence, status,
+                write_mode, eval_case_ids_json, hit_count, last_hit_at, created_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'auto', 'auto', '[]', ?, ?, ?)
+            """,
+            (
+                scope_type,
+                scope_id,
+                title,
+                json_text(triggers),
+                json_text(dos),
+                json_text(donts),
+                f"{example} [{SEED_TAG}]",
+                json_text(reflective_ids[max(0, idx - 1) : idx + 1]),
+                json_text(feedback_episode_ids[idx : idx + 4]),
+                round(0.78 + idx * 0.04, 2),
+                4 + idx,
+                now,
+                (current - timedelta(hours=5 - idx)).isoformat(),
+            ),
+        )
+        procedural_ids.append(int(cur.lastrowid or 0))
+
+    eval_case_ids: list[int] = []
+    eval_specs = [
+        ("assistant", "顾客问 18K 金能不能保证升值？", ["不能承诺", "佩戴价值"], ["保证升值"], "semantic", semantic_ids[0], 3),
+        ("assistant", "顾客说别家同款便宜，怎么回应？", ["核对", "证书"], ["直接降价"], "semantic", semantic_ids[1], 2),
+        ("qa", "销售能否承诺钻石回购收益？", ["不能承诺"], ["稳赚"], "procedural", procedural_ids[0], 3),
+        ("assistant", "长辈送礼推荐第一句话该问什么？", ["佩戴", "预算"], ["一定买"], "semantic", semantic_ids[2], 2),
+    ]
+    for idx, (module, question, must_contain, must_not_contain, memory_type, memory_id, severity) in enumerate(eval_specs, start=1):
+        cur = conn.execute(
+            """
+            INSERT INTO agent_evo_eval_cases (
+                module, question, must_contain, must_not_contain, scope_type, scope_id,
+                severity, source, bound_memory_ids, status, created_at, updated_at
+            ) VALUES (?, ?, ?, ?, 'global', '', ?, 'demo_seed', ?, 'active', ?, ?)
+            """,
+            (
+                module,
+                f"{question} [{SEED_TAG}]",
+                json_text(must_contain),
+                json_text(must_not_contain),
+                severity,
+                json_text([{"type": memory_type, "id": memory_id, "seed_tag": SEED_TAG}]),
+                now,
+                now,
+            ),
+        )
+        eval_case_ids.append(int(cur.lastrowid or 0))
+
+    for idx, case_id in enumerate(eval_case_ids, start=1):
+        status = "failed" if idx == 1 else "passed"
+        conn.execute(
+            """
+            INSERT INTO agent_evo_eval_runs (
+                case_id, module, scope_type, scope_id, question, answer_text, status,
+                failed_checks, bound_memory_ids, triggered_by, created_at
+            ) VALUES (?, ?, 'global', '', ?, ?, ?, ?, ?, 'demo_seed', ?)
+            """,
+            (
+                case_id,
+                "assistant" if idx != 3 else "qa",
+                f"demo eval case {idx} [{SEED_TAG}]",
+                "不能承诺收益，需回到材质、工艺、佩戴价值和售后边界。",
+                status,
+                json_text(["must_not_contain"] if status == "failed" else []),
+                json_text([{"type": "semantic" if idx != 3 else "procedural", "id": semantic_ids[min(idx - 1, len(semantic_ids) - 1)] if idx != 3 else procedural_ids[0], "seed_tag": SEED_TAG}]),
+                (current - timedelta(hours=idx)).isoformat(),
+            ),
+        )
+
+    hit_targets: list[tuple[str, int]] = [("semantic", item) for item in semantic_ids[:6]]
+    hit_targets.extend(("procedural", item) for item in procedural_ids)
+    hit_targets.extend(("reflective", item) for item in reflective_ids[:3])
+    for idx in range(14):
+        username = usernames[idx % len(usernames)]
+        row = user_rows[username]
+        memory_type, memory_id = hit_targets[idx % len(hit_targets)]
+        conn.execute(
+            """
+            INSERT INTO agent_evo_memory_hits (
+                memory_type, memory_id, user_id, module, query_text, score, created_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                memory_type,
+                memory_id,
+                str(row["id"]),
+                module_cycle[idx % len(module_cycle)],
+                f"{SEED_TAG} 命中样本 {idx + 1:02d}: 顾客咨询保值、比价或送礼推荐",
+                round(0.86 - (idx % 5) * 0.03, 3),
+                (current - timedelta(minutes=90 - idx * 4)).isoformat(),
+            ),
+        )
+
+    linked_hit_episode_ids = [episode_ids[0], episode_ids[26], correction_episode_ids[0]]
+    for idx, episode_id in enumerate(linked_hit_episode_ids, start=1):
+        episode = conn.execute(
+            "SELECT user_id, module, query_text FROM agent_evo_episodes WHERE id = ?",
+            (episode_id,),
+        ).fetchone()
+        if not episode:
+            continue
+        conn.execute(
+            """
+            INSERT INTO agent_evo_memory_hits (
+                memory_type, memory_id, user_id, module, query_text, score, created_at
+            ) VALUES ('semantic', ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                semantic_ids[min(idx - 1, len(semantic_ids) - 1)],
+                episode["user_id"],
+                episode["module"],
+                episode["query_text"],
+                round(0.91 - idx * 0.02, 3),
+                (current - timedelta(minutes=20 - idx)).isoformat(),
+            ),
+        )
+
+    promotion_evidence = {
+        "seed_tag": SEED_TAG,
+        "proposal_type": "store_procedural_to_global",
+        "source_memory_ids": procedural_ids,
+        "source_episode_ids": feedback_episode_ids[:8],
+        "scope_ids": ["STORE_GZ", "STORE_BJ"],
+        "hit_count": 11,
+        "required_eval_case_ids": eval_case_ids,
+    }
+    conn.execute(
+        """
+        INSERT INTO agent_evo_promotions (
+            source_memory_type, source_memory_id, current_scope, target_scope, reason,
+            evidence, status, suggested_at, decided_at, decided_by
+        ) VALUES ('procedural', ?, 'store:*', 'global:global', ?, ?, 'pending', ?, NULL, '')
+        """,
+        (
+            procedural_ids[0],
+            f"{SEED_TAG}: 多门店重复命中保值/比价标准话术，建议升级为全局技能规则。",
+            json_text(promotion_evidence),
+            now,
+        ),
+    )
+
+    conn.execute(
+        """
+        INSERT INTO agent_evo_review_queue (
+            target_type, target_id, reason, priority, status, reviewer_id, created_at, reviewed_at
+        ) VALUES ('semantic', ?, ?, 3, 'pending', ?, ?, NULL)
+        """,
+        (
+            semantic_ids[0],
+            f"{SEED_TAG}: 保值类表达涉及高风险承诺词，需管理员复核。",
+            admin_id,
+            now,
+        ),
+    )
+    conn.execute(
+        """
+        INSERT INTO agent_evo_anomalies (
+            anomaly_type, target_type, target_id, severity, status, reason, evidence,
+            created_at, resolved_at, reviewer_id
+        ) VALUES ('negative_feedback_spike', 'semantic', ?, 3, 'open', ?, ?, ?, NULL, 'demo_seed')
+        """,
+        (
+            str(semantic_ids[0]),
+            f"{SEED_TAG}: 保值问题连续出现负反馈，建议复核注入内容。",
+            json_text({"seed_tag": SEED_TAG, "negative_count": 6, "window_hours": 24}),
+            now,
+        ),
+    )
+    for action, target_type, target_id in [
+        ("semantic_write", "semantic", semantic_ids[0]),
+        ("reflective_write", "reflective", reflective_ids[0]),
+        ("procedural_suggest", "procedural", procedural_ids[0]),
+        ("promotion_suggest", "promotion", procedural_ids[0]),
+        ("semantic_candidate_write", "semantic", candidate_semantic_ids[0]),
+        ("semantic_candidate_write", "semantic", candidate_semantic_ids[1]),
+        ("semantic_candidate_write", "semantic", candidate_semantic_ids[2]),
+        ("memory_auto_disabled", "semantic", disabled_semantic_id),
+    ]:
+        conn.execute(
+            """
+            INSERT INTO agent_evo_audit_log (actor, action, target_type, target_id, payload, created_at)
+            VALUES ('seed', ?, ?, ?, ?, ?)
+            """,
+            (
+                action,
+                target_type,
+                str(target_id),
+                json_text({"seed_tag": SEED_TAG, "request_prefix": DEMO_EVO_PREFIX}),
+                now,
+            ),
+        )
+
+    return {
+        "agent_evo_episodes": 40,
+        "agent_evo_semantic": len(semantic_ids) + len(candidate_semantic_ids) + 1,
+        "agent_evo_reflective": len(reflective_ids),
+        "agent_evo_procedural": len(procedural_ids),
+        "agent_evo_eval_cases": len(eval_case_ids),
+        "agent_evo_eval_runs": len(eval_case_ids),
+        "agent_evo_memory_hits": 14 + len(linked_hit_episode_ids),
+        "agent_evo_promotions": 1,
+        "agent_evo_review_queue": 1 + len(candidate_semantic_ids),
+        "agent_evo_anomalies": 1,
+        "agent_evo_audit_log": 8,
+    }
 
 
 def seed_demo_data(db_path: str | Path | None = None, *, verbose: bool = False) -> dict[str, Any]:
@@ -700,12 +1490,37 @@ def seed_demo_data(db_path: str | Path | None = None, *, verbose: bool = False) 
             }
             conn.execute("INSERT INTO assistant_records (record_id, action, employee_id, customer_question, scene_hint, assistant_reply, analysis_json, payload_json, created_at, user_id, store_id, matched_knowledge, question_type, knowledge_tag, risk_level, weak_dimension, training_advice, source_workflow_reply, source_workflow_analyze) VALUES (?, 'analyze', ?, ?, 'store_assistant', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'assistant1', 'assistant2')", (f"{DEMO_ASSISTANT_PREFIX}{idx:03d}", str(row["id"]), f"{case[0]}（演示样本 {idx:03d}）", case[1], json_text(analysis_payload), json_text({"seed_tag": SEED_TAG, "day_index": day_index}), created_at, str(row["id"]), USER_BY_USERNAME[username]["store_id"], case[3], case[2], case[3], case[4], case[5], "建议结合真实案例继续跟进。"))
             assistant_count += 1
+        review_qa_count = 0
+        for idx, spec in enumerate(build_review_notebook_qa_specs(), start=1):
+            row = user_rows[spec["username"]]
+            created_at = story_day_iso(14 + ((idx - 1) % 10), 9 + ((idx - 1) % 6))
+            conn.execute(
+                "INSERT INTO assistant_records (record_id, action, employee_id, customer_question, scene_hint, assistant_reply, analysis_json, payload_json, created_at, user_id, store_id, matched_knowledge, question_type, knowledge_tag, risk_level, weak_dimension, training_advice, source_workflow_reply, source_workflow_analyze) VALUES (?, 'qa', ?, ?, 'knowledge_qa', ?, ?, ?, ?, ?, ?, ?, '知识问答', ?, 'high', ?, ?, 'qa_chat', 'qa_feedback')",
+                (
+                    f"{DEMO_REVIEW_QA_PREFIX}{idx:02d}",
+                    str(row["id"]),
+                    spec["question"],
+                    spec["reply"],
+                    json_text({"seed_tag": SEED_TAG, "source": "review_notebook", "risk_level": "high"}),
+                    json_text({"seed_tag": SEED_TAG, "source": "review_notebook", "review_item": True}),
+                    created_at,
+                    str(row["id"]),
+                    USER_BY_USERNAME[spec["username"]]["store_id"],
+                    spec["knowledge_tag"],
+                    spec["knowledge_tag"],
+                    spec["weak_dimension"],
+                    "加入复盘本，补做知识问答和对应场景对练。",
+                ),
+            )
+            review_qa_count += 1
+        assistant_count += review_qa_count
         summary["inserted"]["assistant_records"] = assistant_count
+        summary["inserted"]["review_notebook_qa_records"] = review_qa_count
 
         task_specs = [{"task_name": "DEMO: 北京门店基础模拟考", "module_code": "product_basics", "store_id": "STORE_BJ", "status": "active", "publish_status": "published", "exam_mode": "ai_blind_box_exam", "publisher": "manager_bj"}, {"task_name": "DEMO: 上海门店成交推进考核", "module_code": "closing_conversion", "store_id": "STORE_SH", "status": "active", "publish_status": "published", "exam_mode": "paper_exam", "publisher": "manager_sh"}, {"task_name": "DEMO: 广州门店异议处理考核", "module_code": "objection_handling", "store_id": "STORE_GZ", "status": "active", "publish_status": "published", "exam_mode": "ai_blind_box_exam", "publisher": "manager_gz"}, {"task_name": "DEMO: 成都门店上岗前试卷", "module_code": "independent_service", "store_id": "STORE_CD", "status": "active", "publish_status": "draft", "exam_mode": "paper_exam", "publisher": "manager_cd"}, {"task_name": "DEMO: 杭州门店归档考试", "module_code": "compliance_expression", "store_id": "STORE_HZ", "status": "archived", "publish_status": "archived", "exam_mode": "paper_exam", "publisher": "manager_hz"}]
         task_ids: list[int] = []
         for task in task_specs:
-            cur = conn.execute("INSERT INTO assessment_tasks (task_name, task_type, task_desc, module_code, paper_config_json, publisher_id, target_scope, deadline, pass_score, status, exam_mode, duration_minutes, score_visibility, publish_status, target_scope_type, paper_generation_status, paper_review_version, paper_source_type, allow_retake, max_attempts, auto_submit_on_timeout, started_notice_text, submitted_notice_text, created_by_role, updated_at, published_at, created_at) VALUES (?, 'assessment', ?, ?, ?, ?, ?, ?, 80.0, ?, ?, 45, 'public', ?, 'store', 'not_needed', 1, 'manual', 1, 2, 1, ?, ?, 'store_manager', ?, ?, ?)", (task["task_name"], f"{task['store_id']} 门店的演示考试任务。", task["module_code"], json_text({"seed_tag": SEED_TAG}), str(user_rows[task["publisher"]]["id"]), task["store_id"], "2026-05-20T18:00:00+00:00", task["status"], task["exam_mode"], task["publish_status"], "请在规定时间内完成。", "已提交，等待阅卷。", now, now if task["publish_status"] == "published" else None, now))
+            cur = conn.execute("INSERT INTO assessment_tasks (task_name, task_type, task_desc, module_code, paper_config_json, publisher_id, target_scope, deadline, pass_score, status, exam_mode, duration_minutes, score_visibility, publish_status, target_scope_type, paper_generation_status, paper_review_version, paper_source_type, allow_retake, max_attempts, auto_submit_on_timeout, started_notice_text, submitted_notice_text, created_by_role, updated_at, published_at, created_at) VALUES (?, 'assessment', ?, ?, ?, ?, ?, ?, 80.0, ?, ?, 45, 'public', ?, 'store', 'not_needed', 1, 'manual', 1, 2, 1, ?, ?, 'store_manager', ?, ?, ?)", (task["task_name"], f"{task['store_id']} 门店的演示考试任务。", task["module_code"], json_text(build_review_paper_config(task["module_code"])), str(user_rows[task["publisher"]]["id"]), task["store_id"], "2026-05-20T18:00:00+00:00", task["status"], task["exam_mode"], task["publish_status"], "请在规定时间内完成。", "已提交，等待阅卷。", now, now if task["publish_status"] == "published" else None, now))
             task_id = int(cur.lastrowid or 0)
             task_ids.append(task_id)
             conn.execute("INSERT INTO assessment_task_targets (task_id, target_type, target_value, created_at) VALUES (?, 'store', ?, ?)", (task_id, task["store_id"], now))
@@ -713,7 +1528,7 @@ def seed_demo_data(db_path: str | Path | None = None, *, verbose: bool = False) 
         summary["inserted"]["assessment_task_targets"] = len(task_ids)
 
         assessment_count = 0
-        assessment_users_by_store = {"STORE_BJ": ["trainee_bj1", "trainee_bj2", "senior_bj1", "manager_bj"], "STORE_SH": ["trainee_sh1", "trainee_sh2", "senior_sh1", "manager_sh"], "STORE_GZ": ["trainee_gz1", "trainee_gz2", "senior_gz1", "manager_gz"], "STORE_CD": ["trainee_cd1", "trainee_cd2", "senior_cd1", "manager_cd"], "STORE_HZ": ["trainee_hz1", "senior_hz1", "manager_hz", "senior_hz1"]}
+        assessment_users_by_store = {"STORE_BJ": ["trainee_bj1", "trainee_bj2", "senior_bj1", "manager_bj"], "STORE_SH": ["trainee_sh1", "trainee_sh2", "senior_sh1", "manager_sh"], "STORE_GZ": ["trainee_gz1", "trainee_gz2", PROTAGONIST_USERNAME, "senior_gz1", "manager_gz"], "STORE_CD": ["trainee_cd1", "trainee_cd2", "senior_cd1", "manager_cd"], "STORE_HZ": ["trainee_hz1", "senior_hz1", "manager_hz", "senior_hz1"]}
         for idx, (task_id, task) in enumerate(zip(task_ids, task_specs), start=1):
             for attempt, username in enumerate(assessment_users_by_store[task["store_id"]], start=1):
                 row = user_rows[username]
@@ -726,7 +1541,8 @@ def seed_demo_data(db_path: str | Path | None = None, *, verbose: bool = False) 
                     if idx == 1 and attempt == 3:
                         submit_status = "in_progress"
                 score = 0.0 if submit_status == "in_progress" else round(70 + ((idx + attempt) % 8) * 4.0, 1)
-                conn.execute("INSERT INTO assessment_records (task_id, user_id, employee_name, conversation_id, scenario_id, score, is_pass, comment, attempt_no, finished_at, score_branch, cycle_day_index, started_at, expires_at, submitted_at, submit_status, score_visibility_snapshot, is_score_visible_to_user, paper_answer_json, paper_result_json, time_spent_seconds, is_timeout, review_source, exam_mode_snapshot, task_version_snapshot) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'assessment', ?, ?, ?, ?, ?, 'public', 1, ?, ?, ?, ?, 'demo_seed', ?, 1)", (task_id, str(row["id"]), USER_BY_USERNAME[username]["name"], f"demo:conversation:{task_id}:{attempt}", f"demo:scenario:{task_id}:{attempt}", score, 1 if score >= 80 and submit_status != "in_progress" else 0, "演示考试记录。", attempt, now, min(7, attempt + 2), now, now, None if submit_status == "in_progress" else now, submit_status, json_text({"seed_tag": SEED_TAG}), json_text({"seed_tag": SEED_TAG, "final_score": score}), 900 + attempt * 120, 1 if submit_status == "timeout_submitted" else 0, task["exam_mode"]))
+                paper_answers = build_review_paper_answers(task["module_code"], wrong_all=score < 80 or username == PROTAGONIST_USERNAME)
+                conn.execute("INSERT INTO assessment_records (task_id, user_id, employee_name, conversation_id, scenario_id, score, is_pass, comment, attempt_no, finished_at, score_branch, cycle_day_index, started_at, expires_at, submitted_at, submit_status, score_visibility_snapshot, is_score_visible_to_user, paper_answer_json, paper_result_json, time_spent_seconds, is_timeout, review_source, exam_mode_snapshot, task_version_snapshot) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'assessment', ?, ?, ?, ?, ?, 'public', 1, ?, ?, ?, ?, 'demo_seed', ?, 1)", (task_id, str(row["id"]), USER_BY_USERNAME[username]["name"], f"demo:conversation:{task_id}:{attempt}", f"demo:scenario:{task_id}:{attempt}", score, 1 if score >= 80 and submit_status != "in_progress" else 0, "演示考试记录，已写入复盘本题目明细。", attempt, now, min(7, attempt + 2), now, now, None if submit_status == "in_progress" else now, submit_status, json_text(paper_answers), json_text({"seed_tag": SEED_TAG, "final_score": score, "review_notebook": True}), 900 + attempt * 120, 1 if submit_status == "timeout_submitted" else 0, task["exam_mode"]))
                 assessment_count += 1
         summary["inserted"]["assessment_records"] = assessment_count
 
@@ -773,6 +1589,8 @@ def seed_demo_data(db_path: str | Path | None = None, *, verbose: bool = False) 
             conn.execute("INSERT INTO query_records (record_id, stage, employee_id, query_text, parsed_intent, payload_json, created_at, store_id, user_query, query_type, params_json, query_result_json, summary_text, source_workflow_parse, source_workflow_summary) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (f"{DEMO_QUERY_PREFIX}{idx + 1:02d}", "parse" if idx % 2 == 0 else "summarize", actor_id, text, query_type, json_text({"seed_tag": SEED_TAG}), now, actor_store_id, text, query_type, json_text({"seed_tag": SEED_TAG}), json_text({"seed_tag": SEED_TAG, "rows": [{"name": "演示员工A"}]}), summary_text, "demo_seed_query_parse", "demo_seed_query_summary"))
             query_count += 1
         summary["inserted"]["query_records"] = query_count
+
+        summary["inserted"].update(_seed_agent_evo(conn, user_rows=user_rows, admin_id=admin_id, now=now))
 
         conn.commit()
         admin_after = fetch_admin_row(conn)

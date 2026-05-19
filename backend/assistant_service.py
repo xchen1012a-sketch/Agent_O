@@ -6,10 +6,12 @@ from datetime import datetime, timezone
 from typing import Any, TypedDict
 
 from api_response import make_request_id
+from database import SessionLocal
 from db_stage3 import get_conn, json_text, upsert_employee_profile
 from dify_client import extract_minimal_text_fields
 from dify_stage4a import run_assistant1_workflow, run_assistant2_workflow
 from dify_stage4b import run_assistant_chat
+from evo.retriever import build_memory_block, inject_memory_block, retrieve_semantic_memories
 from schemas import AssistantReplyResponse
 
 _log = logging.getLogger("jewelry_qipei.assistant_service")
@@ -397,18 +399,53 @@ def build_voice_advice(
     return _normalize_voice_advice(tip)
 
 
+def _query_with_semantic_memory(
+    *,
+    module: str,
+    query_text: str,
+    user_id: str,
+    store_id: str,
+    write_hits: bool = True,
+) -> tuple[str, str]:
+    """Retrieve active evo memory and prepend it to the Dify-facing query."""
+    try:
+        with SessionLocal() as session:
+            hits = retrieve_semantic_memories(
+                session,
+                user_id=user_id,
+                store_id=store_id,
+                module=module,
+                query_text=query_text,
+                write_hits=write_hits,
+            )
+            session.commit()
+        block = build_memory_block(hits)
+    except Exception:
+        _log.exception("semantic memory retrieval failed module=%s user_id=%s", module, user_id)
+        block = ""
+    return inject_memory_block(query_text, block), block
+
+
 def run_assistant1_sync(
     *,
     scene_input: str,
     user_id: str,
     store_id: str,
     conversation_history: str = "",
+    write_memory_hits: bool = True,
 ) -> AssistantReplyRunResult:
     text = (scene_input or "").strip() or "客户对珠宝价值存在疑虑"
+    dify_text, memory_block = _query_with_semantic_memory(
+        module="assistant",
+        query_text=text,
+        user_id=user_id,
+        store_id=store_id,
+        write_hits=write_memory_hits,
+    )
     call = run_assistant1_workflow(
         user_id=user_id,
         store_id=store_id,
-        customer_question=text,
+        customer_question=dify_text,
         product_name="",
         customer_profile="",
         use_scene="store_assistant",
@@ -434,10 +471,24 @@ def run_assistant1_sync(
         coach_tip = build_coach_tip(
             scene_input=text,
             reply_script=reply_script,
-            matched_knowledge=str(wf_data.get("matched_knowledge") or "").strip(),
+            matched_knowledge="\n".join(
+                item
+                for item in [
+                    str(wf_data.get("matched_knowledge") or "").strip(),
+                    memory_block,
+                ]
+                if item
+            ),
             reply_compliance_tag=str(wf_data.get("reply_compliance_tag") or "safe").strip(),
         )
-        matched_knowledge = str(wf_data.get("matched_knowledge") or "").strip()
+        matched_knowledge = "\n".join(
+            item
+            for item in [
+                str(wf_data.get("matched_knowledge") or "").strip(),
+                memory_block,
+            ]
+            if item
+        )
         reply_compliance_tag = str(wf_data.get("reply_compliance_tag") or "safe").strip() or "safe"
         return {
             "response": AssistantReplyResponse(
@@ -469,7 +520,7 @@ def run_assistant1_sync(
         "workflow_reason": reason or "fallback_local_reply",
         "dify_error": str(call.get("error") or "").strip(),
         "reply_compliance_tag": "safe",
-        "matched_knowledge": "",
+        "matched_knowledge": memory_block,
     }
 
 
@@ -488,10 +539,16 @@ def run_assistant_chat_sync(
 ) -> AssistantReplyRunResult:
     """在岗助手 chat 模式：调用 Dify chat API，提取 turn_feedback，回退到本地 fallback。"""
     text = (scene_input or "").strip() or "客户对珠宝价值存在疑虑"
+    dify_text, memory_block = _query_with_semantic_memory(
+        module="assistant",
+        query_text=text,
+        user_id=user_id,
+        store_id=store_id,
+    )
     call = run_assistant_chat(
         user_id=user_id,
-        query=text,
-        scene_input=text,
+        query=dify_text,
+        scene_input=dify_text,
         conversation_id=conversation_id,
     )
 
@@ -510,7 +567,7 @@ def run_assistant_chat_sync(
             "workflow_reason": str(call.get("reason") or "").strip() or "chat_failed",
             "dify_error": str(call.get("error") or "").strip(),
             "reply_compliance_tag": "safe",
-            "matched_knowledge": "",
+            "matched_knowledge": memory_block,
         }
 
     data = call.get("data") if isinstance(call.get("data"), dict) else {}
@@ -531,20 +588,20 @@ def run_assistant_chat_sync(
             "workflow_reason": "invalid_reply_script",
             "dify_error": "",
             "reply_compliance_tag": "safe",
-            "matched_knowledge": "",
+            "matched_knowledge": memory_block,
         }
 
     coach_tip = build_coach_tip(
         scene_input=text,
         reply_script=reply_script,
-        matched_knowledge="",
+        matched_knowledge=memory_block,
         reply_compliance_tag="safe",
     )
     old_voice_advice = build_voice_advice(
         coach_tip=coach_tip,
         scene_input=text,
         reply_script=reply_script,
-        matched_knowledge="",
+        matched_knowledge=memory_block,
         reply_compliance_tag="safe",
     )
 
@@ -573,7 +630,7 @@ def run_assistant_chat_sync(
         "workflow_reason": "",
         "dify_error": "",
         "reply_compliance_tag": "safe",
-        "matched_knowledge": "",
+        "matched_knowledge": memory_block,
     }
 
 

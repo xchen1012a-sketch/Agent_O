@@ -1,0 +1,2222 @@
+app:
+  description: 问答1｜纯知识问答工作流（放宽版：支持轻交互回复、检索前LLM预判、红线拒答、有库回答、无库LLM兜底、数据引导与无法回答收口）
+  icon: 📘
+  icon_background: '#D9F7BE'
+  icon_type: emoji
+  mode: workflow
+  name: 问答1_知识问答工作流
+  use_icon_as_answer_icon: false
+dependencies:
+- current_identifier: null
+  type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: langgenius/tongyi:0.1.32@20a5454088fa017b72490e1cbaeebff21094d11b13e41197591734d1c08cdbb5
+    version: null
+kind: app
+version: 0.6.0
+workflow:
+  conversation_variables: []
+  environment_variables: []
+  features:
+    file_upload:
+      allowed_file_extensions:
+      - .JPG
+      - .JPEG
+      - .PNG
+      - .GIF
+      - .WEBP
+      - .SVG
+      allowed_file_types:
+      - image
+      allowed_file_upload_methods:
+      - local_file
+      - remote_url
+      enabled: false
+      fileUploadConfig:
+        attachment_image_file_size_limit: 2
+        audio_file_size_limit: 50
+        batch_count_limit: 5
+        file_size_limit: 15
+        file_upload_limit: 50
+        image_file_batch_limit: 10
+        image_file_size_limit: 10
+        single_chunk_attachment_limit: 10
+        video_file_size_limit: 100
+        workflow_file_upload_limit: 10
+      image:
+        enabled: false
+        number_limits: 3
+        transfer_methods:
+        - local_file
+        - remote_url
+      number_limits: 3
+    opening_statement: ''
+    retriever_resource:
+      enabled: true
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions: []
+    suggested_questions_after_answer:
+      enabled: false
+    text_to_speech:
+      enabled: false
+      language: ''
+      voice: ''
+  graph:
+    edges:
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: start
+        targetType: llm
+      id: start_node-normalize_llm-source
+      source: start_node
+      sourceHandle: source
+      target: normalize_llm
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: llm
+        targetType: code
+      id: normalize_llm-normalize_parser-source
+      source: normalize_llm
+      sourceHandle: source
+      target: normalize_parser
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: llm
+        targetType: code
+      id: classify_llm-classify_parser-source
+      source: classify_llm
+      sourceHandle: source
+      target: classify_parser
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: if-else
+      id: classify_parser-if_is_knowledge-source
+      source: classify_parser
+      sourceHandle: source
+      target: if_is_knowledge
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: if-else
+        targetType: if-else
+      id: if_is_knowledge-if_is_data_query-false
+      source: if_is_knowledge
+      sourceHandle: 'false'
+      target: if_is_data_query
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: if-else
+        targetType: code
+      id: if_is_data_query-redirect_builder-true
+      source: if_is_data_query
+      sourceHandle: 'true'
+      target: redirect_builder
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: if-else
+        targetType: code
+      id: if_is_data_query-unsupported_builder-false
+      source: if_is_data_query
+      sourceHandle: 'false'
+      target: unsupported_builder
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: end
+      id: redirect_builder-end_redirect-source
+      source: redirect_builder
+      sourceHandle: source
+      target: end_redirect
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: llm
+        targetType: code
+      id: answer_llm-answer_parser-source
+      source: answer_llm
+      sourceHandle: source
+      target: answer_parser
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: llm
+      id: answer_parser-related_llm-source
+      source: answer_parser
+      sourceHandle: source
+      target: related_llm
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: llm
+        targetType: code
+      id: related_llm-related_parser-source
+      source: related_llm
+      sourceHandle: source
+      target: related_parser
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: code
+      id: related_parser-format_output-source
+      source: related_parser
+      sourceHandle: source
+      target: format_output
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: if-else
+      id: format_output-if_answer_normal-source
+      source: format_output
+      sourceHandle: source
+      target: if_answer_normal
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: if-else
+        targetType: end
+      id: if_answer_normal-end_normal-true
+      source: if_answer_normal
+      sourceHandle: 'true'
+      target: end_normal
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: if-else
+        targetType: code
+      id: if_answer_normal-cannot_answer_mux-false
+      source: if_answer_normal
+      sourceHandle: 'false'
+      target: cannot_answer_mux
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: code
+      id: unsupported_builder-cannot_answer_mux-source
+      source: unsupported_builder
+      sourceHandle: source
+      target: cannot_answer_mux
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: end
+      id: cannot_answer_mux-end_cannot-source
+      source: cannot_answer_mux
+      sourceHandle: source
+      target: end_cannot
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: if-else
+        targetType: llm
+      id: if_is_knowledge-precheck_llm-true
+      source: if_is_knowledge
+      sourceHandle: 'true'
+      target: precheck_llm
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: llm
+        targetType: code
+      id: precheck_llm-precheck_parser-source
+      source: precheck_llm
+      sourceHandle: source
+      target: precheck_parser
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: if-else
+      id: precheck_parser-if_is_redline-source
+      source: precheck_parser
+      sourceHandle: source
+      target: if_is_redline
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: if-else
+        targetType: code
+      id: if_is_redline-redline_builder-true
+      source: if_is_redline
+      sourceHandle: 'true'
+      target: redline_builder
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: if-else
+        targetType: knowledge-retrieval
+      id: if_is_redline-knowledge_node-false
+      source: if_is_redline
+      sourceHandle: 'false'
+      target: knowledge_node
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: knowledge-retrieval
+        targetType: code
+      id: knowledge_node-knowledge_merge-source
+      source: knowledge_node
+      sourceHandle: source
+      target: knowledge_merge
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: if-else
+      id: knowledge_merge-if_no_hit-source
+      source: knowledge_merge
+      sourceHandle: source
+      target: if_no_hit
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: if-else
+        targetType: llm
+      id: if_no_hit-nohit_llm-true
+      source: if_no_hit
+      sourceHandle: 'true'
+      target: nohit_llm
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: if-else
+        targetType: llm
+      id: if_no_hit-answer_llm-false
+      source: if_no_hit
+      sourceHandle: 'false'
+      target: answer_llm
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: llm
+        targetType: code
+      id: nohit_llm-nohit_parser-source
+      source: nohit_llm
+      sourceHandle: source
+      target: nohit_parser
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: code
+      id: nohit_parser-cannot_answer_mux-source
+      source: nohit_parser
+      sourceHandle: source
+      target: cannot_answer_mux
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: code
+      id: redline_builder-cannot_answer_mux-source
+      source: redline_builder
+      sourceHandle: source
+      target: cannot_answer_mux
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: code
+      id: normalize_parser-light_interaction_parser-source
+      source: normalize_parser
+      sourceHandle: source
+      target: light_interaction_parser
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: if-else
+      id: light_interaction_parser-if_is_light_interaction-source
+      source: light_interaction_parser
+      sourceHandle: source
+      target: if_is_light_interaction
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: if-else
+        targetType: code
+      id: if_is_light_interaction-light_interaction_builder-true
+      source: if_is_light_interaction
+      sourceHandle: 'true'
+      target: light_interaction_builder
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: if-else
+        targetType: llm
+      id: if_is_light_interaction-classify_llm-false
+      source: if_is_light_interaction
+      sourceHandle: 'false'
+      target: classify_llm
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: code
+      id: light_interaction_builder-format_output-source
+      source: light_interaction_builder
+      sourceHandle: source
+      target: format_output
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    nodes:
+    - data:
+        desc: 知识问答模块入口，接收当前问题与多轮上下文。
+        selected: false
+        title: Start
+        type: start
+        variables:
+        - label: 用户问题
+          max_length: 3000
+          options: []
+          required: true
+          type: paragraph
+          variable: question
+        - label: 多轮上下文
+          max_length: 6000
+          options: []
+          required: true
+          type: paragraph
+          variable: conversation_history
+        - label: 用户ID
+          max_length: 128
+          options: []
+          required: false
+          type: text-input
+          variable: user_id
+        - label: 角色
+          max_length: 64
+          options: []
+          required: false
+          type: text-input
+          variable: role
+        - label: 门店ID
+          max_length: 64
+          options: []
+          required: false
+          type: text-input
+          variable: store_id
+      height: 257
+      id: start_node
+      position:
+        x: 0
+        y: 305
+      positionAbsolute:
+        x: 0
+        y: 305
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        desc: 结合多轮上下文把当前问题补全成可独立检索的一句话。
+        memory:
+          role_prefix:
+            assistant: ''
+            user: ''
+          window:
+            enabled: false
+            size: 10
+        model:
+          completion_params:
+            max_tokens: 220
+            temperature: 0.1
+          mode: chat
+          name: qwen-plus
+          provider: langgenius/tongyi/tongyi
+        prompt_template:
+        - id: normalize-system
+          role: system
+          text: "你是一个问题归一化助手。\n\n任务：\n1. 阅读当前问题 question。\n2. 结合 conversation_history，补全代词、省略主语、省略对象。\n\
+            3. 输出一个完整、独立、自然的中文问题。\n\n要求：\n- 只做补全，不要扩写成长答案。\n- 不要添加不存在的事实。\n- 如果当前问题已经完整，原样返回。\n\
+            - 不要把知识问答改写成数据查询。\n- 结果必须是一句完整中文问题。\n- 只输出 JSON，不要解释，不要代码块。\n\n输出 Schema：\n\
+            {\n  \"normalized_question\": \"\"\n}"
+        - id: normalize-user
+          role: user
+          text: '请归一化下面的问题。
+
+
+            【当前问题】
+
+            {{#start_node.question#}}
+
+
+            【多轮上下文】
+
+            {{#start_node.conversation_history#}}'
+        selected: false
+        title: 问题归一化
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 132
+      id: normalize_llm
+      position:
+        x: 342
+        y: 368
+      positionAbsolute:
+        x: 342
+        y: 368
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "import json\nimport re\n\ndef _extract_json(text: str) -> dict:\n \
+          \   raw = str(text or '').strip()\n    raw = re.sub(r'^```json\\s*', '',\
+          \ raw, flags=re.I)\n    raw = re.sub(r'^```\\s*', '', raw)\n    raw = re.sub(r'\\\
+          s*```$', '', raw)\n    if not raw:\n        return {}\n    try:\n      \
+          \  data = json.loads(raw)\n        return data if isinstance(data, dict)\
+          \ else {}\n    except Exception:\n        pass\n    m = re.search(r'\\{[\\\
+          s\\S]*\\}', raw)\n    if m:\n        try:\n            data = json.loads(m.group(0))\n\
+          \            return data if isinstance(data, dict) else {}\n        except\
+          \ Exception:\n            pass\n    return {}\n\n\ndef main(llm_text: str\
+          \ = '', question: str = '') -> dict:\n    data = _extract_json(llm_text)\n\
+          \    normalized_question = str(data.get('normalized_question') or '').strip()\n\
+          \    if not normalized_question:\n        normalized_question = str(question\
+          \ or '').strip()\n    normalized_question = re.sub(r'\\s+', ' ', normalized_question).strip()\n\
+          \    if not normalized_question:\n        normalized_question = '当前问题表述不完整，请补充具体产品知识、销售话术或系统使用问题。'\n\
+          \    return {'normalized_question': normalized_question}"
+        code_language: python3
+        desc: 解析归一化结果，保证输出字段稳定。
+        outputs:
+          normalized_question:
+            type: string
+        selected: false
+        title: 归一化结果解析
+        type: code
+        variables:
+        - value_selector:
+          - normalize_llm
+          - text
+          variable: llm_text
+        - value_selector:
+          - start_node
+          - question
+          variable: question
+      height: 80
+      id: normalize_parser
+      position:
+        x: 684
+        y: 394
+      positionAbsolute:
+        x: 684
+        y: 394
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "import re\n\ndef _clean(text: str) -> str:\n    t = str(text or '').strip()\n\
+          \    t = re.sub(r'[\\s\\u3000]+', '', t)\n    t = re.sub(r'[。！？!?，,、~～…\\\
+          .]+$', '', t)\n    return t.lower()\n\ndef main(normalized_question: str\
+          \ = '', question: str = '') -> dict:\n    raw = _clean(normalized_question\
+          \ or question)\n    if not raw:\n        return {'is_light_interaction':\
+          \ 'no', 'interaction_type': 'none'}\n\n    greeting = {\n        '你好', '您好',\
+          \ '哈喽', 'hello', 'hi', '嗨', '在吗', '在嘛', '在么', '有人吗', '在不在', '早上好', '下午好',\
+          \ '晚上好'\n    }\n    thanks = {'谢谢', '多谢', '感谢', '谢了', '辛苦了', '麻烦了'}\n  \
+          \  ack = {'好的', '好的收到', '收到', '明白了', '懂了', '知道了', 'ok', 'okay', '嗯嗯', '好滴'}\n\
+          \    closing = {'再见', '拜拜', '先这样', '没有了', '没事了', '先到这', '先这样吧'}\n\n    interaction_type\
+          \ = 'none'\n    if raw in greeting:\n        interaction_type = 'greeting'\n\
+          \    elif raw in thanks:\n        interaction_type = 'thanks'\n    elif\
+          \ raw in ack:\n        interaction_type = 'ack'\n    elif raw in closing:\n\
+          \        interaction_type = 'closing'\n    elif len(raw) <= 8 and re.fullmatch(r'(你好啊|您好呀|哈喽呀|谢谢你|谢谢啦|好的呢|收到啦|拜拜啦)',\
+          \ raw):\n        if '谢' in raw:\n            interaction_type = 'thanks'\n\
+          \        elif '拜' in raw or '再见' in raw:\n            interaction_type =\
+          \ 'closing'\n        elif '好' in raw or '收到' in raw:\n            interaction_type\
+          \ = 'ack'\n        else:\n            interaction_type = 'greeting'\n\n\
+          \    return {\n        'is_light_interaction': 'yes' if interaction_type\
+          \ != 'none' else 'no',\n        'interaction_type': interaction_type\n \
+          \   }"
+        code_language: python3
+        desc: 识别问候、致谢、简单确认、结束语等轻交互；只放宽这些，不放宽红线和数据边界。
+        outputs:
+          interaction_type:
+            type: string
+          is_light_interaction:
+            type: string
+        selected: false
+        title: 轻交互识别
+        type: code
+        variables:
+        - value_selector:
+          - normalize_parser
+          - normalized_question
+          variable: normalized_question
+        - value_selector:
+          - start_node
+          - question
+          variable: question
+      height: 112
+      id: light_interaction_parser
+      position:
+        x: 1026
+        y: 378
+      positionAbsolute:
+        x: 1026
+        y: 378
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        cases:
+        - case_id: 'true'
+          conditions:
+          - comparison_operator: is
+            id: light-interaction-cond-1
+            value: 'yes'
+            varType: string
+            variable_selector:
+            - light_interaction_parser
+            - is_light_interaction
+          id: 'true'
+          logical_operator: and
+        desc: 轻交互直接友好回复；其他问题继续进入原有分类、红线与知识检索链路。
+        selected: false
+        title: 是否轻交互
+        type: if-else
+      height: 192
+      id: if_is_light_interaction
+      position:
+        x: 1368
+        y: 338
+      positionAbsolute:
+        x: 1368
+        y: 338
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "def main(interaction_type: str = '') -> dict:\n    t = str(interaction_type\
+          \ or '').strip()\n    mapping = {\n        'greeting': '你好，我可以帮你解答产品知识、销售话术、合规边界和系统使用问题。你想先问哪一类？',\n\
+          \        'thanks': '不客气。你还可以继续问产品知识、销售接待话术、合规边界或系统使用说明。',\n        'ack':\
+          \ '好，已收到。你可以继续说具体问题，我会按知识问答规则为你处理。',\n        'closing': '好的，那先到这里。后续你还可以继续来问产品知识、销售话术或系统使用问题。',\n\
+          \    }\n    answer_text = mapping.get(t) or '你好，你可以继续问产品知识、销售话术、合规边界或系统使用问题。'\n\
+          \    return {\n        'answer_text': answer_text,\n        'related_questions':\
+          \ [\n            '钻石4C怎么给客户解释更容易听懂？',\n            '顾客说再考虑一下时，怎么回应更合适？',\n\
+          \            '在岗助手和一句话查询分别适合做什么？'\n        ],\n        'answer_mode': 'knowledge_answer',\n\
+          \        'matched_topics': '',\n        'risk_tag': 'safe',\n        'confidence_level':\
+          \ 'high',\n        'refuse_reason': ''\n    }"
+        code_language: python3
+        desc: 对轻交互给出简短自然回复，并把用户拉回知识问答范围。
+        outputs:
+          answer_mode:
+            type: string
+          answer_text:
+            type: string
+          confidence_level:
+            type: string
+          matched_topics:
+            type: string
+          refuse_reason:
+            type: string
+          related_questions:
+            type: array[string]
+          risk_tag:
+            type: string
+        selected: false
+        title: 轻交互回复构造
+        type: code
+        variables:
+        - value_selector:
+          - light_interaction_parser
+          - interaction_type
+          variable: interaction_type
+      height: 96
+      id: light_interaction_builder
+      position:
+        x: 2304
+        y: 268
+      positionAbsolute:
+        x: 2304
+        y: 268
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        desc: 严格把非轻交互问题分成知识问答、数据查询、其他不支持三类。
+        memory:
+          role_prefix:
+            assistant: ''
+            user: ''
+          window:
+            enabled: false
+            size: 10
+        model:
+          completion_params:
+            max_tokens: 180
+            temperature: 0.1
+          mode: chat
+          name: qwen-plus
+          provider: langgenius/tongyi/tongyi
+        prompt_template:
+        - id: classify-system
+          role: system
+          text: "你是 Agent_O 的问题分类器。\n\n请将 normalized_question 只分类为以下三类之一：\n- knowledge：知识库问答、产品知识、销售话术、合规边界、系统说明\n\
+            - data_query：需要读取业务数据、排行、风险、门店经营、员工表现、培训指标的问题\n- other_unsupported：与系统定位无关或超出边界的问题\n\
+            \n必须遵守：\n- 只要涉及“谁最好/谁最差/排行/门店数据/员工表现/风险/完成率/趋势/近7天/近30天”等数据分析意图，一律归类为\
+            \ data_query。\n- 不要把数据问题误判为知识问答。\n- 只输出 JSON，不要解释，不要代码块。\n\n输出 Schema：\n\
+            {\n  \"question_category\": \"knowledge | data_query | other_unsupported\"\
+            ,\n  \"category_reason\": \"\"\n}"
+        - id: classify-user
+          role: user
+          text: '请对下面的问题做分类。
+
+
+            【归一化问题】
+
+            {{#normalize_parser.normalized_question#}}'
+        selected: false
+        title: 问题分类器
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 132
+      id: classify_llm
+      position:
+        x: 1730
+        y: 426
+      positionAbsolute:
+        x: 1730
+        y: 426
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "import json\nimport re\n\ndef _extract_json(text: str) -> dict:\n \
+          \   raw = str(text or '').strip()\n    raw = re.sub(r'^```json\\s*', '',\
+          \ raw, flags=re.I)\n    raw = re.sub(r'^```\\s*', '', raw)\n    raw = re.sub(r'\\\
+          s*```$', '', raw)\n    if not raw:\n        return {}\n    try:\n      \
+          \  data = json.loads(raw)\n        return data if isinstance(data, dict)\
+          \ else {}\n    except Exception:\n        pass\n    m = re.search(r'\\{[\\\
+          s\\S]*\\}', raw)\n    if m:\n        try:\n            data = json.loads(m.group(0))\n\
+          \            return data if isinstance(data, dict) else {}\n        except\
+          \ Exception:\n            pass\n    return {}\n\n\ndef main(llm_text: str\
+          \ = '', normalized_question: str = '') -> dict:\n    data = _extract_json(llm_text)\n\
+          \    category = str(data.get('question_category') or '').strip().lower()\n\
+          \    reason = str(data.get('category_reason') or '').strip()\n    if category\
+          \ not in {'knowledge', 'data_query', 'other_unsupported'}:\n        text\
+          \ = normalized_question or ''\n        if re.search(r'谁最好|谁最差|排行|门店|业绩|高风险|完成率|近\\\
+          d+天|近一周|近一月|趋势|数据', text):\n            category = 'data_query'\n      \
+          \      reason = reason or '包含业务数据查询意图'\n        else:\n            category\
+          \ = 'knowledge'\n            reason = reason or '默认按知识问答处理'\n    if not\
+          \ reason:\n        default_reason = {\n            'knowledge': '属于知识问答范围',\n\
+          \            'data_query': '属于业务数据查询',\n            'other_unsupported':\
+          \ '超出知识问答定位'\n        }\n        reason = default_reason.get(category, '分类完成')\n\
+          \    return {\n        'question_category': category,\n        'category_reason':\
+          \ reason,\n    }"
+        code_language: python3
+        desc: 稳定解析分类结果，避免分类字段抖动。
+        outputs:
+          category_reason:
+            type: string
+          question_category:
+            type: string
+        selected: false
+        title: 分类结果解析
+        type: code
+        variables:
+        - value_selector:
+          - classify_llm
+          - text
+          variable: llm_text
+        - value_selector:
+          - normalize_parser
+          - normalized_question
+          variable: normalized_question
+      height: 96
+      id: classify_parser
+      position:
+        x: 2072
+        y: 444
+      positionAbsolute:
+        x: 2072
+        y: 444
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        cases:
+        - case_id: 'true'
+          conditions:
+          - comparison_operator: is
+            id: knowledge-cond-1
+            value: knowledge
+            varType: string
+            variable_selector:
+            - classify_parser
+            - question_category
+          id: 'true'
+          logical_operator: and
+        desc: 知识问答进入检索链路，其他类型继续分流。
+        selected: false
+        title: 是否为知识问答
+        type: if-else
+      height: 192
+      id: if_is_knowledge
+      position:
+        x: 2414
+        y: 396
+      positionAbsolute:
+        x: 2414
+        y: 396
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        cases:
+        - case_id: 'true'
+          conditions:
+          - comparison_operator: is
+            id: data-query-cond-1
+            value: data_query
+            varType: string
+            variable_selector:
+            - classify_parser
+            - question_category
+          id: 'true'
+          logical_operator: and
+        desc: 数据问题引导到一句话查询，剩余类型走无法回答。
+        selected: false
+        title: 是否为数据查询
+        type: if-else
+      height: 192
+      id: if_is_data_query
+      position:
+        x: 2776
+        y: 212
+      positionAbsolute:
+        x: 2776
+        y: 212
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        dataset_ids:
+        - J3feDEiEmkB+GBiKZO8R//BmAAyH2m2FzEaE1FTYz4nfkghitO6iGOqrsfs2Bsle
+        desc: 按归一化问题检索问答专用知识库，启用重排并返回 5 条。
+        multiple_retrieval_config:
+          reranking_enable: true
+          reranking_mode: reranking_model
+          reranking_model:
+            model: gte-rerank
+            provider: langgenius/tongyi/tongyi
+          top_k: 5
+        query_attachment_selector: []
+        query_variable_selector:
+        - normalize_parser
+        - normalized_question
+        retrieval_mode: multiple
+        selected: false
+        title: 知识检索
+        type: knowledge-retrieval
+      height: 134
+      id: knowledge_node
+      position:
+        x: 3822
+        y: 541
+      positionAbsolute:
+        x: 3822
+        y: 541
+      selected: true
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "import re\n\ndef _clean(v):\n    return re.sub(r'\\s+', ' ', str(v\
+          \ or '')).strip()\n\n\ndef main(normalized_question: str = '', retrieved_docs=None)\
+          \ -> dict:\n    docs = retrieved_docs or []\n    blocks = []\n    titles\
+          \ = []\n    effective_count = 0\n    total_len = 0\n\n    for idx, doc in\
+          \ enumerate(docs[:5], 1):\n        title = ''\n        content = ''\n  \
+          \      score = ''\n        if isinstance(doc, dict):\n            title\
+          \ = _clean(doc.get('title') or doc.get('name') or doc.get('doc_name') or\
+          \ '')\n            content = _clean(doc.get('content') or doc.get('segment')\
+          \ or doc.get('text') or doc.get('page_content') or '')\n            score\
+          \ = _clean(doc.get('score') or doc.get('reranking_score') or '')\n     \
+          \       if not content:\n                metadata = doc.get('metadata')\
+          \ or {}\n                if isinstance(metadata, dict):\n              \
+          \      content = _clean(metadata.get('content') or metadata.get('segment')\
+          \ or '')\n        else:\n            content = _clean(doc)\n\n        if\
+          \ content:\n            effective_count += 1\n            total_len += len(content)\n\
+          \            if title:\n                titles.append(title)\n         \
+          \   prefix = f'片段{idx}'\n            if title:\n                prefix +=\
+          \ f'｜{title}'\n            if score:\n                prefix += f'｜score={score}'\n\
+          \            blocks.append(f'【{prefix}】\\n{content[:900]}')\n\n    titles_unique\
+          \ = []\n    for t in titles:\n        if t and t not in titles_unique:\n\
+          \            titles_unique.append(t)\n\n    if effective_count == 0:\n \
+          \       status = 'no_hit'\n        reason = '未检索到可用知识片段'\n    elif effective_count\
+          \ >= 2 or total_len >= 240:\n        status = 'hit'\n        reason = '检索到可支撑回答的知识片段'\n\
+          \    else:\n        status = 'weak_hit'\n        reason = '检索到少量相关片段，回答需保守'\n\
+          \n    return {\n        'normalized_question_out': _clean(normalized_question),\n\
+          \        'knowledge_context': '\\n\\n'.join(blocks),\n        'knowledge_hit_status':\
+          \ status,\n        'knowledge_reason': reason,\n        'matched_titles_seed':\
+          \ '、'.join(titles_unique[:5]),\n        'retrieved_count': effective_count,\n\
+          \    }"
+        code_language: python3
+        desc: 整理检索片段，判断命中强度并构造可直接给回答节点使用的上下文。
+        outputs:
+          knowledge_context:
+            type: string
+          knowledge_hit_status:
+            type: string
+          knowledge_reason:
+            type: string
+          matched_titles_seed:
+            type: string
+          normalized_question_out:
+            type: string
+          retrieved_count:
+            type: number
+        selected: false
+        title: 检索结果整理
+        type: code
+        variables:
+        - value_selector:
+          - normalize_parser
+          - normalized_question
+          variable: normalized_question
+        - value_selector:
+          - knowledge_node
+          - result
+          variable: retrieved_docs
+      height: 96
+      id: knowledge_merge
+      position:
+        x: 4164
+        y: 560
+      positionAbsolute:
+        x: 4164
+        y: 560
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        desc: 基于知识片段生成正式回答；命中不足时给出保守答复。
+        memory:
+          role_prefix:
+            assistant: ''
+            user: ''
+          window:
+            enabled: false
+            size: 10
+        model:
+          completion_params:
+            max_tokens: 420
+            temperature: 0.1
+          mode: chat
+          name: qwen-plus
+          provider: langgenius/tongyi/tongyi
+        prompt_template:
+        - id: answer-system
+          role: system
+          text: "你是 Agent_O 的知识问答助手。\n\n你的任务是优先基于已提供的知识片段回答用户问题；如果片段弱相关或不足，再判断是否可以用低风险通用知识兜底。\n\n\
+            必须遵守：\n1. 知识片段能支撑时，优先依据片段回答。\n2. 如果片段不足，但问题属于公开通用的产品基础知识、材质特性、日常保养、常见销售沟通或合规表达框架，可以用“通用知识/一般情况下”的口径给出简洁回答。\n\
+            3. 不要编造制度、数据、门店、员工、价格、证书结论或任何内部/实时信息。\n4. 不能输出鉴定结论、法律裁决、收益承诺，也不能回答数据分析类问题。\n\
+            5. 对真伪鉴定、证书真假、价格库存、活动规则、门店制度、员工或经营数据等需要明确依据的问题，才说明当前依据不足，不能给出可靠结论。\n\
+            6. 不要输出“根据知识库”“根据检索结果”“当前知识片段中未提供”“未命中知识库”“以下是回答”等机器化或内部表述。\n7. 回答风格要像门店培训系统中的专业中文助手，简洁、自然、可执行。\n\
+            8. 不要输出 Markdown 表格，不要输出代码块。\n9. 只输出 JSON，不要解释。\n\n输出 Schema：\n{\n  \"draft_answer\": \"\",\n  \"matched_topics\"\
+            : \"\",\n  \"risk_tag\": \"safe | boundary\",\n  \"confidence_level\"\
+            : \"high | medium | low\"\n}"
+        - id: answer-user
+          role: user
+          text: '请回答下面的问题。
+
+
+            【归一化问题】
+
+            {{#knowledge_merge.normalized_question_out#}}
+
+
+            【多轮上下文】
+
+            {{#start_node.conversation_history#}}
+
+
+            【知识命中状态】
+
+            {{#knowledge_merge.knowledge_hit_status#}}
+
+
+            【知识片段】
+
+            {{#knowledge_merge.knowledge_context#}}'
+        selected: false
+        title: 知识问答生成
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 132
+      id: answer_llm
+      position:
+        x: 4868
+        y: 627
+      positionAbsolute:
+        x: 4868
+        y: 627
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "import json\nimport re\n\ndef _extract_json(text: str) -> dict:\n \
+          \   raw = str(text or '').strip()\n    raw = re.sub(r'^```json\\s*', '',\
+          \ raw, flags=re.I)\n    raw = re.sub(r'^```\\s*', '', raw)\n    raw = re.sub(r'\\\
+          s*```$', '', raw)\n    if not raw:\n        return {}\n    try:\n      \
+          \  data = json.loads(raw)\n        return data if isinstance(data, dict)\
+          \ else {}\n    except Exception:\n        pass\n    m = re.search(r'\\{[\\\
+          s\\S]*\\}', raw)\n    if m:\n        try:\n            data = json.loads(m.group(0))\n\
+          \            return data if isinstance(data, dict) else {}\n        except\
+          \ Exception:\n            pass\n    return {}\n\n\ndef _clean(v, default=''):\n\
+          \    s = re.sub(r'\\s+', ' ', str(v or '')).strip()\n    return s if s else\
+          \ default\n\n\ndef main(llm_text: str = '', knowledge_hit_status: str =\
+          \ '', matched_titles_seed: str = '') -> dict:\n    data = _extract_json(llm_text)\n\
+          \    status = _clean(knowledge_hit_status, 'no_hit')\n    draft_answer =\
+          \ _clean(data.get('draft_answer'))\n    matched_topics = _clean(data.get('matched_topics'))\n\
+          \    risk_tag = _clean(data.get('risk_tag')).lower()\n    confidence_level\
+          \ = _clean(data.get('confidence_level')).lower()\n\n    if status == 'no_hit':\n\
+          \        answer_mode = 'cannot_answer'\n        refuse_reason = '知识依据不足'\n\
+          \        draft_answer = draft_answer or '这个问题不在当前知识问答范围内，暂时无法给出可靠回答。你可以改问产品知识、销售话术、合规边界或系统使用说明相关问题。'\n\
+          \        matched_topics = ''\n        risk_tag = 'boundary'\n        confidence_level\
+          \ = 'low'\n    else:\n        answer_mode = 'knowledge_answer'\n       \
+          \ refuse_reason = ''\n        if not draft_answer:\n            draft_answer\
+          \ = '当前可以先按已有知识给出基础说明；如需更细的规则或标准口径，建议继续聚焦具体场景追问。'\n        if not matched_topics:\n\
+          \            matched_topics = matched_titles_seed\n        if risk_tag not\
+          \ in {'safe', 'boundary'}:\n            risk_tag = 'safe' if status == 'hit'\
+          \ else 'boundary'\n        if confidence_level not in {'high', 'medium',\
+          \ 'low'}:\n            confidence_level = 'high' if status == 'hit' else\
+          \ 'medium'\n\n    return {\n        'draft_answer': draft_answer,\n    \
+          \    'matched_topics': matched_topics,\n        'risk_tag': risk_tag,\n\
+          \        'confidence_level': confidence_level,\n        'answer_mode': answer_mode,\n\
+          \        'refuse_reason': refuse_reason,\n    }"
+        code_language: python3
+        desc: 稳定解析回答 JSON，并在知识不足时强制切换到 cannot_answer。
+        outputs:
+          answer_mode:
+            type: string
+          confidence_level:
+            type: string
+          draft_answer:
+            type: string
+          matched_topics:
+            type: string
+          refuse_reason:
+            type: string
+          risk_tag:
+            type: string
+        selected: false
+        title: 回答结果解析
+        type: code
+        variables:
+        - value_selector:
+          - answer_llm
+          - text
+          variable: llm_text
+        - value_selector:
+          - knowledge_merge
+          - knowledge_hit_status
+          variable: knowledge_hit_status
+        - value_selector:
+          - knowledge_merge
+          - matched_titles_seed
+          variable: matched_titles_seed
+      height: 96
+      id: answer_parser
+      position:
+        x: 5210
+        y: 645
+      positionAbsolute:
+        x: 5210
+        y: 645
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        desc: 生成 0~3 条继续追问建议。
+        memory:
+          role_prefix:
+            assistant: ''
+            user: ''
+          window:
+            enabled: false
+            size: 10
+        model:
+          completion_params:
+            max_tokens: 220
+            temperature: 0.2
+          mode: chat
+          name: qwen-plus
+          provider: langgenius/tongyi/tongyi
+        prompt_template:
+        - id: related-system
+          role: system
+          text: "基于当前问题和回答内容，生成 0 到 3 条继续追问建议。\n\n要求：\n- 必须是用户下一步可能会问的自然中文问题。\n- 如果当前是正常知识回答，问题必须和当前知识主题直接相关。\n\
+            - 不要生成数据类问题。\n- 不要生成重复问题。\n- 如果当前是 cannot_answer，可改为给出 2 到 3 条仍属于知识问答范围的可提问示例。\n\
+            - 只输出 JSON，不要解释，不要代码块。\n\n输出 Schema：\n{\n  \"related_questions\": [\"\
+            问题1\", \"问题2\"]\n}"
+        - id: related-user
+          role: user
+          text: '请生成继续追问建议。
+
+
+            【归一化问题】
+
+            {{#knowledge_merge.normalized_question_out#}}
+
+
+            【当前回答】
+
+            {{#answer_parser.draft_answer#}}
+
+
+            【回答模式】
+
+            {{#answer_parser.answer_mode#}}'
+        selected: false
+        title: 追问生成
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 116
+      id: related_llm
+      position:
+        x: 5552
+        y: 635
+      positionAbsolute:
+        x: 5552
+        y: 635
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "import json\nimport re\n\ndef _extract(text: str):\n    raw = str(text\
+          \ or '').strip()\n    raw = re.sub(r'^```json\\s*', '', raw, flags=re.I)\n\
+          \    raw = re.sub(r'^```\\s*', '', raw)\n    raw = re.sub(r'\\s*```$', '',\
+          \ raw)\n    if not raw:\n        return []\n    try:\n        data = json.loads(raw)\n\
+          \        if isinstance(data, dict):\n            data = data.get('related_questions',\
+          \ [])\n        if isinstance(data, list):\n            return data\n   \
+          \ except Exception:\n        pass\n    m = re.search(r'\\[[\\s\\S]*\\]',\
+          \ raw)\n    if m:\n        try:\n            data = json.loads(m.group(0))\n\
+          \            if isinstance(data, list):\n                return data\n \
+          \       except Exception:\n            pass\n    return []\n\n\ndef main(llm_text:\
+          \ str = '', answer_mode: str = '') -> dict:\n    arr = _extract(llm_text)\n\
+          \    out = []\n    for item in arr:\n        q = re.sub(r'\\s+', ' ', str(item\
+          \ or '')).strip()\n        if not q:\n            continue\n        if any(k\
+          \ in q for k in ['排行', '业绩', '完成率', '门店经营', '高风险员工', '近7天', '近30天']) and\
+          \ answer_mode == 'knowledge_answer':\n            continue\n        if q\
+          \ not in out:\n            out.append(q)\n        if len(out) >= 3:\n  \
+          \          break\n    return {'related_questions': out}"
+        code_language: python3
+        desc: 解析追问数组并去重。
+        outputs:
+          related_questions:
+            type: array[string]
+        selected: false
+        title: 追问结果解析
+        type: code
+        variables:
+        - value_selector:
+          - related_llm
+          - text
+          variable: llm_text
+        - value_selector:
+          - answer_parser
+          - answer_mode
+          variable: answer_mode
+      height: 80
+      id: related_parser
+      position:
+        x: 5894
+        y: 653
+      positionAbsolute:
+        x: 5894
+        y: 653
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "def _pick(*vals):\n    for v in vals:\n        if isinstance(v, list)\
+          \ and v:\n            return v\n        if isinstance(v, str) and v.strip():\n\
+          \            return v.strip()\n    return ''\n\ndef main(\n    draft_answer:\
+          \ str = '',\n    related_questions=None,\n    answer_mode: str = '',\n \
+          \   matched_topics: str = '',\n    risk_tag: str = '',\n    confidence_level:\
+          \ str = '',\n    refuse_reason: str = '',\n    light_answer_text: str =\
+          \ '',\n    light_related_questions=None,\n    light_answer_mode: str = '',\n\
+          \    light_matched_topics: str = '',\n    light_risk_tag: str = '',\n  \
+          \  light_confidence_level: str = '',\n    light_refuse_reason: str = ''\n\
+          ) -> dict:\n    final_answer_text = _pick(light_answer_text, draft_answer)\n\
+          \    arr = light_related_questions if isinstance(light_related_questions,\
+          \ list) and light_related_questions else related_questions\n    if not isinstance(arr,\
+          \ list):\n        arr = []\n    out = [str(x).strip() for x in arr if str(x).strip()][:3]\n\
+          \    return {\n        'answer_text': str(final_answer_text or '').strip(),\n\
+          \        'related_questions': out,\n        'answer_mode': str(_pick(light_answer_mode,\
+          \ answer_mode) or '').strip(),\n        'matched_topics': str(_pick(light_matched_topics,\
+          \ matched_topics) or '').strip(),\n        'risk_tag': str(_pick(light_risk_tag,\
+          \ risk_tag) or '').strip(),\n        'confidence_level': str(_pick(light_confidence_level,\
+          \ confidence_level) or '').strip(),\n        'refuse_reason': str(_pick(light_refuse_reason,\
+          \ refuse_reason) or '').strip(),\n    }"
+        code_language: python3
+        desc: 统一知识链路输出字段。
+        outputs:
+          answer_mode:
+            type: string
+          answer_text:
+            type: string
+          confidence_level:
+            type: string
+          matched_topics:
+            type: string
+          refuse_reason:
+            type: string
+          related_questions:
+            type: array[string]
+          risk_tag:
+            type: string
+        selected: false
+        title: 结果整理
+        type: code
+        variables:
+        - value_selector:
+          - answer_parser
+          - draft_answer
+          variable: draft_answer
+        - value_selector:
+          - related_parser
+          - related_questions
+          variable: related_questions
+        - value_selector:
+          - answer_parser
+          - answer_mode
+          variable: answer_mode
+        - value_selector:
+          - answer_parser
+          - matched_topics
+          variable: matched_topics
+        - value_selector:
+          - answer_parser
+          - risk_tag
+          variable: risk_tag
+        - value_selector:
+          - answer_parser
+          - confidence_level
+          variable: confidence_level
+        - value_selector:
+          - answer_parser
+          - refuse_reason
+          variable: refuse_reason
+        - value_selector:
+          - light_interaction_builder
+          - answer_text
+          variable: light_answer_text
+        - value_selector:
+          - light_interaction_builder
+          - related_questions
+          variable: light_related_questions
+        - value_selector:
+          - light_interaction_builder
+          - answer_mode
+          variable: light_answer_mode
+        - value_selector:
+          - light_interaction_builder
+          - matched_topics
+          variable: light_matched_topics
+        - value_selector:
+          - light_interaction_builder
+          - risk_tag
+          variable: light_risk_tag
+        - value_selector:
+          - light_interaction_builder
+          - confidence_level
+          variable: light_confidence_level
+        - value_selector:
+          - light_interaction_builder
+          - refuse_reason
+          variable: light_refuse_reason
+      height: 80
+      id: format_output
+      position:
+        x: 6256
+        y: 252
+      positionAbsolute:
+        x: 6256
+        y: 252
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        cases:
+        - case_id: 'true'
+          conditions:
+          - comparison_operator: is
+            id: answer-mode-cond-1
+            value: knowledge_answer
+            varType: string
+            variable_selector:
+            - format_output
+            - answer_mode
+          id: 'true'
+          logical_operator: and
+        desc: 正常知识回答进入正常结束节点，其余进入无法回答收口。
+        selected: false
+        title: 是否正常回答
+        type: if-else
+      height: 192
+      id: if_answer_normal
+      position:
+        x: 6618
+        y: 140
+      positionAbsolute:
+        x: 6618
+        y: 140
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "def main(category_reason: str = '') -> dict:\n    return {\n      \
+          \  'answer_text': '这个问题不在当前知识问答范围内，暂时无法给出可靠回答。你可以改问产品知识、销售话术、合规边界或系统使用说明相关问题。',\n\
+          \        'related_questions': [\n            '钻石4C怎么给客户解释更容易听懂？',\n    \
+          \        '顾客说再考虑一下时，怎么回应更合适？',\n            '在岗助手和一句话查询分别适合做什么？'\n     \
+          \   ],\n        'answer_mode': 'cannot_answer',\n        'matched_topics':\
+          \ '',\n        'risk_tag': 'boundary',\n        'confidence_level': 'low',\n\
+          \        'refuse_reason': str(category_reason or '超出知识问答边界').strip() or\
+          \ '超出知识问答边界',\n    }"
+        code_language: python3
+        desc: 为 other_unsupported 场景构造固定输出。
+        outputs:
+          answer_mode:
+            type: string
+          answer_text:
+            type: string
+          confidence_level:
+            type: string
+          matched_topics:
+            type: string
+          refuse_reason:
+            type: string
+          related_questions:
+            type: array[string]
+          risk_tag:
+            type: string
+        selected: false
+        title: 无法回答构造
+        type: code
+        variables:
+        - value_selector:
+          - classify_parser
+          - category_reason
+          variable: category_reason
+      height: 96
+      id: unsupported_builder
+      position:
+        x: 3822
+        y: 344
+      positionAbsolute:
+        x: 3822
+        y: 344
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "def main() -> dict:\n    return {\n        'answer_text': '这个问题属于业务数据查询，不属于知识问答范围。你可以去“一句话查询”里继续提问，比如输入“最近30天高风险员工有哪些”或“各门店培训完成率怎么样”。',\n\
+          \        'related_questions': [\n            '最近30天高风险员工有哪些？',\n       \
+          \     '各门店培训完成率怎么样？',\n            '近7天哪些员工需要重点跟进？'\n        ],\n      \
+          \  'answer_mode': 'redirect_to_query',\n        'matched_topics': '',\n\
+          \        'risk_tag': 'redirect',\n        'confidence_level': 'high',\n\
+          \        'refuse_reason': '属于数据查询，请转一句话查询模块',\n    }"
+        code_language: python3
+        desc: 为数据查询问题构造固定引导文案。
+        outputs:
+          answer_mode:
+            type: string
+          answer_text:
+            type: string
+          confidence_level:
+            type: string
+          matched_topics:
+            type: string
+          refuse_reason:
+            type: string
+          related_questions:
+            type: array[string]
+          risk_tag:
+            type: string
+        selected: false
+        title: 引导查询构造
+        type: code
+        variables: []
+      height: 80
+      id: redirect_builder
+      position:
+        x: 3138
+        y: 191
+      positionAbsolute:
+        x: 3138
+        y: 191
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "def _pick(*values):\n    for v in values:\n        if isinstance(v,\
+          \ list) and v:\n            return v\n        if isinstance(v, str) and\
+          \ v.strip():\n            return v.strip()\n    return ''\n\n\ndef main(\n\
+          \    kb_answer_text: str = '',\n    kb_related_questions=None,\n    kb_answer_mode:\
+          \ str = '',\n    kb_matched_topics: str = '',\n    kb_risk_tag: str = '',\n\
+          \    kb_confidence_level: str = '',\n    kb_refuse_reason: str = '',\n \
+          \   unsupported_answer_text: str = '',\n    unsupported_related_questions=None,\n\
+          \    unsupported_answer_mode: str = '',\n    unsupported_matched_topics:\
+          \ str = '',\n    unsupported_risk_tag: str = '',\n    unsupported_confidence_level:\
+          \ str = '',\n    unsupported_refuse_reason: str = '',\n    redline_answer_text:\
+          \ str = '',\n    redline_related_questions=None,\n    redline_answer_mode:\
+          \ str = '',\n    redline_matched_topics: str = '',\n    redline_risk_tag:\
+          \ str = '',\n    redline_confidence_level: str = '',\n    redline_refuse_reason:\
+          \ str = '',\n    nohit_answer_text: str = '',\n    nohit_related_questions=None,\n\
+          \    nohit_answer_mode: str = '',\n    nohit_matched_topics: str = '',\n\
+          \    nohit_risk_tag: str = '',\n    nohit_confidence_level: str = '',\n\
+          \    nohit_refuse_reason: str = ''\n) -> dict:\n    answer_mode = _pick(redline_answer_mode,\
+          \ nohit_answer_mode, kb_answer_mode, unsupported_answer_mode) or 'cannot_answer'\n\
+          \    related = _pick(redline_related_questions or [], nohit_related_questions\
+          \ or [], kb_related_questions or [], unsupported_related_questions or [])\n\
+          \    if not isinstance(related, list):\n        related = []\n    return\
+          \ {\n        'answer_text': _pick(redline_answer_text, nohit_answer_text,\
+          \ kb_answer_text, unsupported_answer_text),\n        'related_questions':\
+          \ [str(x).strip() for x in related if str(x).strip()][:3],\n        'answer_mode':\
+          \ answer_mode,\n        'matched_topics': _pick(redline_matched_topics,\
+          \ nohit_matched_topics, kb_matched_topics, unsupported_matched_topics),\n\
+          \        'risk_tag': _pick(redline_risk_tag, nohit_risk_tag, kb_risk_tag,\
+          \ unsupported_risk_tag) or 'boundary',\n        'confidence_level': _pick(redline_confidence_level,\
+          \ nohit_confidence_level, kb_confidence_level, unsupported_confidence_level)\
+          \ or 'low',\n        'refuse_reason': _pick(redline_refuse_reason, nohit_refuse_reason,\
+          \ kb_refuse_reason, unsupported_refuse_reason) or '知识依据不足',\n    }\n"
+        code_language: python3
+        desc: 汇总检索不足与超出边界两类无法回答输出。
+        outputs:
+          answer_mode:
+            type: string
+          answer_text:
+            type: string
+          confidence_level:
+            type: string
+          matched_topics:
+            type: string
+          refuse_reason:
+            type: string
+          related_questions:
+            type: array[string]
+          risk_tag:
+            type: string
+        selected: false
+        title: 无法回答汇总
+        type: code
+        variables:
+        - value_selector:
+          - format_output
+          - answer_text
+          variable: kb_answer_text
+        - value_selector:
+          - format_output
+          - related_questions
+          variable: kb_related_questions
+        - value_selector:
+          - format_output
+          - answer_mode
+          variable: kb_answer_mode
+        - value_selector:
+          - format_output
+          - matched_topics
+          variable: kb_matched_topics
+        - value_selector:
+          - format_output
+          - risk_tag
+          variable: kb_risk_tag
+        - value_selector:
+          - format_output
+          - confidence_level
+          variable: kb_confidence_level
+        - value_selector:
+          - format_output
+          - refuse_reason
+          variable: kb_refuse_reason
+        - value_selector:
+          - unsupported_builder
+          - answer_text
+          variable: unsupported_answer_text
+        - value_selector:
+          - unsupported_builder
+          - related_questions
+          variable: unsupported_related_questions
+        - value_selector:
+          - unsupported_builder
+          - answer_mode
+          variable: unsupported_answer_mode
+        - value_selector:
+          - unsupported_builder
+          - matched_topics
+          variable: unsupported_matched_topics
+        - value_selector:
+          - unsupported_builder
+          - risk_tag
+          variable: unsupported_risk_tag
+        - value_selector:
+          - unsupported_builder
+          - confidence_level
+          variable: unsupported_confidence_level
+        - value_selector:
+          - unsupported_builder
+          - refuse_reason
+          variable: unsupported_refuse_reason
+        - value_selector:
+          - redline_builder
+          - answer_text
+          variable: redline_answer_text
+        - value_selector:
+          - redline_builder
+          - related_questions
+          variable: redline_related_questions
+        - value_selector:
+          - redline_builder
+          - answer_mode
+          variable: redline_answer_mode
+        - value_selector:
+          - redline_builder
+          - matched_topics
+          variable: redline_matched_topics
+        - value_selector:
+          - redline_builder
+          - risk_tag
+          variable: redline_risk_tag
+        - value_selector:
+          - redline_builder
+          - confidence_level
+          variable: redline_confidence_level
+        - value_selector:
+          - redline_builder
+          - refuse_reason
+          variable: redline_refuse_reason
+        - value_selector:
+          - nohit_parser
+          - answer_text
+          variable: nohit_answer_text
+        - value_selector:
+          - nohit_parser
+          - related_questions
+          variable: nohit_related_questions
+        - value_selector:
+          - nohit_parser
+          - answer_mode
+          variable: nohit_answer_mode
+        - value_selector:
+          - nohit_parser
+          - matched_topics
+          variable: nohit_matched_topics
+        - value_selector:
+          - nohit_parser
+          - risk_tag
+          variable: nohit_risk_tag
+        - value_selector:
+          - nohit_parser
+          - confidence_level
+          variable: nohit_confidence_level
+        - value_selector:
+          - nohit_parser
+          - refuse_reason
+          variable: nohit_refuse_reason
+      height: 96
+      id: cannot_answer_mux
+      position:
+        x: 6980
+        y: 324
+      positionAbsolute:
+        x: 6980
+        y: 324
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        desc: ''
+        outputs:
+        - value_selector:
+          - format_output
+          - answer_text
+          variable: answer_text
+        - value_selector:
+          - format_output
+          - related_questions
+          variable: related_questions
+        - value_selector:
+          - format_output
+          - answer_mode
+          variable: answer_mode
+        - value_selector:
+          - format_output
+          - matched_topics
+          variable: matched_topics
+        - value_selector:
+          - format_output
+          - risk_tag
+          variable: risk_tag
+        - value_selector:
+          - format_output
+          - confidence_level
+          variable: confidence_level
+        - value_selector:
+          - format_output
+          - refuse_reason
+          variable: refuse_reason
+        selected: false
+        title: 结束节点_正常回答
+        type: end
+      height: 244
+      id: end_normal
+      position:
+        x: 6980
+        y: 0
+      positionAbsolute:
+        x: 6980
+        y: 0
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        desc: ''
+        outputs:
+        - value_selector:
+          - redirect_builder
+          - answer_text
+          variable: answer_text
+        - value_selector:
+          - redirect_builder
+          - related_questions
+          variable: related_questions
+        - value_selector:
+          - redirect_builder
+          - answer_mode
+          variable: answer_mode
+        - value_selector:
+          - redirect_builder
+          - matched_topics
+          variable: matched_topics
+        - value_selector:
+          - redirect_builder
+          - risk_tag
+          variable: risk_tag
+        - value_selector:
+          - redirect_builder
+          - confidence_level
+          variable: confidence_level
+        - value_selector:
+          - redirect_builder
+          - refuse_reason
+          variable: refuse_reason
+        selected: false
+        title: 结束节点_引导查询
+        type: end
+      height: 244
+      id: end_redirect
+      position:
+        x: 3480
+        y: 109
+      positionAbsolute:
+        x: 3480
+        y: 109
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        desc: ''
+        outputs:
+        - value_selector:
+          - cannot_answer_mux
+          - answer_text
+          variable: answer_text
+        - value_selector:
+          - cannot_answer_mux
+          - related_questions
+          variable: related_questions
+        - value_selector:
+          - cannot_answer_mux
+          - answer_mode
+          variable: answer_mode
+        - value_selector:
+          - cannot_answer_mux
+          - matched_topics
+          variable: matched_topics
+        - value_selector:
+          - cannot_answer_mux
+          - risk_tag
+          variable: risk_tag
+        - value_selector:
+          - cannot_answer_mux
+          - confidence_level
+          variable: confidence_level
+        - value_selector:
+          - cannot_answer_mux
+          - refuse_reason
+          variable: refuse_reason
+        selected: false
+        title: 结束节点_无法回答
+        type: end
+      height: 244
+      id: end_cannot
+      position:
+        x: 7322
+        y: 250
+      positionAbsolute:
+        x: 7322
+        y: 250
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        desc: 先做红线与边界预判；命中红线直接拒答，未命中再进入知识检索。
+        memory:
+          role_prefix:
+            assistant: ''
+            user: ''
+          window:
+            enabled: false
+            size: 10
+        model:
+          completion_params:
+            max_tokens: 220
+            temperature: 0.1
+          mode: chat
+          name: qwen-plus
+          provider: langgenius/tongyi/tongyi
+        prompt_template:
+        - id: precheck_llm-system
+          role: system
+          text: "你是 Agent_O 的知识问答检索前预判器。\n\n你的任务：\n1. 阅读归一化问题与多轮上下文。\n2. 判断当前问题是否明确要求系统执行红线行为。\n\
+            3. 只输出两类路由结论之一：\n- proceed：允许进入知识检索\n- redline：触发红线，必须拒绝回答\n\n判定原则：尽量接收用户文字，边缘命中、合规咨询、风险识别、规范话术、拒绝话术、如何避免违规等问题默认判为\
+            \ proceed，让知识库继续回答。\n\n只有当前问题明确要求系统直接执行以下行为时，才判为 redline：\n- 直接做珠宝真伪鉴定、出确定鉴定结论、替代专业机构判断\n- 要求向顾客承诺保值、升值、收益、稳赚不赔\n\
+            - 要求伪造证书、编造证明、欺骗顾客、刻意隐瞒风险、规避监管\n- 写库、删库、改库、篡改后台数据、绕过权限\n- 明显违法违规、欺诈、误导销售的执行请求\n- 要求输出会伤害品牌合规底线的确定性销售承诺\n\n\
+            必须遵守：\n- 不要把普通产品知识、销售话术、系统说明误判成 redline\n- 不要把“怎么合规表达”“哪些属于高风险”“如何避免误导”“顾客问到保值/真假时怎么回应”判成 redline\n- 不要在这里回答问题，只做路由判断\n- 只输出 JSON，不要解释，不要代码块\n\
+            \n输出 Schema：\n{\n  \"route_decision\": \"proceed | redline\",\n  \"precheck_reason\"\
+            : \"\"\n}\n"
+        - id: precheck_llm-user
+          role: user
+          text: '请对下面的问题做检索前预判。
+
+
+            【归一化问题】
+
+            {{#normalize_parser.normalized_question#}}
+
+
+            【多轮上下文】
+
+            {{#start_node.conversation_history#}}
+
+            '
+        selected: false
+        title: 检索前LLM预判
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 132
+      id: precheck_llm
+      position:
+        x: 2776
+        y: 484
+      positionAbsolute:
+        x: 2776
+        y: 484
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "import json\nimport re\n\ndef _extract_json(text: str) -> dict:\n \
+          \   raw = str(text or '').strip()\n    raw = re.sub(r'^```json\\s*', '',\
+          \ raw, flags=re.I)\n    raw = re.sub(r'^```\\s*', '', raw)\n    raw = re.sub(r'\\\
+          s*```$', '', raw)\n    if not raw:\n        return {}\n    try:\n      \
+          \  data = json.loads(raw)\n        return data if isinstance(data, dict)\
+          \ else {}\n    except Exception:\n        pass\n    m = re.search(r'\\{[\\\
+          s\\S]*\\}', raw)\n    if m:\n        try:\n            data = json.loads(m.group(0))\n\
+          \            return data if isinstance(data, dict) else {}\n        except\
+          \ Exception:\n            pass\n    return {}\n\nALLOW_EDGE_PATTERNS = [\n\
+          \    r'合规', r'规范', r'标准话术', r'拒绝话术', r'怎么说', r'如何说', r'怎么回应', r'如何回答',\n\
+          \    r'怎么解释', r'如何解释', r'哪些.*风险', r'哪些.*高风险', r'避免.*误导', r'避免.*隐瞒',\n\
+          \    r'不要.*承诺', r'不能.*承诺', r'保值吗', r'升值吗', r'能保值', r'能升值', r'顾客问',\n\
+          \    r'真假.*怎么看', r'真伪.*怎么看', r'证书.*怎么看', r'怎么看.*证书', r'边界', r'培训', r'引导.*正规机构', r'建议.*鉴定机构',\n\
+          ]\n\nREDLINE_PATTERNS = [\n\
+          \    r'(帮我|直接|替我|给我|能不能|是否可以).*(鉴定|判断|确认).*(真假|真伪|是真是假|真的假的|真|假)',\n\
+          \    r'(这颗|这件|这个|这个货|这个产品).*(一定|肯定|确定).*(真|假)',\n\
+          \    r'(承诺|保证|告诉顾客|跟顾客说).*(保值|升值|收益|稳赚|稳赚不赔)',\n\
+          \    r'(伪造|造假|编造|编一个|做一个|P一个).*(证书|证明|鉴定书|检测报告|话术)',\n\
+          \    r'(欺骗|骗|忽悠).*(顾客|客户)', r'(刻意|故意).*(隐瞒|不说).*(风险|瑕疵|问题)',\n\
+          \    r'(规避|绕过).*(监管|审核|权限)', r'(删库|改库|写库|篡改.*数据|修改后台数据|绕过权限|越权)',\n\
+          ]\n\ndef main(llm_text: str = '', normalized_question:\
+          \ str = '', conversation_history: str = '') -> dict:\n    data = _extract_json(llm_text)\n\
+          \    route = str(data.get('route_decision') or '').strip().lower()\n   \
+          \ reason = str(data.get('precheck_reason') or '').strip()\n\n    current_text\
+          \ = normalized_question or ''\n    hit_by_allow = any(re.search(p, current_text,\
+          \ flags=re.I) for p in ALLOW_EDGE_PATTERNS)\n    hit_by_rule = any(re.search(p,\
+          \ current_text, flags=re.I) for p in REDLINE_PATTERNS)\n\n    if hit_by_rule:\n\
+          \        route = 'redline'\n        reason = reason or '当前问题明确要求执行鉴定结论、收益承诺、伪造欺骗或数据篡改等红线行为'\n\
+          \    elif hit_by_allow:\n        route = 'proceed'\n        reason = '边缘命中但属于合规咨询或规范话术，可进入知识检索'\n\
+          \    elif route not in {'proceed', 'redline'}:\n\
+          \        route = 'proceed'\n        reason = reason or '未触发红线，可进入知识检索'\n\
+          \n    if not reason:\n        reason = '触发红线边界，需拒绝回答' if route == 'redline'\
+          \ else '未触发红线，可进入知识检索'\n\n    return {\n        'route_decision': route,\n\
+          \        'precheck_reason': reason,\n    }\n"
+        code_language: python3
+        desc: 解析检索前预判结果，并用规则兜底识别红线。
+        outputs:
+          precheck_reason:
+            type: string
+          route_decision:
+            type: string
+        selected: false
+        title: 预判结果解析
+        type: code
+        variables:
+        - value_selector:
+          - precheck_llm
+          - text
+          variable: llm_text
+        - value_selector:
+          - normalize_parser
+          - normalized_question
+          variable: normalized_question
+        - value_selector:
+          - start_node
+          - conversation_history
+          variable: conversation_history
+      height: 96
+      id: precheck_parser
+      position:
+        x: 3118
+        y: 502
+      positionAbsolute:
+        x: 3118
+        y: 502
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        cases:
+        - case_id: 'true'
+          conditions:
+          - comparison_operator: is
+            id: if_is_redline-cond-1
+            value: redline
+            varType: string
+            variable_selector:
+            - precheck_parser
+            - route_decision
+          id: 'true'
+          logical_operator: and
+        desc: 红线问题直接拒答，非红线问题进入知识检索。
+        selected: false
+        title: 是否红线问题
+        type: if-else
+      height: 192
+      id: if_is_redline
+      position:
+        x: 3460
+        y: 454
+      positionAbsolute:
+        x: 3460
+        y: 454
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "def main(precheck_reason: str = '') -> dict:\n    reason = str(precheck_reason\
+          \ or '').strip() or '触发红线边界，拒绝回答'\n    return {\n        'answer_text':\
+          \ '这个问题涉及当前系统的红线边界，不能直接回答。你可以改问合规表达、产品知识、销售话术或系统使用说明。',\n        'related_questions':\
+          \ [\n            '培育钻和天然钻怎么规范表达？',\n            '顾客追问保值时，合规的话术该怎么说？',\n\
+          \            '门店接待中哪些承诺属于高风险表达？'\n        ],\n        'answer_mode': 'cannot_answer',\n\
+          \        'matched_topics': '',\n        'risk_tag': 'boundary',\n      \
+          \  'confidence_level': 'high',\n        'refuse_reason': reason,\n    }\n"
+        code_language: python3
+        desc: 为红线边界问题构造固定拒答输出。
+        outputs:
+          answer_mode:
+            type: string
+          answer_text:
+            type: string
+          confidence_level:
+            type: string
+          matched_topics:
+            type: string
+          refuse_reason:
+            type: string
+          related_questions:
+            type: array[string]
+          risk_tag:
+            type: string
+        selected: false
+        title: 红线拒答构造
+        type: code
+        variables:
+        - value_selector:
+          - precheck_parser
+          - precheck_reason
+          variable: precheck_reason
+      height: 80
+      id: redline_builder
+      position:
+        x: 4184
+        y: 342
+      positionAbsolute:
+        x: 4184
+        y: 342
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        cases:
+        - case_id: 'true'
+          conditions:
+          - comparison_operator: is
+            id: if_no_hit-cond-1
+            value: no_hit
+            varType: string
+            variable_selector:
+            - knowledge_merge
+            - knowledge_hit_status
+          id: 'true'
+          logical_operator: and
+        desc: 未命中知识库时进入 LLM 兜底回复；命中或弱命中时进入有库回答。
+        selected: false
+        title: 是否无库命中
+        type: if-else
+      height: 192
+      id: if_no_hit
+      position:
+        x: 4506
+        y: 512
+      positionAbsolute:
+        x: 4506
+        y: 512
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        desc: 知识库未命中时，由 LLM 判断是否可安全兜底；低风险通用知识可答，高风险或内部口径拒答。
+        memory:
+          role_prefix:
+            assistant: ''
+            user: ''
+          window:
+            enabled: false
+            size: 10
+        model:
+          completion_params:
+            max_tokens: 260
+            temperature: 0.2
+          mode: chat
+          name: qwen-plus
+          provider: langgenius/tongyi/tongyi
+        prompt_template:
+        - id: nohit_llm-system
+          role: system
+          text: "你是 Agent_O 的知识问答无库兜底助手。\n\n当前场景：知识库没有检索到足够可用片段。你需要先判断问题是否可以用低风险通用知识兜底回答。\n\n\
+            可兜底回答的场景，输出 answer_mode=knowledge_answer：\n- 公开通用的产品基础知识、材质特性、日常保养、使用注意事项\n- 常见销售沟通建议、合规表达框架、风险提示方式\n- 不依赖品牌内部制度、门店规则、价格、证书结论、员工或经营数据的常识说明\n\n\
+            必须拒答的场景，输出 answer_mode=cannot_answer：\n- 要求真伪鉴定、证书真假结论、替代专业机构判断\n- 要求价格、库存、活动、门店制度、员工数据、经营数据等内部或实时信息\n- 要求承诺保值、升值、收益，或生成违法违规、欺骗、篡改数据相关内容\n- 问题需要精确公司口径但当前没有依据\n\n\
+            必须遵守：\n1. 可兜底时，用“通用知识/一般情况下”的口径给出简洁可用回答，不要说“知识库未命中”。\n2. 不可兜底时，说明当前依据不足，不能给出可靠结论，并给出改问方向。\n3. 不要编造制度、价格、证书结论、门店规则、员工数据或经营数据。\n\
+            4. 不要输出“根据知识库”“未命中知识库”等系统内部表述。\n5. 只输出 JSON，不要解释，不要代码块。\n\n输出 Schema：\n{\n  \"answer_text\": \"\",\n  \"related_questions\": [\"\
+            问题1\", \"问题2\"],\n  \"answer_mode\": \"knowledge_answer | cannot_answer\",\n  \"matched_topics\"\
+            : \"通用知识兜底或空字符串\",\n  \"risk_tag\": \"safe | boundary\",\n  \"confidence_level\": \"medium | low\"\
+            ,\n  \"refuse_reason\": \"\"\n}\n"
+        - id: nohit_llm-user
+          role: user
+          text: '请为下面的问题生成无库兜底回复。
+
+
+            【归一化问题】
+
+            {{#knowledge_merge.normalized_question_out#}}
+
+
+            【多轮上下文】
+
+            {{#start_node.conversation_history#}}
+
+            '
+        selected: false
+        title: 无库兜底生成
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 132
+      id: nohit_llm
+      position:
+        x: 4868
+        y: 433
+      positionAbsolute:
+        x: 4868
+        y: 433
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "import json\nimport re\n\ndef _extract_json(text: str):\n    raw =\
+          \ str(text or '').strip()\n    raw = re.sub(r'^```json\\s*', '', raw, flags=re.I)\n\
+          \    raw = re.sub(r'^```\\s*', '', raw)\n    raw = re.sub(r'\\s*```$', '',\
+          \ raw)\n    if not raw:\n        return {}\n    try:\n        data = json.loads(raw)\n\
+          \        return data if isinstance(data, dict) else {}\n    except Exception:\n\
+          \        pass\n    m = re.search(r'\\{[\\s\\S]*\\}', raw)\n    if m:\n \
+          \       try:\n            data = json.loads(m.group(0))\n            return\
+          \ data if isinstance(data, dict) else {}\n        except Exception:\n  \
+          \          pass\n    return {}\n\ndef main(llm_text: str = '') -> dict:\n\
+          \    data = _extract_json(llm_text)\n    answer_text = re.sub(r'\\s+', '\
+          \ ', str(data.get('answer_text') or '')).strip()\n    related = data.get('related_questions')\
+          \ or []\n    if not isinstance(related, list):\n        related = []\n \
+          \   out = []\n    for item in related:\n        q = re.sub(r'\\s+', ' ',\
+          \ str(item or '')).strip()\n        if q and q not in out:\n           \
+          \ out.append(q)\n        if len(out) >= 3:\n            break\n    if not\
+          \ answer_text:\n        answer_text = '这个问题暂时缺少足够的知识依据，我不能直接给出可靠结论。你可以换一种更具体的问法，或者改问相关的产品知识、销售话术、合规边界说明。'\n\
+          \    answer_mode = str(data.get('answer_mode') or '').strip().lower()\n\
+          \    risk_tag = str(data.get('risk_tag') or '').strip().lower()\n    confidence_level\
+          \ = str(data.get('confidence_level') or '').strip().lower()\n    matched_topics\
+          \ = re.sub(r'\\s+', ' ', str(data.get('matched_topics') or '')).strip()\n\
+          \    refuse_reason = re.sub(r'\\s+', ' ', str(data.get('refuse_reason')\
+          \ or '')).strip()\n\n    if answer_mode not in {'knowledge_answer', 'cannot_answer'}:\n\
+          \        answer_mode = 'knowledge_answer' if risk_tag == 'safe' and answer_text\
+          \ else 'cannot_answer'\n    if answer_mode == 'knowledge_answer':\n    \
+          \    risk_tag = 'safe'\n        confidence_level = confidence_level if confidence_level\
+          \ in {'medium', 'low'} else 'medium'\n        matched_topics = matched_topics\
+          \ or '通用知识兜底'\n        refuse_reason = ''\n    else:\n        risk_tag =\
+          \ 'boundary'\n        confidence_level = 'low'\n        refuse_reason = refuse_reason\
+          \ or '知识依据不足'\n        matched_topics = ''\n\n    return {\n        'answer_text':\
+          \ answer_text,\n        'related_questions': out,\n        'answer_mode':\
+          \ answer_mode,\n        'matched_topics': matched_topics,\n        'risk_tag':\
+          \ risk_tag,\n        'confidence_level': confidence_level,\n        'refuse_reason':\
+          \ refuse_reason,\n    }\n"
+        code_language: python3
+        desc: 解析无库兜底 JSON，稳定输出契约。
+        outputs:
+          answer_mode:
+            type: string
+          answer_text:
+            type: string
+          confidence_level:
+            type: string
+          matched_topics:
+            type: string
+          refuse_reason:
+            type: string
+          related_questions:
+            type: array[string]
+          risk_tag:
+            type: string
+        selected: false
+        title: 无库结果解析
+        type: code
+        variables:
+        - value_selector:
+          - nohit_llm
+          - text
+          variable: llm_text
+      height: 80
+      id: nohit_parser
+      position:
+        x: 5230
+        y: 433
+      positionAbsolute:
+        x: 5230
+        y: 433
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    viewport:
+      x: -4467
+      y: 245
+      zoom: 0.7
+  rag_pipeline_variables: []

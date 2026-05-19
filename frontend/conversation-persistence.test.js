@@ -32,13 +32,13 @@ assert.equal(
   'assistant session storage key should be declared'
 );
 
-assertFunctionContains('loadAssistantSessionState', 'localStorage.getItem(assistantStorageKey())');
-assertFunctionContains('saveAssistantSessionState', 'localStorage.setItem(assistantStorageKey()');
+assertFunctionContains('loadAssistantSessionState', 'sessionStorage.getItem(assistantStorageKey())');
+assertFunctionContains('saveAssistantSessionState', 'sessionStorage.setItem(assistantStorageKey()');
 assertFunctionContains('submitAssistantReply', 'saveAssistantSessionState();');
 assertFunctionContains('clearAssistantSession', 'saveAssistantSessionState();');
 assertFunctionContains('renderAssistantPage', 'loadAssistantSessionState();');
 
-assertFunctionContains('loadQuickQuerySessionState', 'localStorage.getItem(quickQueryStorageKey())');
-assertFunctionContains('saveQuickQuerySessionState', 'localStorage.setItem(quickQueryStorageKey()');
+assertFunctionContains('loadQuickQuerySessionState', 'sessionStorage.getItem(quickQueryStorageKey())');
+assertFunctionContains('saveQuickQuerySessionState', 'sessionStorage.setItem(quickQueryStorageKey()');
 
 console.log('conversation-persistence.test.js passed');

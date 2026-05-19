@@ -1,0 +1,236 @@
+app:
+  description: Evo Phase 3 reflective loop workflow. Turns recent feedback episodes into evidence-backed lessons.
+  icon: 🔁
+  icon_background: '#FFF7E6'
+  mode: workflow
+  name: EVO03 反思经验生成工作流
+  use_icon_as_answer_icon: false
+dependencies:
+- current_identifier: null
+  type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: langgenius/tongyi:0.1.32@20a5454088fa017b72490e1cbaeebff21094d11b13e41197591734d1c08cdbb5
+    version: null
+kind: app
+version: 0.6.0
+workflow:
+  conversation_variables: []
+  environment_variables: []
+  features:
+    file_upload:
+      enabled: false
+      allowed_file_extensions: []
+      allowed_file_types: []
+      allowed_file_upload_methods: []
+      image:
+        enabled: false
+        number_limits: 3
+        transfer_methods: []
+      number_limits: 3
+    opening_statement: ''
+    retriever_resource:
+      enabled: false
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions: []
+    suggested_questions_after_answer:
+      enabled: false
+    text_to_speech:
+      enabled: false
+      language: ''
+      voice: ''
+  graph:
+    edges:
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: start
+        targetType: llm
+      id: reflective-start-to-llm
+      source: reflective_start
+      sourceHandle: source
+      target: reflective_llm
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: llm
+        targetType: code
+      id: reflective-llm-to-normalize
+      source: reflective_llm
+      sourceHandle: source
+      target: reflective_normalize
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: end
+      id: reflective-normalize-to-end
+      source: reflective_normalize
+      sourceHandle: source
+      target: reflective_end
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    nodes:
+    - data:
+        desc: Inputs supplied by backend.evo.reflector._extract_with_dify.
+        selected: false
+        title: Start
+        type: start
+        variables:
+        - label: User ID
+          max_length: 64
+          options: []
+          required: false
+          type: text-input
+          variable: user_id
+        - label: Store ID
+          max_length: 64
+          options: []
+          required: false
+          type: text-input
+          variable: store_id
+        - label: Window ended at
+          max_length: 128
+          options: []
+          required: false
+          type: text-input
+          variable: window_ended_at
+        - label: Recent episodes
+          max_length: 12000
+          options: []
+          required: true
+          type: paragraph
+          variable: episodes
+      height: 260
+      id: reflective_start
+      position:
+        x: 30
+        y: 250
+      positionAbsolute:
+        x: 30
+        y: 250
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        desc: Generate evidence-backed reflective lessons.
+        model:
+          completion_params:
+            enable_thinking: false
+            temperature: 0.2
+          mode: chat
+          name: qwen-flash
+          provider: langgenius/tongyi/tongyi
+        prompt_template:
+        - edition_type: basic
+          id: reflective-system
+          role: system
+          text: "You write concise reflective lessons for a jewelry retail training assistant. Use only the supplied episode_id values as evidence. Output JSON only: {\"lessons\":[{\"lesson\":\"natural-language lesson for next time\",\"evidence_episode_ids\":[1,2],\"scope_suggestion\":\"user|store\",\"confidence\":0.1}]}. Do not invent episode ids."
+        - edition_type: basic
+          id: reflective-user
+          role: user
+          text: "user_id: {{#reflective_start.user_id#}}\nstore_id: {{#reflective_start.store_id#}}\nwindow_ended_at: {{#reflective_start.window_ended_at#}}\n\nRecent episodes:\n{{#reflective_start.episodes#}}\n\nReturn 0 to 5 lessons. Each lesson must include evidence_episode_ids copied from the input."
+        selected: false
+        title: Generate Reflective Lessons
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 132
+      id: reflective_llm
+      position:
+        x: 360
+        y: 250
+      positionAbsolute:
+        x: 360
+        y: 250
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "import json\nimport re\n\ndef _extract_json(text):\n    raw = str(text or '').strip()\n    raw = re.sub(r'<think>[\\s\\S]*?</think>', '', raw, flags=re.I).strip()\n    raw = re.sub(r'^```json\\s*', '', raw, flags=re.I)\n    raw = re.sub(r'^```\\s*', '', raw)\n    raw = re.sub(r'\\s*```$', '', raw)\n    try:\n        data = json.loads(raw)\n        return data\n    except Exception:\n        pass\n    m = re.search(r'\\{[\\s\\S]*\\}|\\[[\\s\\S]*\\]', raw)\n    if m:\n        try:\n            return json.loads(m.group(0))\n        except Exception:\n            pass\n    return {}\n\ndef _ids(value):\n    if not isinstance(value, list):\n        return []\n    out = []\n    for item in value:\n        try:\n            out.append(int(item))\n        except Exception:\n            continue\n    return out\n\ndef _scope(value):\n    s = str(value or 'user').strip().lower()\n    return 'store' if s in {'store', '门店'} else 'user'\n\ndef _confidence(value):\n    try:\n        n = float(value)\n    except Exception:\n        n = 0.5\n    return max(0.1, min(1.0, n))\n\ndef main(text: str) -> dict:\n    raw = _extract_json(text)\n    items = raw if isinstance(raw, list) else raw.get('lessons') or raw.get('items') or []\n    if not isinstance(items, list):\n        items = []\n    lessons = []\n    for item in items[:5]:\n        if not isinstance(item, dict):\n            continue\n        lesson = str(item.get('lesson') or item.get('content') or item.get('reflection') or '').strip()\n        evidence = _ids(item.get('evidence_episode_ids') or item.get('evidence_ids') or [])\n        if not lesson or not evidence:\n            continue\n        lessons.append({\n            'lesson': lesson[:1200],\n            'evidence_episode_ids': evidence,\n            'scope_suggestion': _scope(item.get('scope_suggestion') or item.get('scope_type')),\n            'confidence': _confidence(item.get('confidence')),\n        })\n    payload = {'lessons': lessons}\n    return {\n        'lessons_json': json.dumps(payload, ensure_ascii=False),\n        'reflective_json': json.dumps(payload, ensure_ascii=False),\n        'lesson_count': len(lessons),\n    }\n"
+        code_language: python3
+        desc: Normalize reflective lesson list for backend.evo.reflector.
+        outputs:
+          lesson_count:
+            children: null
+            type: number
+          lessons_json:
+            children: null
+            type: string
+          reflective_json:
+            children: null
+            type: string
+        selected: false
+        title: Normalize Lessons JSON
+        type: code
+        variables:
+        - value_selector:
+          - reflective_llm
+          - text
+          variable: text
+      height: 96
+      id: reflective_normalize
+      position:
+        x: 690
+        y: 250
+      positionAbsolute:
+        x: 690
+        y: 250
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        desc: Outputs consumed by backend.evo.reflector.
+        outputs:
+        - value_selector:
+          - reflective_normalize
+          - reflective_json
+          variable: reflective_json
+        - value_selector:
+          - reflective_normalize
+          - lessons_json
+          variable: lessons_json
+        - value_selector:
+          - reflective_normalize
+          - lesson_count
+          variable: lesson_count
+        selected: false
+        title: End
+        type: end
+      height: 180
+      id: reflective_end
+      position:
+        x: 1020
+        y: 250
+      positionAbsolute:
+        x: 1020
+        y: 250
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    viewport:
+      x: 0
+      y: 0
+      zoom: 0.9
+  rag_pipeline_variables: []

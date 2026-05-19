@@ -38,6 +38,7 @@ const MENU_LABELS = {
   module_ability: '模块能力',
   'agent-orchestration': '智能体协作',
   assessment: '考试中心',
+  wrong_questions: '复盘本',
   on_duty_assistant: '在岗助手',
   knowledge_qa: '知识问答',
   dashboard: '培训奖金',
@@ -50,6 +51,7 @@ const MENU_LABELS = {
   task_publish: '发布考试任务',
   account_settings: '偏好设置',
   digital_human_settings: '数字人管理',
+  evo_governance: '智能体记忆中枢',
   system_logs: '系统日志',
   audit_logs: '审查记录',
   knowledge_manage: '知识库管理',
@@ -60,24 +62,31 @@ const SIDEBAR_HOME_PAGE = 'home';
 const SIDEBAR_SECTIONS = [
   {
     id: 'learning',
-    title: '成长中心',
+    title: '学习训练',
     zone: 'workspace',
     icon: 'learning',
-    items: ['growth_plan', 'employee_journey', 'theory_learning', 'practical_training', 'assessment', 'module_ability', 'agent-orchestration'],
+    items: ['theory_learning', 'practical_training', 'module_ability'],
+  },
+  {
+    id: 'assessment',
+    title: '考核复盘',
+    zone: 'workspace',
+    icon: 'insight',
+    items: ['assessment', 'wrong_questions', 'agent-orchestration'],
+  },
+  {
+    id: 'journey',
+    title: '成长规划',
+    zone: 'workspace',
+    icon: 'organization',
+    items: ['growth_plan', 'employee_journey'],
   },
   {
     id: 'support',
     title: '业务助手',
     zone: 'workspace',
     icon: 'support',
-    items: ['on_duty_assistant', 'knowledge_qa', 'quick_query'],
-  },
-  {
-    id: 'insight',
-    title: '经营分析',
-    zone: 'workspace',
-    icon: 'insight',
-    items: ['competition', 'talent_dashboard'],
+    items: ['on_duty_assistant', 'knowledge_qa', 'quick_query', 'competition'],
   },
   {
     id: 'organization',
@@ -98,26 +107,27 @@ const SIDEBAR_SECTIONS = [
     title: '系统治理',
     zone: 'admin',
     icon: 'system',
-    items: ['account_settings', 'digital_human_settings', 'audit_logs', 'system_logs'],
+    items: ['account_settings', 'digital_human_settings', 'evo_governance', 'talent_dashboard', 'audit_logs', 'system_logs'],
   },
 ];
 
 const SIDEBAR_ICON_SVGS = {
   home:
-    '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5.25 10.25 12 5l6.75 5.25v8a1.5 1.5 0 0 1-1.5 1.5h-4v-5.25h-2.5v5.25h-4a1.5 1.5 0 0 1-1.5-1.5v-8Z" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 10.5 12 4l8 6.5V19a2 2 0 0 1-2 2h-3.5v-5.5h-5V21H6a2 2 0 0 1-2-2V10.5Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   learning:
-    '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 5.25h9.5A1.75 1.75 0 0 1 18.25 7v10a1.75 1.75 0 0 1-1.75 1.75H8.25a2.5 2.5 0 0 0-2.5 2.5V7.75A2.5 2.5 0 0 1 8.25 5.25Z" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.75 8.75h6M8.75 12h6" stroke="currentColor" stroke-width="1.85" stroke-linecap="round"/><path d="M5.75 19.25c.51-.33 1.11-.5 1.75-.5h9" stroke="currentColor" stroke-width="1.85" stroke-linecap="round"/></svg>',
+    '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3 2 8l10 5 10-5-10-5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M6 10.5v5.75c0 1.25 2.68 2.75 6 2.75s6-1.5 6-2.75V10.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   support:
-    '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="8.25" stroke="currentColor" stroke-width="1.85"/><path d="M9 14.25v-3a1.75 1.75 0 0 1 1.75-1.75h2.5A1.75 1.75 0 0 1 15 11.25v1.25a1.75 1.75 0 0 1-1.75 1.75h-1.75L9 16v-1.75Z" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 13v-1a7 7 0 0 1 14 0v1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><rect x="3" y="13" width="4" height="6" rx="2" stroke="currentColor" stroke-width="1.8"/><rect x="17" y="13" width="4" height="6" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M9 17a3 3 0 0 0 6 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
   insight:
-    '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5.75 18.25h12.5" stroke="currentColor" stroke-width="1.85" stroke-linecap="round"/><path d="M8 18.25V12.5M12 18.25V8M16 18.25v-7.5" stroke="currentColor" stroke-width="1.85" stroke-linecap="round"/></svg>',
+    '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="4" y="10" width="4" height="10" rx="1.5" stroke="currentColor" stroke-width="1.8"/><rect x="10" y="6" width="4" height="14" rx="1.5" stroke="currentColor" stroke-width="1.8"/><rect x="16" y="3" width="4" height="17" rx="1.5" stroke="currentColor" stroke-width="1.8"/></svg>',
   organization:
-    '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="9" cy="9" r="2.25" stroke="currentColor" stroke-width="1.85"/><circle cx="15.75" cy="9.75" r="2" stroke="currentColor" stroke-width="1.85"/><path d="M5.75 17.75c.38-1.81 1.92-3 3.75-3 1.84 0 3.37 1.19 3.75 3M13 17.75c.33-1.42 1.57-2.38 3-2.38s2.67.96 3 2.38" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="7" r="3.5" stroke="currentColor" stroke-width="1.8"/><path d="M5.5 20a6.5 6.5 0 0 1 13 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="5.5" cy="11" r="2.25" stroke="currentColor" stroke-width="1.5"/><circle cx="18.5" cy="11" r="2.25" stroke="currentColor" stroke-width="1.5"/></svg>',
   operations:
-    '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M9.5 5.25h5a1 1 0 0 1 1 1v.5h-7v-.5a1 1 0 0 1 1-1Z" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.25 6.75h7.5A1.75 1.75 0 0 1 17.5 8.5v9.75A1.75 1.75 0 0 1 15.75 20h-7.5A1.75 1.75 0 0 1 6.5 18.25V8.5a1.75 1.75 0 0 1 1.75-1.75Z" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"/><path d="M9.5 10h5M9.5 13h5M9.5 16h3.25" stroke="currentColor" stroke-width="1.85" stroke-linecap="round"/></svg>',
+    '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="5" y="3.5" width="14" height="17" rx="2.5" stroke="currentColor" stroke-width="1.8"/><path d="M9 2.5h6a1.5 1.5 0 0 1 1.5 1.5v1H7.5V4A1.5 1.5 0 0 1 9 2.5Z" stroke="currentColor" stroke-width="1.5"/><path d="M8.5 9h7M8.5 12.5h7M8.5 16h4.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>',
   system:
-    '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 7.25a4.75 4.75 0 1 1 0 9.5 4.75 4.75 0 0 1 0-9.5Z" stroke="currentColor" stroke-width="1.85" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.25" stroke="currentColor" stroke-width="1.85"/><path d="M12 4.75v1.25M12 18v1.25M7.05 7.05l.88.88M16.07 16.07l.88.88M4.75 12H6M18 12h1.25M7.05 16.95l.88-.88M16.07 7.93l.88-.88" stroke="currentColor" stroke-width="1.85" stroke-linecap="round"/></svg>',
+    '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M9.57 2.63a1 1 0 0 1 .86 0l6 2.67A1 1 0 0 1 17 6.2v4.37a6.5 6.5 0 0 1 0 6.86V22a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1v-4.57a6.5 6.5 0 0 1 0-6.86V6.2a1 1 0 0 1 .57-.93l6-2.64Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="12" cy="12.5" r="2.5" stroke="currentColor" stroke-width="1.8"/></svg>',
 };
+
 
 var PRACTICE_MODULE_OPTIONS = [
   { value: 'product_basics', label: '产品基础', hint: '材质、卖点、产品知识' },
@@ -311,12 +321,22 @@ function authHeaders() {
   return { Authorization: 'Bearer ' + token };
 }
 
+function nowForElapsedMs() {
+  try {
+    if (window.performance && typeof window.performance.now === 'function') {
+      return window.performance.now();
+    }
+  } catch (e) {}
+  return Date.now();
+}
+
 async function apiFetch(path, opts) {
   opts = opts || {};
   var skipAuth = !!opts.skipAuth;
   var headers = Object.assign({}, skipAuth ? {} : authHeaders(), opts.headers || {});
   var url = (API_BASE || '') + path;
   var method = (opts.method || 'GET').toUpperCase();
+  var startedAt = nowForElapsedMs();
   try {
     console.info('[api] request', { method: method, url: url });
   } catch (e) {}
@@ -359,6 +379,7 @@ async function apiFetch(path, opts) {
   try {
     console.info('[api] response', { method: method, url: url, status: res.status, body: json });
   } catch (e) {}
+  maybePushLocalAgentActivityEvent(path, method, res.status, json, Math.max(0, Math.round(nowForElapsedMs() - startedAt)));
   if (res.status >= 400) {
     var errParts = [];
     if (json && json.data && json.data.failure_layer) errParts.push('失败层级=' + json.data.failure_layer);
@@ -820,6 +841,12 @@ function getDigitalHumanPreferences() {
   }
   moduleState.digitalHumanPreferencesStorageKey = currentKey;
   moduleState.digitalHumanPreferences = normalizeDigitalHumanPreferences(moduleState.digitalHumanPreferences);
+  return moduleState.digitalHumanPreferences;
+}
+
+function reloadDigitalHumanPreferencesFromStorage() {
+  moduleState.digitalHumanPreferences = loadDigitalHumanPreferencesFromStorage();
+  moduleState.digitalHumanPreferencesStorageKey = digitalHumanPrefsStorageKey();
   return moduleState.digitalHumanPreferences;
 }
 
@@ -1894,7 +1921,7 @@ function renderTaskPaperEditor() {
     }
 
     return (
-      '<div class="rounded-[22px] border border-slate-200 bg-white p-4 shadow-[0_8px_22px_rgba(15,23,42,0.03)]">' +
+      '<div class="rounded-xl border border-slate-200 bg-white p-4 shadow-[0_8px_22px_rgba(15,23,42,0.03)]">' +
         '<div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">' +
           '<div class="flex items-center gap-2">' +
             '<span class="inline-flex rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[11px] font-semibold text-slate-500">' + escapeHtml(taskPaperTypeLabel(type)) + '</span>' +
@@ -1919,7 +1946,7 @@ function renderTaskPaperEditor() {
   }
 
   wrap.innerHTML =
-    '<div class="rounded-[22px] border border-slate-200 bg-white p-4">' +
+    '<div class="rounded-xl border border-slate-200 bg-white p-4">' +
       '<div class="grid gap-4 md:grid-cols-2">' +
         '<label class="block">' +
           '<span class="mb-2 block text-sm font-medium text-slate-700">试卷标题</span>' +
@@ -2183,7 +2210,7 @@ async function renderTaskListPage(container) {
     modal.className = 'fixed inset-0 z-[999] hidden flex items-center justify-center bg-black/30 p-4 backdrop-blur-sm';
     modal.addEventListener('click', function (e) { if (e.target === modal) closeTaskActionModal(); });
     modal.innerHTML =
-      '<div class="relative w-full max-w-sm bg-white rounded-2xl shadow-xl overflow-hidden">' +
+      '<div class="relative w-full max-w-sm bg-white rounded-xl shadow-[0_12px_30px_rgba(15,23,42,0.14)] overflow-hidden">' +
       '<div class="p-6 text-center">' +
       '<div id="task-action-icon" class="mx-auto w-12 h-12 rounded-full flex items-center justify-center mb-4"></div>' +
       '<h3 id="task-action-title" class="text-lg font-semibold text-gray-800 mb-2"></h3>' +
@@ -2286,7 +2313,7 @@ async function renderTaskListPage(container) {
     moduleState.taskCenter = Object.assign({}, moduleState.taskCenter, { status: selectedStatus });
     syncTaskListFilterButtons(selectedStatus, true);
     if (bodyEl) {
-      bodyEl.innerHTML = '<div class="task-list-loading-state rounded-[28px] border border-dashed border-slate-200 bg-slate-50/80 px-6 py-10 text-center text-sm text-slate-500">正在加载任务列表...</div>';
+      bodyEl.innerHTML = '<div class="task-list-loading-state rounded-xl border border-dashed border-slate-200 bg-slate-50/80 px-6 py-10 text-center text-sm text-slate-500">正在加载任务列表...</div>';
     }
 
     try {
@@ -2297,9 +2324,9 @@ async function renderTaskListPage(container) {
 
       if (summaryEl) {
         summaryEl.innerHTML =
-          '<div class="task-list-summary-card rounded-[24px] border border-slate-200 bg-white px-5 py-5 shadow-[0_10px_30px_rgba(15,23,42,0.04)]"><div class="ios-eyebrow">筛选结果</div><div class="task-list-summary-value mt-3 ios-stat-value text-slate-900">' + escapeHtml(String(total)) + '</div><div class="mt-2 ios-inline-note">当前查看：' + escapeHtml(taskFilterLabel(selectedStatus)) + '</div></div>' +
-          '<div class="task-list-summary-card rounded-[24px] border border-slate-200 bg-white px-5 py-5 shadow-[0_10px_30px_rgba(15,23,42,0.04)]"><div class="ios-eyebrow">已发布</div><div class="task-list-summary-value mt-3 ios-stat-value text-slate-900">' + escapeHtml(String(activeCount)) + '</div><div class="mt-2 ios-inline-note">进行中的正式考试</div></div>' +
-          '<div class="task-list-summary-card rounded-[24px] border border-slate-200 bg-white px-5 py-5 shadow-[0_10px_30px_rgba(15,23,42,0.04)]"><div class="task-list-summary-label ios-eyebrow">已归档</div><div class="task-list-summary-value mt-3 ios-stat-value text-slate-900">' + escapeHtml(String(closedCount)) + '</div><div class="mt-2 ios-inline-note">已归档任务</div></div>';
+          '<div class="task-list-summary-card rounded-xl border border-slate-200 bg-white px-5 py-5 shadow-[0_8px_22px_rgba(15,23,42,0.04)]"><div class="ios-eyebrow">筛选结果</div><div class="task-list-summary-value mt-3 ios-stat-value text-slate-900">' + escapeHtml(String(total)) + '</div><div class="mt-2 ios-inline-note">当前查看：' + escapeHtml(taskFilterLabel(selectedStatus)) + '</div></div>' +
+          '<div class="task-list-summary-card rounded-xl border border-slate-200 bg-white px-5 py-5 shadow-[0_8px_22px_rgba(15,23,42,0.04)]"><div class="ios-eyebrow">已发布</div><div class="task-list-summary-value mt-3 ios-stat-value text-slate-900">' + escapeHtml(String(activeCount)) + '</div><div class="mt-2 ios-inline-note">进行中的正式考试</div></div>' +
+          '<div class="task-list-summary-card rounded-xl border border-slate-200 bg-white px-5 py-5 shadow-[0_8px_22px_rgba(15,23,42,0.04)]"><div class="task-list-summary-label ios-eyebrow">已归档</div><div class="task-list-summary-value mt-3 ios-stat-value text-slate-900">' + escapeHtml(String(closedCount)) + '</div><div class="mt-2 ios-inline-note">已归档任务</div></div>';
       }
 
       if (!items.length) {
@@ -2314,7 +2341,7 @@ async function renderTaskListPage(container) {
           '<div class="task-list-stack space-y-4">' +
             items.map(function (item) {
               return '' +
-                '<article class="task-list-card rounded-[28px] border border-slate-200 bg-white p-5 shadow-[0_10px_30px_rgba(15,23,42,0.04)]">' +
+                '<article class="task-list-card rounded-xl border border-slate-200 bg-white p-5 shadow-[0_8px_22px_rgba(15,23,42,0.04)]">' +
                   '<div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">' +
                     '<div class="min-w-0">' +
                       '<div class="flex flex-wrap items-center gap-2">' +
@@ -2325,17 +2352,17 @@ async function renderTaskListPage(container) {
                       '<h3 class="task-list-card-title mt-3 text-[22px] font-semibold tracking-[-0.03em] text-slate-900">' + escapeHtml(item && item.task_name ? item.task_name : '未命名任务') + '</h3>' +
                       '<p class="task-list-card-desc mt-2 text-sm leading-7 text-slate-600">' + escapeHtml(item && item.task_desc ? item.task_desc : '暂无描述') + '</p>' +
                     '</div>' +
-                    '<div class="task-list-owner-card shrink-0 rounded-[22px] border border-slate-200 bg-slate-50 px-4 py-3">' +
+                    '<div class="task-list-owner-card shrink-0 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3">' +
                       '<div class="task-list-label ios-eyebrow">发布人</div>' +
                       '<div class="task-list-value mt-2 text-sm font-semibold text-slate-900">' + escapeHtml(String(item && (item.publisher_name || item.publisher_id) || '--')) + '</div>' +
                       ((item && item.publisher_name && item.publisher_id && item.publisher_name !== item.publisher_id) ? '<div class="task-list-owner-subtext mt-1 text-xs text-slate-500">' + escapeHtml(String(item.publisher_id)) + '</div>' : '') +
                     '</div>' +
                   '</div>' +
                   '<div class="mt-5 grid gap-3 md:grid-cols-4">' +
-                    '<div class="task-list-stat-card rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4"><div class="task-list-label text-xs text-slate-400">下发范围</div><div class="task-list-value mt-2 text-sm font-semibold text-slate-900">' + escapeHtml(String(item && (item.target_summary || item.target_scope) || '--')) + '</div></div>' +
-                    '<div class="task-list-stat-card rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4"><div class="task-list-label text-xs text-slate-400">及格线</div><div class="task-list-value mt-2 text-sm font-semibold text-slate-900">' + escapeHtml(String(Number(item && item.pass_score != null ? item.pass_score : 0).toFixed(1))) + ' 分</div></div>' +
-                    '<div class="task-list-stat-card rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4"><div class="task-list-label text-xs text-slate-400">时长 / 成绩</div><div class="task-list-value mt-2 text-sm font-semibold text-slate-900">' + escapeHtml(String(item && item.duration_minutes || 60)) + ' 分钟 / ' + escapeHtml(isHiddenScoreVisibility(item && item.score_visibility) ? '员工不可见' : '员工可见') + '</div></div>' +
-                    '<div class="task-list-stat-card rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4"><div class="task-list-label text-xs text-slate-400">截止 / 完成</div><div class="task-list-value mt-2 text-sm font-semibold leading-6 text-slate-900">' + escapeHtml(formatTaskTime(item && item.deadline)) + '<br>' + escapeHtml(String(item && item.completed_count != null ? item.completed_count : 0)) + ' / ' + escapeHtml(String(item && item.target_count != null ? item.target_count : 0)) + '</div></div>' +
+                    '<div class="task-list-stat-card rounded-lg border border-slate-200 bg-slate-50 px-4 py-4"><div class="task-list-label text-xs text-slate-400">下发范围</div><div class="task-list-value mt-2 text-sm font-semibold text-slate-900">' + escapeHtml(String(item && (item.target_summary || item.target_scope) || '--')) + '</div></div>' +
+                    '<div class="task-list-stat-card rounded-lg border border-slate-200 bg-slate-50 px-4 py-4"><div class="task-list-label text-xs text-slate-400">及格线</div><div class="task-list-value mt-2 text-sm font-semibold text-slate-900">' + escapeHtml(String(Number(item && item.pass_score != null ? item.pass_score : 0).toFixed(1))) + ' 分</div></div>' +
+                    '<div class="task-list-stat-card rounded-lg border border-slate-200 bg-slate-50 px-4 py-4"><div class="task-list-label text-xs text-slate-400">时长 / 成绩</div><div class="task-list-value mt-2 text-sm font-semibold text-slate-900">' + escapeHtml(String(item && item.duration_minutes || 60)) + ' 分钟 / ' + escapeHtml(isHiddenScoreVisibility(item && item.score_visibility) ? '员工不可见' : '员工可见') + '</div></div>' +
+                    '<div class="task-list-stat-card rounded-lg border border-slate-200 bg-slate-50 px-4 py-4"><div class="task-list-label text-xs text-slate-400">截止 / 完成</div><div class="task-list-value mt-2 text-sm font-semibold leading-6 text-slate-900">' + escapeHtml(formatTaskTime(item && item.deadline)) + '<br>' + escapeHtml(String(item && item.completed_count != null ? item.completed_count : 0)) + ' / ' + escapeHtml(String(item && item.target_count != null ? item.target_count : 0)) + '</div></div>' +
                   '</div>' +
                   '<div class="task-list-footer mt-5 flex flex-col gap-3 border-t border-slate-100 pt-4 sm:flex-row sm:items-center sm:justify-between">' +
                     '<div class="task-list-timestamps text-xs leading-6 text-slate-500">发布时间：' + escapeHtml(formatTaskTime(item && item.published_at)) + '　创建时间：' + escapeHtml(formatTaskTime(item && item.created_at)) + '</div>' +
@@ -2353,7 +2380,7 @@ async function renderTaskListPage(container) {
     } catch (error) {
       if (summaryEl) summaryEl.innerHTML = '';
       if (bodyEl) {
-        bodyEl.innerHTML = '<div class="rounded-[28px] border border-slate-200 bg-white px-6 py-12 text-center shadow-[0_10px_30px_rgba(15,23,42,0.04)]"><div class="text-base font-semibold text-slate-900">任务列表加载失败</div><p class="mt-2 text-sm leading-7 text-slate-500">' + escapeHtml((error && error.message) ? error.message : '请稍后重试') + '</p></div>';
+        bodyEl.innerHTML = '<div class="rounded-xl border border-slate-200 bg-white px-6 py-12 text-center shadow-[0_8px_22px_rgba(15,23,42,0.04)]"><div class="text-base font-semibold text-slate-900">任务列表加载失败</div><p class="mt-2 text-sm leading-7 text-slate-500">' + escapeHtml((error && error.message) ? error.message : '请稍后重试') + '</p></div>';
       }
     }
 
@@ -2398,7 +2425,41 @@ function isManagementRole(role) {
   return normalized === 'admin' || normalized === 'store_manager';
 }
 
+const AGENT_ACTIVITY_ORDINARY_PAGES = ['practical_training', 'on_duty_assistant', 'knowledge_qa', 'quick_query'];
+
+const AGENT_ACTIVITY_PAGE_ROUTE_PREFIXES = {
+  practical_training: ['/api/practice/'],
+  on_duty_assistant: ['/api/assistant/'],
+  knowledge_qa: ['/api/qa/'],
+  quick_query: ['/api/query/'],
+};
+
+const AGENT_ACTIVITY_PAGE_META = {
+  practical_training: { agentRole: 'practice', agentLabel: '陪练', agentName: '陪练智能体', agentColor: '#0F766E', knowledgeSource: '销售话术库' },
+  on_duty_assistant: { agentRole: 'service', agentLabel: '客服', agentName: '客服智能体', agentColor: '#DB2777', knowledgeSource: '珠宝知识库' },
+  knowledge_qa: { agentRole: 'service', agentLabel: '客服', agentName: '客服智能体', agentColor: '#DB2777', knowledgeSource: '珠宝知识库' },
+  quick_query: { agentRole: 'analyst', agentLabel: '分析师', agentName: '分析师智能体', agentColor: '#D97706', knowledgeSource: '经营数据看板' },
+};
+
+const AGENT_ACTIVITY_WORKFLOW_LABELS = {
+  assistant1: '在岗助手主回复',
+  assistant2: '在岗助手后台沉淀',
+  assistant_chat: '在岗助手对话模式',
+  practice1: '实战对练',
+  practice2: '实战评分',
+  practice3: '实战能力更新',
+  practice_mentor: '实战导师金句',
+  practice_turn_feedback: '实战逐轮反馈',
+  qa1: '知识问答',
+  qa_chat: '知识问答对话模式',
+  query1: '一句话查询解析',
+  query2: '一句话查询总结',
+  query_ask: '一句话查询',
+  query_local_template: '一句话查询',
+};
+
 const PAGE_ROLE_ACCESS = {
+  'agent-orchestration': ['admin', 'store_manager'],
   quick_query: ['admin', 'store_manager'],
   talent_dashboard: ['admin', 'store_manager'],
   task_list: ['admin', 'store_manager'],
@@ -2409,12 +2470,95 @@ const PAGE_ROLE_ACCESS = {
   knowledge_manage: ['admin'],
   digital_human_settings: ['admin'],
   system_settings: ['admin'],
+  evo_governance: ['admin', 'store_manager'],
   system_logs: ['admin'],
   audit_logs: ['admin'],
 };
 
 function getCurrentRole() {
   return normalizeRole(localStorage.getItem('role') || '');
+}
+
+function normalizeRequestRoutePath(path) {
+  var text = String(path || '').trim();
+  var qIndex = text.indexOf('?');
+  if (qIndex >= 0) text = text.slice(0, qIndex);
+  return text;
+}
+
+function pageAllowsLocalAgentActivity(page) {
+  return AGENT_ACTIVITY_ORDINARY_PAGES.indexOf(normalizePageRoute(page || '')) !== -1;
+}
+
+function shouldShowAgentActivityPanel(page) {
+  var role = getCurrentRole();
+  if (isManagementRole(role)) return true;
+  return pageAllowsLocalAgentActivity(page);
+}
+
+function isCurrentPageAgentActivityRoute(path) {
+  var page = normalizePageRoute(currentPage || '');
+  if (!pageAllowsLocalAgentActivity(page)) return false;
+  var routePath = normalizeRequestRoutePath(path);
+  var prefixes = AGENT_ACTIVITY_PAGE_ROUTE_PREFIXES[page] || [];
+  for (var i = 0; i < prefixes.length; i++) {
+    if (routePath.indexOf(prefixes[i]) === 0) return true;
+  }
+  return false;
+}
+
+function workflowLabelForAgentActivity(code, routePath) {
+  var text = String(code || '').trim();
+  if (text && AGENT_ACTIVITY_WORKFLOW_LABELS[text]) return AGENT_ACTIVITY_WORKFLOW_LABELS[text];
+  if (routePath.indexOf('/api/practice/chat') === 0) return AGENT_ACTIVITY_WORKFLOW_LABELS.practice1;
+  if (routePath.indexOf('/api/practice/evaluate') === 0) return AGENT_ACTIVITY_WORKFLOW_LABELS.practice2;
+  if (routePath.indexOf('/api/practice/update-ability') === 0) return AGENT_ACTIVITY_WORKFLOW_LABELS.practice3;
+  if (routePath.indexOf('/api/practice/mentor-feedback') === 0) return AGENT_ACTIVITY_WORKFLOW_LABELS.practice_mentor;
+  if (routePath.indexOf('/api/assistant/reply') === 0) return AGENT_ACTIVITY_WORKFLOW_LABELS.assistant1;
+  if (routePath.indexOf('/api/qa/ask') === 0) return AGENT_ACTIVITY_WORKFLOW_LABELS.qa1;
+  if (routePath.indexOf('/api/query/parse') === 0) return AGENT_ACTIVITY_WORKFLOW_LABELS.query1;
+  if (routePath.indexOf('/api/query/summarize') === 0) return AGENT_ACTIVITY_WORKFLOW_LABELS.query2;
+  if (routePath.indexOf('/api/query/ask') === 0) return AGENT_ACTIVITY_WORKFLOW_LABELS.query_ask;
+  return text || 'AI 调用';
+}
+
+function fallbackWorkflowCodeForAgentActivity(routePath) {
+  if (routePath.indexOf('/api/practice/chat') === 0) return 'practice1';
+  if (routePath.indexOf('/api/practice/evaluate') === 0) return 'practice2';
+  if (routePath.indexOf('/api/practice/update-ability') === 0) return 'practice3';
+  if (routePath.indexOf('/api/practice/mentor-feedback') === 0) return 'practice_mentor';
+  if (routePath.indexOf('/api/assistant/reply') === 0) return 'assistant1';
+  if (routePath.indexOf('/api/qa/ask') === 0) return 'qa1';
+  if (routePath.indexOf('/api/query/parse') === 0) return 'query1';
+  if (routePath.indexOf('/api/query/summarize') === 0) return 'query2';
+  if (routePath.indexOf('/api/query/ask') === 0) return 'query_ask';
+  return 'local_ai';
+}
+
+function maybePushLocalAgentActivityEvent(path, method, statusCode, json, elapsedMs) {
+  if (isManagementRole(getCurrentRole())) return;
+  if (!window.AgentO || typeof window.AgentO.pushAgentActivityEvent !== 'function') return;
+  if (!isCurrentPageAgentActivityRoute(path)) return;
+  var routePath = normalizeRequestRoutePath(path);
+  var meta = json && json.meta ? json.meta : {};
+  var pageMeta = AGENT_ACTIVITY_PAGE_META[normalizePageRoute(currentPage || '')] || {};
+  var workflowCode = String(meta.workflow_code || '').trim() || fallbackWorkflowCodeForAgentActivity(routePath);
+  window.AgentO.pushAgentActivityEvent({
+    type: 'agent_call',
+    agent_role: pageMeta.agentRole || 'service',
+    agent_label: pageMeta.agentLabel || 'AI',
+    agent_name: pageMeta.agentName || '业务智能体',
+    agent_color: pageMeta.agentColor || '#2563EB',
+    workflow_code: workflowCode,
+    workflow_label: workflowLabelForAgentActivity(workflowCode, routePath),
+    route_path: routePath,
+    method: method || 'GET',
+    call_type: 'local',
+    knowledge_source: pageMeta.knowledgeSource || '业务知识库',
+    status_code: Number(statusCode || 0),
+    ok: Number(statusCode || 0) >= 200 && Number(statusCode || 0) < 400,
+    elapsed_ms: Math.max(0, Math.round(Number(elapsedMs || 0))),
+  });
 }
 
 function canAccessPage(page) {
@@ -2432,6 +2576,26 @@ function getAccountDisplayName() {
   var displayName = localStorage.getItem('displayName') || username || '用户';
   var s = String(displayName).trim();
   return s || '用户';
+}
+
+function isGenericHomeHeroDisplayName(displayName) {
+  var normalized = String(displayName || '').trim().replace(/\s+/g, '').toLowerCase();
+  if (!normalized) return true;
+  var genericNames = [
+    '系统管理员',
+    '管理员',
+    'admin',
+    'administrator',
+    '店长',
+    'store_manager',
+    '资深顾问',
+    'senior_consultant',
+    '导购',
+    'trainee',
+    '用户',
+    'user',
+  ];
+  return genericNames.indexOf(normalized) !== -1;
 }
 
 function getBeijingHour() {
@@ -2460,7 +2624,9 @@ function getTimeGreetingForHour(h) {
 }
 
 function buildHomeHeroTitle() {
-  return getTimeGreetingForHour(getBeijingHour()) + '，' + getAccountDisplayName();
+  var greeting = getTimeGreetingForHour(getBeijingHour());
+  var displayName = getAccountDisplayName();
+  return greeting + '，' + displayName;
 }
 
 function getBeijingTimeShort() {
@@ -2544,14 +2710,26 @@ function showLogin() {
   }
 }
 
-function mountAgentActivityPanelIfAvailable() {
+function syncAgentActivityPanelForPage(page) {
   if (!window.AgentO || typeof window.AgentO.mountAgentActivityPanel !== 'function') return;
-  window.AgentO.mountAgentActivityPanel({
-    baseUrl: API_BASE || '',
-    tokenProvider: function () {
-      return localStorage.getItem('token') || '';
-    },
-  });
+  var targetPage = normalizePageRoute(page || currentPage || '');
+  if (!shouldShowAgentActivityPanel(targetPage)) {
+    if (typeof window.AgentO.destroyAgentActivityPanel === 'function') {
+      window.AgentO.destroyAgentActivityPanel();
+    }
+    return;
+  }
+  if (isManagementRole(getCurrentRole())) {
+    window.AgentO.mountAgentActivityPanel({
+      baseUrl: API_BASE || '',
+      tokenProvider: function () {
+        return localStorage.getItem('token') || '';
+      },
+      connect: true,
+    });
+    return;
+  }
+  window.AgentO.mountAgentActivityPanel({ connect: false });
 }
 
 function showDashboard() {
@@ -2562,7 +2740,7 @@ function showDashboard() {
   applySidebarCollapsedState(loadSidebarCollapsedPreference());
   applyResolvedTheme();
   bindSystemThemeWatcher();
-  mountAgentActivityPanelIfAvailable();
+  syncAgentActivityPanelForPage(currentPage);
   // New trainee accounts now enter the growth plan page directly.
   var role = localStorage.getItem('role') || '';
   var onboardingDone = localStorage.getItem('onboarding_completed');
@@ -3073,7 +3251,7 @@ function toggleSidebarCollapsed(ev) {
 function renderShellPlaceholder(container, title, desc) {
   container.innerHTML =
     '<div class="w-full">' +
-      '<div class="rounded-3xl border border-gray-200 bg-white px-5 py-7 shadow-sm sm:px-8 sm:py-10">' +
+      '<div class="rounded-xl border border-gray-200 bg-white px-5 py-7 shadow-sm sm:px-8 sm:py-10">' +
         '<h1 class="app-page-title">' + escapeHtml(sanitizeUiText(title || '')) + '</h1>' +
         '<p class="app-page-desc">' + escapeHtml(sanitizeUiText(desc || '')) + '</p>' +
       '</div>' +
@@ -3083,7 +3261,7 @@ function renderShellPlaceholder(container, title, desc) {
 function renderPageScaffold(container, title, desc, bodyHtml) {
   container.innerHTML =
     '<div class="w-full space-y-6 2xl:space-y-8">' +
-      '<div class="rounded-3xl border border-gray-200 bg-white px-5 py-6 shadow-sm sm:px-8 sm:py-8">' +
+      '<div class="rounded-xl border border-gray-200 bg-white px-5 py-6 shadow-sm sm:px-8 sm:py-8">' +
         '<h1 class="app-page-title">' + escapeHtml(sanitizeUiText(title || '')) + '</h1>' +
         '<p class="app-page-desc">' + escapeHtml(sanitizeUiText(desc || '')) + '</p>' +
       '</div>' +
@@ -3093,7 +3271,7 @@ function renderPageScaffold(container, title, desc, bodyHtml) {
 
 function renderCard(title, desc, bodyHtml, extraClass) {
   return (
-    '<section class="rounded-3xl border border-gray-200 bg-white px-5 py-5 shadow-sm sm:px-6 sm:py-6 ' + (extraClass || '') + '">' +
+    '<section class="rounded-xl border border-gray-200 bg-white px-5 py-5 shadow-sm sm:px-6 sm:py-6 ' + (extraClass || '') + '">' +
       '<div class="mb-4">' +
         '<h2 class="ios-card-title">' + escapeHtml(sanitizeUiText(title || '')) + '</h2>' +
         '<p class="mt-1 ios-card-desc">' + escapeHtml(sanitizeUiText(desc || '')) + '</p>' +
@@ -3231,6 +3409,15 @@ var moduleState = {
     emptyHint: '',
     lastLoadedUserId: '',
   },
+  employeeJourney: {
+    selectedStoreId: '',
+    selectedUserId: '',
+    stores: [],
+    users: [],
+    filtersLoaded: false,
+    emptyHint: '',
+    viewerRole: '',
+  },
   competition: {
     summary: null,
     coefficient: null,
@@ -3355,6 +3542,32 @@ var moduleState = {
     searchQuery: '',
     activeFilter: 'all',
     detailUserId: '',
+  },
+  evoGovernance: {
+    activeTab: 'overview',
+    overview: null,
+    feedbackEvents: [],
+    feedbackEventsTotal: 0,
+    feedbackSignal: 'all',
+    feedbackModule: '',
+    feedbackQuery: '',
+    memories: [],
+    memoriesTotal: 0,
+    memoryType: 'all',
+    scopeType: '',
+    status: '',
+    query: '',
+    selectedMemoryType: '',
+    selectedMemoryId: '',
+    detail: null,
+    promotions: [],
+    evalCases: [],
+    evalRuns: [],
+    anomalies: [],
+    promotionScanSummary: null,
+    evalRunSummary: null,
+    anomalyScanSummary: null,
+    pipelineAdvanceSummary: null,
   },
   systemSettings: {
     digitalHuman: normalizeDigitalHumanSystemSettings(null),
@@ -3534,6 +3747,14 @@ var requestState = {
   trainingRetraining: { loading: false, error: '' },
   trainingManageReview: { loading: false, error: '' },
   trainingManageManualCheck: { loading: false, error: '' },
+  evoGovernanceOverview: { loading: false, error: '' },
+  evoGovernanceFeedbackEvents: { loading: false, error: '' },
+  evoGovernanceMemories: { loading: false, error: '' },
+  evoGovernanceDetail: { loading: false, error: '' },
+  evoGovernancePromotions: { loading: false, error: '' },
+  evoGovernanceEval: { loading: false, error: '' },
+  evoGovernanceAnomalies: { loading: false, error: '' },
+  evoGovernanceAction: { loading: false, error: '' },
 };
 
 var INITIAL_MODULE_STATE = JSON.parse(JSON.stringify(moduleState));
@@ -3784,15 +4005,24 @@ async function loadModuleIndexFilters(options) {
     return;
   }
   try {
-    if (moduleIndexCanPickStores()) {
-      var storesRes = await apiFetch('/api/stores', { method: 'GET' });
-      state.stores = Array.isArray(storesRes && storesRes.data && storesRes.data.items) ? storesRes.data.items : [];
-      if (!state.selectedStoreId) state.selectedStoreId = '';
+    var canPickStores = moduleIndexCanPickStores();
+    var storesPromise = canPickStores
+      ? apiFetch('/api/stores', { method: 'GET' })
+      : Promise.resolve(null);
+    if (canPickStores) {
+      state.selectedStoreId = state.selectedStoreId || '';
     } else {
       state.stores = [];
       state.selectedStoreId = String(localStorage.getItem('store_id') || '').trim();
     }
-    var usersRes = await apiFetch('/api/users', { method: 'GET' });
+    var usersPromise = apiFetch('/api/users', { method: 'GET' });
+    var responses = await Promise.all([storesPromise, usersPromise]);
+    var storesRes = responses[0];
+    var usersRes = responses[1];
+    if (canPickStores) {
+      state.stores = Array.isArray(storesRes && storesRes.data && storesRes.data.items) ? storesRes.data.items : [];
+      if (!state.selectedStoreId) state.selectedStoreId = '';
+    }
     state.users = Array.isArray(usersRes && usersRes.data && usersRes.data.items) ? usersRes.data.items : [];
     state.filtersLoaded = true;
   } catch (e) {
@@ -3885,14 +4115,14 @@ function renderTextList(items, emptyText) {
   if (!items || !items.length) return renderEmptyState(emptyText || '数据');
   var html = '<div class="space-y-2">';
   for (var i = 0; i < items.length; i++) {
-    html += '<div class="rounded-2xl bg-[#F7F7F8] px-4 py-3 text-sm text-[#3A3A3C]">' + escapeHtml(items[i]) + '</div>';
+    html += '<div class="rounded-lg bg-[#F7F7F8] px-4 py-3 text-sm text-[#3A3A3C]">' + escapeHtml(items[i]) + '</div>';
   }
   html += '</div>';
   return html;
 }
 
 function renderLabelValueRow(label, value) {
-  return '<div class="flex items-start justify-between gap-4 rounded-2xl bg-[#F7F7F8] px-4 py-3 text-sm"><span class="text-[#86868B]">' + escapeHtml(label) + '</span><span class="text-right text-[#1D1D1F]">' + escapeHtml(value == null ? '' : String(value)) + '</span></div>';
+  return '<div class="flex items-start justify-between gap-4 rounded-lg bg-[#F7F7F8] px-4 py-3 text-sm"><span class="text-[#86868B]">' + escapeHtml(label) + '</span><span class="text-right text-[#1D1D1F]">' + escapeHtml(value == null ? '' : String(value)) + '</span></div>';
 }
 
 function renderMarkdownBlock(markdown, emptyText) {
@@ -3902,7 +4132,7 @@ function renderMarkdownBlock(markdown, emptyText) {
     var end = text.indexOf('-->');
     if (end >= 0) text = text.slice(end + 3).trim();
   }
-  return '<pre class="whitespace-pre-wrap rounded-2xl border border-black/[0.06] bg-white px-4 py-4 text-sm leading-7 text-[#1D1D1F]">' + escapeHtml(text) + '</pre>';
+  return '<pre class="whitespace-pre-wrap rounded-xl border border-black/[0.06] bg-white px-4 py-4 text-sm leading-7 text-[#1D1D1F]">' + escapeHtml(text) + '</pre>';
 }
 
 /** 去掉常见 Markdown 标记，输出可读纯文本（用于成长计划结果区，非 HTML/Markdown 渲染） */
@@ -4417,7 +4647,7 @@ function renderTaskPublishPage(container) {
     return '<option value="' + escapeHtml(option.value) + '">' + escapeHtml(option.label) + '</option>';
   }).join('');
 
-  var cardCls = 'rounded-[20px] border border-slate-200/80 bg-white shadow-[0_2px_12px_rgba(15,23,42,0.04)]';
+  var cardCls = 'rounded-xl border border-slate-200/80 bg-white shadow-[0_2px_12px_rgba(15,23,42,0.04)]';
   var cardHeadCls = 'px-5 py-4 border-b border-slate-100';
   var cardBodyCls = 'px-5 py-5';
   var inputCls = 'w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-400 focus:ring-4 focus:ring-slate-100';
@@ -5125,7 +5355,7 @@ function renderTaskPublishPage(container) {
           var skeletonItems = '';
           for (var si = 0; si < 4; si++) {
             skeletonItems +=
-              '<div class="rounded-[22px] border border-slate-200 bg-white p-4 shadow-[0_8px_22px_rgba(15,23,42,0.03)]">' +
+              '<div class="rounded-xl border border-slate-200 bg-white p-4 shadow-[0_8px_22px_rgba(15,23,42,0.03)]">' +
                 '<div class="flex items-center gap-2">' +
                   '<div class="h-5 w-16 rounded-full bg-slate-100 animate-pulse"></div>' +
                   '<div class="h-4 w-20 rounded bg-slate-100 animate-pulse"></div>' +
@@ -5141,7 +5371,7 @@ function renderTaskPublishPage(container) {
           }
           editorWrap.innerHTML =
             '<div class="space-y-4">' +
-              '<div class="rounded-[22px] border border-slate-200 bg-white p-4">' +
+              '<div class="rounded-xl border border-slate-200 bg-white p-4">' +
                 '<div class="grid gap-4 md:grid-cols-2">' +
                   '<div class="h-11 rounded-xl bg-slate-100 animate-pulse"></div>' +
                   '<div class="h-11 rounded-xl bg-slate-100 animate-pulse"></div>' +
@@ -5386,7 +5616,7 @@ function renderAssessmentPage(container) {
 
   container.innerHTML =
     '<div class="mx-auto flex w-full max-w-6xl flex-col p-4 sm:p-6 lg:p-10">' +
-      '<section class="relative flex flex-col overflow-hidden rounded-[30px] border border-slate-200 bg-white shadow-[0_18px_48px_rgba(15,23,42,0.05)]">' +
+      '<section class="relative flex flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-[0_12px_30px_rgba(15,23,42,0.04)]">' +
         '<div class="flex flex-col gap-4 border-b border-slate-100 bg-white px-5 py-5 lg:flex-row lg:items-center lg:justify-between lg:px-7">' +
           '<div>' +
             '<h1 class="text-[28px] font-semibold tracking-[-0.04em] text-slate-900">动态盲盒考核中...</h1>' +
@@ -5397,7 +5627,7 @@ function renderAssessmentPage(container) {
           '<button type="button" id="assessment-finish-btn" class="inline-flex items-center justify-center rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50">交卷结束</button>' +
           '</div>' +        '</div>' +
         '<div class="assessment-center-session__body bg-white px-4 py-4 lg:px-6">' +
-          '<div id="assessment-chat-log" class="assessment-center-chat-log rounded-2xl border border-slate-200 bg-slate-50/60 p-4"></div>' +
+          '<div id="assessment-chat-log" class="assessment-center-chat-log rounded-xl border border-slate-200 bg-slate-50/60 p-4"></div>' +
           '<form id="assessment-chat-form" class="assessment-center-composer mt-4">' +
             '<div class="compose-shell" role="search">' +
               '<textarea id="assessment-chat-input" rows="2" placeholder="应答..." class="compose-input" oninput="assessmentResizeChatInput()"></textarea>' +
@@ -5478,8 +5708,10 @@ function renderAssessmentPage(container) {
       commentLabel: '考官点评',
       comment: comment,
       primaryButtonId: 'assessment-result-home-btn',
-      primaryButtonText: '返回工作台'
+      primaryButtonText: '返回工作台',
+      certificateButtonId: isPass ? 'assessment-result-certificate-slot' : ''
     });
+    mountCertificateButton('assessment-result-certificate-slot', data && data.record_id, isPass);
 
     requestAnimationFrame(function () {
       requestAnimationFrame(function () {
@@ -5595,6 +5827,7 @@ function renderAssessmentPage(container) {
       var resultIsPass = Number(res && res.is_pass != null ? res.is_pass : (resultScore >= 85 ? 1 : 0));
       var resultComment = (res && (res.reply || res.comment || res.reason)) || '本次考核已手动交卷，系统已记录当前成绩结果';
       showAssessmentResultCard({
+        record_id: moduleState.assessment.recordId,
         score: resultScore,
         is_pass: resultIsPass,
         reply: resultComment,
@@ -6550,6 +6783,11 @@ function buildResultCardHtml(options) {
         escapeHtml(options.secondaryButtonText) +
       '</button>';
   }
+  var certificateAction = '';
+  if (options.certificateButtonId) {
+    certificateAction =
+      '<div id="' + escapeHtml(options.certificateButtonId) + '" class="result-modal-certificate-slot"></div>';
+  }
 
   return (
     '<div id="' + escapeHtml(options.cardId) + '" style="transform:scale(0.92);opacity:0;transition:transform 0.45s cubic-bezier(0.16,1,0.3,1),opacity 0.35s ease" class="result-modal-card ' + (options.isPass ? 'result-modal-card--pass' : 'result-modal-card--fail') + '">' +
@@ -6583,6 +6821,7 @@ function buildResultCardHtml(options) {
           escapeHtml(options.primaryButtonText || '返回工作台') +
         '</button>' +
         secondaryAction +
+        certificateAction +
       '</div>' +
     '</div>'
   );
@@ -6590,6 +6829,13 @@ function buildResultCardHtml(options) {
 
 function getExamCenterPageContainer() {
   return document.getElementById('app-page-area') || document.getElementById('content-area');
+}
+
+function mountCertificateButton(slotId, recordId, isPass, options) {
+  if (!isPass || !recordId || !window.AgentO || typeof window.AgentO.renderCertificateButton !== 'function') return;
+  var slot = document.getElementById(slotId);
+  if (!slot) return;
+  window.AgentO.renderCertificateButton(slot, recordId, options || {});
 }
 
 function examCenterCollectPaperDraft(form, questions) {
@@ -6683,11 +6929,13 @@ function examCenterShowResultCard(data) {
     hiddenScoreText: '本次考试成绩暂不对员工展示',
     commentLabel: '考官点评',
     comment: comment,
-    primaryButtonId: 'assessment-result-home-btn',
-    primaryButtonText: '返回工作台',
-    secondaryButtonId: 'assessment-result-history-btn',
-    secondaryButtonText: '查看历史记录'
-  });
+            primaryButtonId: 'assessment-result-home-btn',
+            primaryButtonText: '返回工作台',
+            secondaryButtonId: 'assessment-result-history-btn',
+            secondaryButtonText: '查看历史记录',
+            certificateButtonId: isPass ? 'exam-center-result-certificate-slot' : ''
+          });
+  mountCertificateButton('exam-center-result-certificate-slot', data && data.record_id, isPass);
 
   requestAnimationFrame(function () {
     requestAnimationFrame(function () {
@@ -7218,7 +7466,7 @@ async function renderExamCenterPage(container) {
     if (!currentPanel) return;
     clearAssessmentCoachRuntime();
     if (state.loadingCurrent) {
-      currentPanel.innerHTML = '<div class="rounded-[28px] border border-slate-200 bg-white p-6 text-sm text-slate-500 shadow-[0_12px_32px_rgba(15,23,42,0.04)]">正在加载当前考试...</div>';
+      currentPanel.innerHTML = '<div class="rounded-xl border border-slate-200 bg-white p-6 text-sm text-slate-500 shadow-[0_8px_22px_rgba(15,23,42,0.04)]">正在加载当前考试...</div>';
       return;
     }
     var tasks = Array.isArray(state.taskItems) ? state.taskItems : [];
@@ -7308,7 +7556,7 @@ async function renderExamCenterPage(container) {
               var title = '<div class="text-base font-semibold text-slate-900">第 ' + escapeHtml(String(index + 1)) + ' 题 · ' + escapeHtml(String(q.title || '')) + '</div>' +
                 '<div class="mt-1 text-xs text-slate-400">' + escapeHtml(String(q.type).toUpperCase()) + ' / ' + escapeHtml(String(q.score || 0)) + ' 分</div>';
               if (q.type === 'single' || q.type === 'judge') {
-                return '<div class="rounded-2xl border border-slate-200 bg-slate-50 p-5">' + title +
+                return '<div class="rounded-xl border border-slate-200 bg-slate-50 p-5">' + title +
                   '<div class="mt-3 space-y-2">' +
                   q.options.map(function (opt) {
                     return '<label class="flex cursor-pointer items-start gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 transition hover:border-slate-300">' +
@@ -7319,7 +7567,7 @@ async function renderExamCenterPage(container) {
                   '</div></div>';
               }
               if (q.type === 'multiple') {
-                return '<div class="rounded-2xl border border-slate-200 bg-slate-50 p-5">' + title +
+                return '<div class="rounded-xl border border-slate-200 bg-slate-50 p-5">' + title +
                   '<div class="mt-3 space-y-2">' +
                   q.options.map(function (opt) {
                     return '<label class="flex cursor-pointer items-start gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 transition hover:border-slate-300">' +
@@ -7329,7 +7577,7 @@ async function renderExamCenterPage(container) {
                   }).join('') +
                   '</div></div>';
               }
-              return '<div class="rounded-2xl border border-slate-200 bg-slate-50 p-5">' + title +
+              return '<div class="rounded-xl border border-slate-200 bg-slate-50 p-5">' + title +
                 '<div class="mt-4">' +
                   '<textarea name="' + escapeHtml(q.id) + '" rows="' + (q.type === 'essay' ? '6' : '4') + '" placeholder="' + escapeHtml(String(q.placeholder || '答案...')) + '" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-7 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-400 focus:ring-4 focus:ring-slate-100"></textarea>' +
                 '</div></div>';
@@ -7389,7 +7637,7 @@ async function renderExamCenterPage(container) {
             '</div>' +
           '</div>' +
           '<div class="assessment-center-session__body bg-white px-4 py-4 lg:px-6">' +
-            '<div id="assessment-chat-log" class="assessment-center-chat-log rounded-2xl border border-slate-200 bg-slate-50/60 p-4"></div>' +
+            '<div id="assessment-chat-log" class="assessment-center-chat-log rounded-xl border border-slate-200 bg-slate-50/60 p-4"></div>' +
             '<form id="assessment-chat-form" class="assessment-center-composer mt-4">' +
               '<div class="compose-shell" role="search">' +
                 '<textarea id="assessment-chat-input" rows="2" placeholder="应答..." class="compose-input" oninput="assessmentResizeChatInput()"></textarea>' +
@@ -7429,7 +7677,7 @@ async function renderExamCenterPage(container) {
     var historyPanel = document.getElementById('assessment-history-panel');
     if (!historyPanel) return;
     if (state.loadingHistory) {
-      historyPanel.innerHTML = '<div class="rounded-[28px] border border-slate-200 bg-white p-6 text-sm text-slate-500 shadow-[0_12px_32px_rgba(15,23,42,0.04)]">正在加载历史记录...</div>';
+      historyPanel.innerHTML = '<div class="rounded-xl border border-slate-200 bg-white p-6 text-sm text-slate-500 shadow-[0_8px_22px_rgba(15,23,42,0.04)]">正在加载历史记录...</div>';
       return;
     }
     var items = Array.isArray(state.historyItems) ? state.historyItems : [];
@@ -7446,6 +7694,8 @@ async function renderExamCenterPage(container) {
       var scoreText = scoreVisible && item && item.score != null
         ? String(Math.round(Number(item.score || 0))) + ' 分'
         : '待公布';
+      var recordId = String(item && item.record_id || '');
+      var certificateSlotId = passed && recordId ? ('assessment-history-certificate-' + recordId) : '';
       var timeSpent = Number(item && item.time_spent_seconds || 0);
       var timeSpentText = '';
       if (timeSpent > 0) {
@@ -7455,7 +7705,7 @@ async function renderExamCenterPage(container) {
       } else if (finished) {
         timeSpentText = '—';
       }
-      return '<div class="rounded-[26px] border border-slate-200 bg-white p-5 shadow-[0_12px_32px_rgba(15,23,42,0.04)]">' +
+      return '<div class="rounded-xl border border-slate-200 bg-white p-5 shadow-[0_8px_22px_rgba(15,23,42,0.04)]">' +
         '<div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">' +
           '<div class="min-w-0">' +
             '<div class="flex flex-wrap items-center gap-2">' +
@@ -7467,14 +7717,24 @@ async function renderExamCenterPage(container) {
             '<p class="mt-2 text-sm leading-7 text-slate-600">' + escapeHtml(String(item && item.comment || (finished ? '本次考试已完成' : '考试尚未结束'))) + '</p>' +
           '</div>' +
           '<div class="grid shrink-0 gap-3 sm:grid-cols-4 lg:min-w-[460px]">' +
-            '<div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3"><div class="text-xs text-slate-400">成绩</div><div class="mt-2 text-lg font-semibold text-slate-900">' + escapeHtml(scoreText) + '</div></div>' +
-            '<div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3"><div class="text-xs text-slate-400">轮次</div><div class="mt-2 text-lg font-semibold text-slate-900">第 ' + escapeHtml(String(item && item.attempt_no || 1)) + ' 次</div></div>' +
-            '<div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3"><div class="text-xs text-slate-400">完成时间</div><div class="mt-2 text-sm font-semibold leading-6 text-slate-900">' + escapeHtml(examCenterFormatDateTime(item && item.finished_at)) + '</div></div>' +
-            '<div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3"><div class="text-xs text-slate-400">用时</div><div class="mt-2 text-sm font-semibold text-slate-900">' + escapeHtml(timeSpentText || '—') + (isTimeout ? ' <span class="text-orange-500">(超时)</span>' : '') + '</div></div>' +
+            '<div class="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3"><div class="text-xs text-slate-400">成绩</div><div class="mt-2 text-lg font-semibold text-slate-900">' + escapeHtml(scoreText) + '</div></div>' +
+            '<div class="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3"><div class="text-xs text-slate-400">轮次</div><div class="mt-2 text-lg font-semibold text-slate-900">第 ' + escapeHtml(String(item && item.attempt_no || 1)) + ' 次</div></div>' +
+            '<div class="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3"><div class="text-xs text-slate-400">完成时间</div><div class="mt-2 text-sm font-semibold leading-6 text-slate-900">' + escapeHtml(examCenterFormatDateTime(item && item.finished_at)) + '</div></div>' +
+            '<div class="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3"><div class="text-xs text-slate-400">用时</div><div class="mt-2 text-sm font-semibold text-slate-900">' + escapeHtml(timeSpentText || '—') + (isTimeout ? ' <span class="text-orange-500">(超时)</span>' : '') + '</div></div>' +
           '</div>' +
         '</div>' +
+        (certificateSlotId ? '<div id="' + escapeHtml(certificateSlotId) + '" class="assessment-history-certificate-slot mt-4"></div>' : '') +
       '</div>';
     }).join('') + '</div></div>';
+    items.forEach(function (item) {
+      var recordId = String(item && item.record_id || '');
+      if (Number(item && item.is_pass || 0) === 1 && recordId) {
+        mountCertificateButton('assessment-history-certificate-' + recordId, recordId, true, {
+          className: 'certificate-history-btn',
+          label: '下载培训证书'
+        });
+      }
+    });
   }
 
   container.innerHTML =
@@ -7567,7 +7827,7 @@ async function renderCompetitionPage(container) {
           ) : '') +
         '</div>' +
       '</header>' +
-      '<section class="app-page-panel" style="border:none;background:var(--surface-secondary);border-radius:1.75rem;box-shadow:none">' +
+      '<section class="app-page-panel" style="border:none;background:var(--surface-secondary);border-radius:0.875rem;box-shadow:none">' +
         '<div id="competition-page-body" class="px-5 py-6 lg:px-8"></div>' +
       '</section>' +
     '</div>';
@@ -8079,10 +8339,10 @@ function renderModuleIndexSummaryCard(limit) {
   var html = '<section class="gp-card"><div class="gp-card__body gp-card__body--airy">';
   html += '<div class="flex items-start justify-between gap-3"><div class="gp-section-head"><h2 class="gp-section-head__title">模块指数摘要</h2></div><button type="button" class="gp-link" onclick="navigateTo(\'module_ability\')">查看完整模块能力图谱</button></div>';
   html += '<div class="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">';
-  html += '<div class="rounded-[20px] border border-slate-200 bg-slate-50 px-4 py-4"><div class="ios-eyebrow">平均指数</div><div class="mt-2 ios-stat-value text-slate-900">' + escapeHtml(String(avg || 0)) + '</div></div>';
+  html += '<div class="rounded-lg border border-slate-200 bg-slate-50 px-4 py-4"><div class="ios-eyebrow">平均指数</div><div class="mt-2 ios-stat-value text-slate-900">' + escapeHtml(String(avg || 0)) + '</div></div>';
   for (var j = 0; j < subset.length; j++) {
     var item = subset[j];
-    html += '<button type="button" onclick="navigateTo(\'module_ability\')" class="rounded-[20px] border border-slate-200 bg-white px-4 py-4 text-left shadow-[0_10px_24px_rgba(15,23,42,0.04)] transition hover:border-slate-300 hover:bg-slate-50">';
+    html += '<button type="button" onclick="navigateTo(\'module_ability\')" class="rounded-lg border border-slate-200 bg-white px-4 py-4 text-left shadow-[0_8px_20px_rgba(15,23,42,0.035)] transition hover:border-slate-300 hover:bg-slate-50">';
     html += '<div class="text-[12px] font-semibold text-slate-900">' + escapeHtml(practiceModuleLabel(item.module_code)) + '</div>';
     html += '<div class="mt-2 h-2 overflow-hidden rounded-full bg-slate-100"><span class="block h-full rounded-full bg-sky-500" style="width:' + escapeHtml(String(Math.max(0, Math.min(100, Number(item.overall_index || 0))))) + '%"></span></div>';
     html += '<div class="mt-2 text-[12px] text-slate-500">综合指数 ' + escapeHtml(String(Math.round(Number(item.overall_index || 0) * 10) / 10)) + '</div>';
@@ -8097,7 +8357,7 @@ function renderAgentOrchestrationPage(container) {
   container.innerHTML =
     '<div class="app-page-shell app-page-shell--lg agent-orchestration-page flex flex-col gap-4">' +
       '<header class="app-page-header app-page-header--split">' +
-        '<div><h1 class="app-page-title">智能体协作</h1><p class="app-page-desc">导师、陪练、考官、客服、分析师 5 个 Agent 承接培训到经营的核心链路。</p></div>' +
+        '<div><h1 class="app-page-title">智能体协作</h1><p class="app-page-desc">6 个智能体分工运行，串联学习、陪练、考核、服务与经营分析。</p></div>' +
       '</header>' +
       '<section class="app-page-panel"><div id="agent-orchestration-root" class="agent-orchestration-root"></div></section>' +
     '</div>';
@@ -9913,6 +10173,17 @@ function renderGrowthPlanPage(container) {
 }
 
 function selectedJourneyEmployeeId() {
+  if (!journeyCanPickUsers()) {
+    return localStorage.getItem('userId') || localStorage.getItem('employeeNo') || '';
+  }
+  var state = moduleState.employeeJourney || {};
+  if (state.selectedUserId) return String(state.selectedUserId || '').trim();
+  var requested = requestedJourneyEmployeeId();
+  if (requested) return requested;
+  return 'trainee_zjx';
+}
+
+function requestedJourneyEmployeeId() {
   try {
     var params = new URLSearchParams(window.location.search || '');
     var fromQuery = params.get('employee_id') || params.get('employeeId');
@@ -9922,8 +10193,7 @@ function selectedJourneyEmployeeId() {
     var picked = sessionStorage.getItem('employee_journey_employee_id') || '';
     if (picked) return picked;
   } catch (e) {}
-  if (isManagementRole(localStorage.getItem('role') || '')) return 'trainee_zjx';
-  return localStorage.getItem('userId') || localStorage.getItem('employeeNo') || '';
+  return '';
 }
 
 function openEmployeeJourney(employeeId) {
@@ -9933,12 +10203,299 @@ function openEmployeeJourney(employeeId) {
   navigateTo('employee_journey');
 }
 
+function journeyCurrentRole() {
+  return normalizeRole(localStorage.getItem('role') || '');
+}
+
+function journeyCanPickUsers() {
+  return isManagementRole(journeyCurrentRole());
+}
+
+function journeyCanUseAllStores() {
+  return journeyCurrentRole() === 'admin';
+}
+
+function journeyCanPickStores() {
+  return journeyCanPickUsers();
+}
+
+function journeyUserKey(user) {
+  return String(user && (user.id || user.user_id || user.username || user.employee_no) || '').trim();
+}
+
+function findJourneyUserById(users, rawUserId) {
+  var target = String(rawUserId || '').trim();
+  if (!target) return null;
+  var list = Array.isArray(users) ? users : [];
+  for (var i = 0; i < list.length; i++) {
+    var user = list[i] || {};
+    var keys = [
+      user.id,
+      user.user_id,
+      user.username,
+      user.employee_no,
+    ];
+    for (var j = 0; j < keys.length; j++) {
+      if (String(keys[j] || '').trim() === target) return user;
+    }
+  }
+  return null;
+}
+
+function getJourneyScopedUsers() {
+  var state = moduleState.employeeJourney || {};
+  var users = Array.isArray(state.users) ? state.users.slice() : [];
+  var storeId = String(state.selectedStoreId || '').trim();
+  if (!storeId) return users;
+  return users.filter(function (user) {
+    return String(user && user.store_id || '').trim() === storeId;
+  });
+}
+
+function pickJourneyDefaultUserId(users) {
+  var list = Array.isArray(users) ? users : [];
+  var preferred = [
+    requestedJourneyEmployeeId(),
+    localStorage.getItem('userId') || '',
+    localStorage.getItem('employeeNo') || '',
+  ];
+  for (var p = 0; p < preferred.length; p++) {
+    var found = findJourneyUserById(list, preferred[p]);
+    if (found) return journeyUserKey(found);
+  }
+  for (var i = 0; i < list.length; i++) {
+    var key = journeyUserKey(list[i]);
+    if (key) return key;
+  }
+  return '';
+}
+
+async function loadEmployeeJourneyFilters(options) {
+  options = options || {};
+  var state = moduleState.employeeJourney || {};
+  var role = journeyCurrentRole();
+  state.viewerRole = role;
+  if (!journeyCanPickUsers()) {
+    state.selectedStoreId = String(localStorage.getItem('store_id') || '').trim();
+    state.selectedUserId = String(localStorage.getItem('userId') || localStorage.getItem('employeeNo') || '').trim();
+    state.stores = [];
+    state.users = [];
+    state.emptyHint = '';
+    state.filtersLoaded = true;
+    return;
+  }
+  if (state.filtersLoaded && !options.force) {
+    if (!journeyCanUseAllStores()) {
+      state.selectedStoreId = String(localStorage.getItem('store_id') || '').trim();
+    }
+    return;
+  }
+  try {
+    if (journeyCanPickStores()) {
+      var storesRes = await apiFetch('/api/stores', { method: 'GET' });
+      state.stores = Array.isArray(storesRes && storesRes.data && storesRes.data.items) ? storesRes.data.items : [];
+      if (!journeyCanUseAllStores()) {
+        state.selectedStoreId = String(localStorage.getItem('store_id') || '').trim();
+      } else if (state.selectedStoreId == null) {
+        state.selectedStoreId = '';
+      }
+    }
+    var usersRes = await apiFetch('/api/users', { method: 'GET' });
+    state.users = Array.isArray(usersRes && usersRes.data && usersRes.data.items) ? usersRes.data.items : [];
+    var scopedUsers = getJourneyScopedUsers();
+    if (!state.selectedUserId || !findJourneyUserById(scopedUsers, state.selectedUserId)) {
+      state.selectedUserId = pickJourneyDefaultUserId(scopedUsers);
+    }
+    state.emptyHint = state.selectedUserId ? '' : (state.selectedStoreId ? '当前门店暂无可查看员工' : '暂无可查看员工');
+    state.filtersLoaded = true;
+  } catch (e) {
+    state.filtersLoaded = true;
+    state.stores = state.stores || [];
+    state.users = state.users || [];
+    state.selectedUserId = state.selectedUserId || String(localStorage.getItem('userId') || localStorage.getItem('employeeNo') || '').trim();
+    state.emptyHint = '';
+  }
+}
+
+function onEmployeeJourneyStoreChange(storeId) {
+  var state = moduleState.employeeJourney || {};
+  state.selectedStoreId = String(storeId || '').trim();
+  state.selectedUserId = pickJourneyDefaultUserId(getJourneyScopedUsers());
+  try {
+    if (state.selectedUserId) sessionStorage.setItem('employee_journey_employee_id', state.selectedUserId);
+    else sessionStorage.removeItem('employee_journey_employee_id');
+  } catch (e) {}
+  rerenderCurrentPage();
+}
+
+function onEmployeeJourneyUserChange(userId) {
+  var state = moduleState.employeeJourney || {};
+  state.selectedUserId = String(userId || '').trim();
+  try {
+    if (state.selectedUserId) sessionStorage.setItem('employee_journey_employee_id', state.selectedUserId);
+    else sessionStorage.removeItem('employee_journey_employee_id');
+  } catch (e) {}
+  rerenderCurrentPage();
+}
+
+function renderEmployeeJourneyPicker(id, label, ariaLabel, pickerType, options, selectedLabel, disabled) {
+  var safeLabel = String(selectedLabel || '').trim() || '请选择';
+  var html = '' +
+    '<label class="employee-journey-filter__field">' +
+      '<span>' + escapeHtml(label) + '</span>' +
+      '<div id="' + escapeHtml(id) + '" class="wb-store-picker employee-journey-picker' + (disabled ? ' is-static' : '') + '" data-employee-journey-picker="' + escapeHtml(pickerType) + '">' +
+        '<button type="button" class="wb-store-picker__btn' + (disabled ? ' wb-store-picker__btn--static' : '') + '" aria-haspopup="listbox" aria-expanded="false"' + (disabled ? ' disabled aria-disabled="true"' : '') + '>' +
+          '<span>' + escapeHtml(safeLabel) + '</span>' +
+          '<svg class="wb-store-picker__arrow" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd"/></svg>' +
+        '</button>' +
+        '<div class="wb-store-picker__list" role="listbox" aria-label="' + escapeHtml(ariaLabel) + '">';
+
+  for (var i = 0; i < options.length; i++) {
+    var option = options[i] || {};
+    var isSelected = !!option.selected;
+    var isDisabled = !!option.disabled;
+    html += '<button type="button" class="wb-store-picker__item' + (isSelected ? ' is-selected' : '') + (isDisabled ? ' is-disabled' : '') + '" role="option" aria-selected="' + (isSelected ? 'true' : 'false') + '" data-value="' + escapeHtml(String(option.value || '')) + '"' + (isDisabled ? ' disabled aria-disabled="true"' : '') + '>' + escapeHtml(option.text || '') + '</button>';
+  }
+
+  html += '</div></div></label>';
+  return html;
+}
+
+function closeEmployeeJourneyPickers(exceptPicker) {
+  var pickers = document.querySelectorAll('.employee-journey-picker');
+  for (var i = 0; i < pickers.length; i++) {
+    if (exceptPicker && pickers[i] === exceptPicker) continue;
+    pickers[i].classList.remove('is-open');
+    var btn = pickers[i].querySelector('.wb-store-picker__btn');
+    if (btn) btn.setAttribute('aria-expanded', 'false');
+  }
+}
+
+function initEmployeeJourneyFilterPickers(container) {
+  var root = container && container.querySelector ? container : document;
+  var pickers = root.querySelectorAll ? root.querySelectorAll('.employee-journey-picker') : [];
+  if (!pickers.length) return;
+
+  if (document.body && !document.body.dataset.employeeJourneyPickerBound) {
+    document.addEventListener('click', function () {
+      closeEmployeeJourneyPickers();
+    });
+    document.body.dataset.employeeJourneyPickerBound = '1';
+  }
+
+  for (var i = 0; i < pickers.length; i++) {
+    (function (picker) {
+      if (picker.dataset.bound) return;
+      var btn = picker.querySelector('.wb-store-picker__btn');
+      var list = picker.querySelector('.wb-store-picker__list');
+      if (!btn || !list) return;
+
+      btn.addEventListener('click', function (event) {
+        if (btn.disabled) return;
+        event.stopPropagation();
+        var isOpen = picker.classList.contains('is-open');
+        closeEmployeeJourneyPickers(picker);
+        picker.classList.toggle('is-open', !isOpen);
+        btn.setAttribute('aria-expanded', !isOpen ? 'true' : 'false');
+      });
+
+      list.addEventListener('click', function (event) {
+        event.stopPropagation();
+        var item = event.target && event.target.closest ? event.target.closest('.wb-store-picker__item') : null;
+        if (!item || item.disabled || item.classList.contains('is-disabled')) return;
+        var value = String(item.dataset.value || '');
+        var pickerType = String(picker.dataset.employeeJourneyPicker || '');
+        closeEmployeeJourneyPickers();
+        if (pickerType === 'store') {
+          onEmployeeJourneyStoreChange(value);
+        } else if (pickerType === 'user') {
+          onEmployeeJourneyUserChange(value);
+        }
+      });
+
+      picker.dataset.bound = '1';
+    })(pickers[i]);
+  }
+}
+
+function renderEmployeeJourneyFilterPanel() {
+  if (!journeyCanPickUsers()) return '';
+  var state = moduleState.employeeJourney || {};
+  var canPickStores = journeyCanPickStores();
+  var selectedStoreId = String(state.selectedStoreId || '').trim();
+  var selectedUserId = String(state.selectedUserId || selectedJourneyEmployeeId() || '').trim();
+  var stores = Array.isArray(state.stores) ? state.stores : [];
+  var users = getJourneyScopedUsers();
+  var storeOptions = [];
+  var selectedStoreLabel = '';
+  if (journeyCanUseAllStores()) {
+    storeOptions.push({ value: '', text: '全部门店', selected: !selectedStoreId });
+    if (!selectedStoreId) selectedStoreLabel = '全部门店';
+  }
+  for (var s = 0; s < stores.length; s++) {
+    var store = stores[s] || {};
+    var storeValue = String(store.store_id || '').trim();
+    if (!storeValue) continue;
+    var storeText = String(store.store_name || storeValue || '未命名门店').trim();
+    var storeSelected = storeValue === selectedStoreId;
+    if (storeSelected) selectedStoreLabel = storeText;
+    storeOptions.push({ value: storeValue, text: storeText, selected: storeSelected });
+  }
+  if (!storeOptions.length && selectedStoreId) {
+    selectedStoreLabel = String(localStorage.getItem('store_name') || selectedStoreId).trim();
+    storeOptions.push({ value: selectedStoreId, text: selectedStoreLabel, selected: true });
+  }
+  var userOptions = [];
+  var selectedUserLabel = '';
+  for (var u = 0; u < users.length; u++) {
+    var user = users[u] || {};
+    var userValue = journeyUserKey(user);
+    if (!userValue) continue;
+    var userSelected = userValue === selectedUserId || String(user.username || '').trim() === selectedUserId;
+    var userLabel = String(user.display_name || user.username || userValue || '未命名员工').trim();
+    if (userSelected) selectedUserLabel = userLabel;
+    userOptions.push({ value: userValue, text: userLabel, selected: userSelected });
+  }
+  if (!userOptions.length) userOptions.push({ value: '', text: '暂无可选员工', selected: true, disabled: true });
+  if (!selectedStoreLabel) selectedStoreLabel = journeyCanUseAllStores() ? '全部门店' : (localStorage.getItem('store_name') || selectedStoreId || '本店');
+  if (!selectedUserLabel) selectedUserLabel = userOptions[0] && !userOptions[0].disabled ? userOptions[0].text : '暂无可选员工';
+
+  return (
+    '<section class="employee-journey-filter app-page-panel">' +
+      '<div class="employee-journey-filter__grid">' +
+        (canPickStores
+          ? renderEmployeeJourneyPicker('employee-journey-store-picker', '门店', '选择门店', 'store', storeOptions, selectedStoreLabel, !storeOptions.length)
+          : '') +
+        renderEmployeeJourneyPicker('employee-journey-user-picker', '人员', '选择人员', 'user', userOptions, selectedUserLabel, !users.length) +
+      '</div>' +
+    '</section>'
+  );
+}
+
 function renderEmployeeJourneyPage(container) {
+  var filtersLoading = journeyCanPickUsers() && !moduleState.employeeJourney.filtersLoaded;
+  if (filtersLoading) {
+    loadEmployeeJourneyFilters().then(function () {
+      rerenderCurrentPage();
+    });
+  }
   container.innerHTML =
     '<div class="app-page-shell app-page-shell--xl space-y-6">' +
+      '<header class="app-page-header app-page-header--split employee-journey-page-header">' +
+        '<div><h1 class="app-page-title">成长之旅</h1><p class="app-page-desc">' +
+          escapeHtml(journeyCanPickUsers() ? '按门店和人员查看 14 天成长轨迹' : '当前仅展示你的个人成长轨迹') +
+        '</p></div>' +
+      '</header>' +
+      (filtersLoading ? '<section class="employee-journey-filter app-page-panel"><div class="employee-journey-filter__loading">正在加载可查看人员…</div></section>' : renderEmployeeJourneyFilterPanel()) +
+      (moduleState.employeeJourney && moduleState.employeeJourney.emptyHint ? '<section class="app-page-panel px-5 py-4 text-sm text-slate-500">' + escapeHtml(moduleState.employeeJourney.emptyHint) + '</section>' : '') +
       '<div id="employee-journey-root" class="employee-journey-root"></div>' +
     '</div>';
+  initEmployeeJourneyFilterPickers(container);
   var root = container.querySelector('#employee-journey-root');
+  if (filtersLoading) {
+    if (root) root.innerHTML = '<div class="employee-journey-empty">正在加载成长之旅筛选条件</div>';
+    return;
+  }
   if (!root || !window.AgentO || typeof window.AgentO.renderEmployeeJourney !== 'function') {
     if (root) root.innerHTML = '<div class="employee-journey-empty">成长之旅组件未加载</div>';
     return;
@@ -11560,7 +12117,13 @@ async function submitAssistantReply() {
     s._replyAnimAt = Date.now();
     // 添加助手回复到对话历史（话术和追问分开存储，附带 turn_feedback）
     if (res.data && res.data.reply_script) {
-      s.conversationHistory.push({ role: 'assistant', content: res.data.reply_script, msgType: 'reply', turn_feedback: turnFeedback });
+      s.conversationHistory.push({
+        role: 'assistant',
+        content: res.data.reply_script,
+        msgType: 'reply',
+        turn_feedback: turnFeedback,
+        evo_episode_id: res.data.evo_episode_id || null,
+      });
     }
     if (res.data && res.data.followup_question) {
       s.conversationHistory.push({ role: 'assistant', content: res.data.followup_question, msgType: 'followup' });
@@ -11786,6 +12349,11 @@ function renderAssistantGeminiAiBlock(s, assistantReplyLoading) {
       '</div>';
   }
 
+  // Hermes 路线 B · Phase 1：渲染 evo 反馈按钮（3 按钮 + 纠正弹窗）
+  if (data && data.evo_episode_id && window.AgentO && typeof window.AgentO.renderEvoFeedbackHtml === 'function') {
+    html += window.AgentO.renderEvoFeedbackHtml(data.evo_episode_id);
+  }
+
   return html;
 }
 
@@ -11925,6 +12493,9 @@ function renderAssistantPage(container) {
         '<p class="text-[15px] leading-relaxed text-[#1D1D1F]">' + escapeHtml(msg.content) + '</p>' +
         '</div>' +
         renderAssistantTurnFeedbackCard(msg.turn_feedback) +
+        (msg.evo_episode_id && window.AgentO && typeof window.AgentO.renderEvoFeedbackHtml === 'function'
+          ? window.AgentO.renderEvoFeedbackHtml(msg.evo_episode_id)
+          : '') +
         '</div>';
     }
   }
@@ -12229,6 +12800,7 @@ function normalizeUnifiedQuickQueryResult(data) {
     scope: raw.scope || '',
     manager_role: raw.manager_role || '',
     conversation_id: raw.conversation_id || '',
+    evo_episode_id: raw.evo_episode_id || null,
     citations: citations,
     sources: Array.isArray(raw.sources) ? raw.sources : [],
     follow_up_questions: Array.isArray(raw.follow_up_questions) ? raw.follow_up_questions : [],
@@ -12254,6 +12826,7 @@ function normalizeUnifiedQuickQueryResult(data) {
     scope: raw.scope || '',
     manager_role: raw.manager_role || '',
     conversation_id: raw.conversation_id || '',
+    evo_episode_id: raw.evo_episode_id || null,
     citations: citations,
     sources: Array.isArray(raw.sources) ? raw.sources : [],
   };
@@ -12515,6 +13088,7 @@ async function submitQuickQuerySend() {
       summarizeResult: s.summarizeResult,
       summarizeMeta: s.summarizeMeta,
       query_context: quickQueryBuildContext(s.parseResult, s.summarizeResult),
+      evo_episode_id: (s.summarizeResult && s.summarizeResult.evo_episode_id) || (s.parseResult && s.parseResult.evo_episode_id) || null,
       createdAt: Date.now(),
     };
     s.conversationHistory.push(assistantMsg);
@@ -12911,6 +13485,7 @@ async function submitKnowledgeQaSend() {
       remoteConversationId: String(data.conversation_id || ''),
       qaChatConversationId: String(data.qa_chat_conversation_id || ''),
       turn_feedback: turnFeedback,
+      evo_episode_id: data.evo_episode_id || null,
       createdAt: Date.now(),
     });
     conv.qaChatConversationId = String(data.qa_chat_conversation_id || conv.qaChatConversationId || '');
@@ -13080,11 +13655,15 @@ function renderKnowledgeQaAssistantCard(msg) {
         '</div></div>'
       )
     : '';
+  var evoFeedbackHtml = (msg && msg.evo_episode_id && typeof window !== 'undefined' && window.AgentO && typeof window.AgentO.renderEvoFeedbackHtml === 'function')
+    ? window.AgentO.renderEvoFeedbackHtml(msg.evo_episode_id)
+    : '';
   return (
     '<div class="qa-answer-card">' +
       '<div class="qa-answer-prose">' + answerHtml + '</div>' +
       citationHtml +
       relatedHtml +
+      evoFeedbackHtml +
     '</div>'
   );
 }
@@ -13550,7 +14129,7 @@ function renderQuickQueryPage(container) {
     var roleLabel = ROLE_LABELS[role] || role || '用户';
     var scopeText = getQuickQueryScopeText('', role);
     var items = renderQuickQueryTemplateButtons(getQuickQueryTemplates(role, 4));
-    return '<div class="rounded-[28px] bg-white/92 p-4 shadow-[0_8px_32px_rgba(0,0,0,0.06)] sm:p-5">' +
+    return '<div class="rounded-2xl bg-white/92 p-4 shadow-[0_8px_32px_rgba(0,0,0,0.06)] sm:p-5">' +
       '<div class="flex flex-wrap gap-2">' +
         '<span class="inline-flex items-center rounded-full bg-[#F2F2F7] px-3 py-1 text-xs font-medium text-[#1D1D1F]">当前角色：' + escapeHtml(roleLabel) + '</span>' +
         '<span class="inline-flex items-center rounded-full bg-[#F2F2F7] px-3 py-1 text-xs font-medium text-[#1D1D1F]">查询范围：' + escapeHtml(scopeText) + '</span>' +
@@ -14123,7 +14702,11 @@ function renderQuickQueryPage(container) {
       chatItems += '<div class="practice-msg-row practice-msg-row--ai">' +
         '<div class="practice-bubble practice-bubble--ai qq-answer-bubble" style="max-width:90%">' +
         renderAiResultCard(hMsg.parseResult, hMsg.summarizeResult) +
-        '</div></div>';
+        '</div>' +
+        (hMsg.evo_episode_id && window.AgentO && typeof window.AgentO.renderEvoFeedbackHtml === 'function'
+          ? window.AgentO.renderEvoFeedbackHtml(hMsg.evo_episode_id)
+          : '') +
+        '</div>';
     }
   }
 
@@ -15148,7 +15731,7 @@ function renderDashboardCalendarInto(popEl) {
     '</div>';
 
   popEl.className =
-    'rounded-[20px] border border-[#D7E8FF] bg-[linear-gradient(180deg,#FFFFFF,#F5FAFF)] p-4 font-sans shadow-[0_24px_54px_rgba(15,23,42,0.16),0_10px_24px_rgba(0,122,255,0.12)]';
+    'rounded-2xl border border-[#D7E8FF] bg-[linear-gradient(180deg,#FFFFFF,#F5FAFF)] p-4 font-sans shadow-[0_24px_54px_rgba(15,23,42,0.16),0_10px_24px_rgba(0,122,255,0.12)]';
   popEl.style.boxSizing = 'border-box';
   popEl.innerHTML = head + wk + grid + foot;
 }
@@ -15789,7 +16372,7 @@ function renderTalentDashboardPage(container) {
       rosterCardsHtml +=
         '<button type="button" onclick="focusDashboardRiskEmployee(\'\')" style="border:1px solid ' +
         (selEmpId ? 'rgba(60,60,67,0.12)' : 'rgba(29,29,31,0.18)') +
-        ';text-align:left;border-radius:20px;padding:16px 18px;cursor:pointer;background:#ffffff;color:#1d1d1f;box-shadow:' +
+        ';text-align:left;border-radius:14px;padding:16px 18px;cursor:pointer;background:#ffffff;color:#1d1d1f;box-shadow:' +
         (selEmpId ? '0 8px 20px rgba(15,23,42,0.04)' : '0 10px 24px rgba(15,23,42,0.06)') +
         ';font-family:inherit;min-height:140px">' +
         '<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px">' +
@@ -15819,7 +16402,7 @@ function renderTalentDashboardPage(container) {
       rosterCardsHtml +=
         '<button type="button" onclick="focusDashboardRiskEmployee(\'' + escapeHtml(rosterEmpId) + '\')" style="border:1px solid ' +
         (isRosterActive ? 'rgba(29,29,31,0.18)' : 'rgba(60,60,67,0.12)') +
-        ';text-align:left;border-radius:20px;padding:18px;cursor:pointer;background:#ffffff;color:#1d1d1f;box-shadow:' +
+        ';text-align:left;border-radius:14px;padding:18px;cursor:pointer;background:#ffffff;color:#1d1d1f;box-shadow:' +
         (isRosterActive ? '0 12px 28px rgba(15,23,42,0.08)' : '0 8px 20px rgba(15,23,42,0.04)') +
         ';font-family:inherit;min-height:180px">' +
         '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px">' +
@@ -16013,8 +16596,8 @@ function renderTalentDashboardPage(container) {
     '<div class="db-page">' +
     '<div class="app-page-shell app-page-shell--xl space-y-6">' +
     /* 1. Title */
-    '<header class="app-page-header">' +
-    '<h1 class="app-page-title">风险看板</h1>' +
+    '<header class="app-page-header app-page-header--split">' +
+    '<div><h1 class="app-page-title">风险看板</h1></div>' +
     '</header>' +
     historicalBanner +
     /* 2. Filter bar */
@@ -16075,7 +16658,7 @@ function renderPersonnelManage(container) {
     '<header class="app-page-header">' +
     '<h1 class="app-page-title">人员管理</h1>' +
     '</header>' +
-    '<div class="bg-white rounded-2xl shadow-sm p-4 sm:p-6">' +
+    '<div class="bg-white rounded-xl shadow-sm p-4 sm:p-6">' +
     '<div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:gap-5">' +
     '<div class="w-12 h-12 bg-blue-50 text-blue-500 rounded-2xl flex items-center justify-center flex-shrink-0">' +
     '<svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">' +
@@ -16093,7 +16676,7 @@ function renderPersonnelManage(container) {
     '</div>' +
     '</div>' +
     '</div>' +
-    '<div class="bg-white rounded-2xl shadow-sm overflow-hidden p-4 sm:p-6 flex-1 min-h-0 flex flex-col">' +
+    '<div class="bg-white rounded-xl shadow-sm overflow-hidden p-4 sm:p-6 flex-1 min-h-0 flex flex-col">' +
     '<div class="flex flex-wrap items-center gap-3 mb-4">' +
     '<h3 class="text-lg font-bold text-gray-800">员工列表</h3>' +
     '<div class="flex-1"></div>' +
@@ -16222,7 +16805,7 @@ function renderPersonnelTable(users) {
       var userPhone = escapeHtml(user.phone || '—');
       var userCreated = user.created_at ? escapeHtml(user.created_at.substr(0, 10)) : '—';
       mobileHtml +=
-        '<article class="personnel-mobile-card rounded-[24px] border border-slate-200 bg-white p-4 shadow-[0_10px_24px_rgba(15,23,42,0.04)]">' +
+        '<article class="personnel-mobile-card rounded-xl border border-slate-200 bg-white p-4 shadow-[0_8px_22px_rgba(15,23,42,0.04)]">' +
           '<div class="flex items-start justify-between gap-3">' +
             '<div class="min-w-0">' +
               '<div class="text-[11px] font-semibold tracking-[0.08em] text-slate-400">' + userEmpNo + '</div>' +
@@ -16232,9 +16815,9 @@ function renderPersonnelTable(users) {
             '<div class="shrink-0 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-medium text-slate-500">' + userRole + '</div>' +
           '</div>' +
           '<div class="personnel-mobile-meta mt-4 grid grid-cols-2 gap-3 text-sm">' +
-            '<div class="rounded-2xl bg-slate-50 px-3 py-3"><div class="text-[11px] text-slate-400">门店</div><div class="mt-1 font-medium text-slate-800">' + userStore + '</div></div>' +
-            '<div class="rounded-2xl bg-slate-50 px-3 py-3"><div class="text-[11px] text-slate-400">手机</div><div class="mt-1 font-medium text-slate-800">' + userPhone + '</div></div>' +
-            '<div class="rounded-2xl bg-slate-50 px-3 py-3 col-span-2"><div class="text-[11px] text-slate-400">创建时间</div><div class="mt-1 font-medium text-slate-800">' + userCreated + '</div></div>' +
+            '<div class="rounded-lg bg-slate-50 px-3 py-3"><div class="text-[11px] text-slate-400">门店</div><div class="mt-1 font-medium text-slate-800">' + userStore + '</div></div>' +
+            '<div class="rounded-lg bg-slate-50 px-3 py-3"><div class="text-[11px] text-slate-400">手机</div><div class="mt-1 font-medium text-slate-800">' + userPhone + '</div></div>' +
+            '<div class="rounded-lg bg-slate-50 px-3 py-3 col-span-2"><div class="text-[11px] text-slate-400">创建时间</div><div class="mt-1 font-medium text-slate-800">' + userCreated + '</div></div>' +
           '</div>' +
           '<div class="personnel-mobile-actions mt-4 flex flex-wrap gap-2">' +
             '<button type="button" onclick="openEditUserModal(' + mi + ')" class="store-mgm-action-btn store-mgm-action-btn--accent inline-flex min-h-[42px] flex-1 items-center justify-center gap-1 rounded-xl px-4 py-2 text-sm font-medium bg-blue-50 text-blue-600 transition-colors">编辑</button>';
@@ -16372,7 +16955,7 @@ function renderStoreManagePage(container) {
     '</header>' +
 
     // Info Card
-    '<div class="store-mgm-hero-card bg-white rounded-2xl shadow-sm p-6">' +
+    '<div class="store-mgm-hero-card bg-white rounded-xl shadow-sm p-6">' +
     '<div class="flex items-start gap-5">' +
     '<div class="w-12 h-12 bg-blue-50 text-blue-500 rounded-2xl flex items-center justify-center flex-shrink-0">' +
     '<svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">' +
@@ -16391,7 +16974,7 @@ function renderStoreManagePage(container) {
     '</div>' +
 
     // Store Table Card
-    '<div class="store-mgm-table-card bg-white rounded-2xl shadow-sm overflow-hidden p-6 flex-1 min-h-0 flex flex-col">' +
+    '<div class="store-mgm-table-card bg-white rounded-xl shadow-sm overflow-hidden p-6 flex-1 min-h-0 flex flex-col">' +
     '<div class="flex flex-wrap items-center gap-3 mb-4">' +
     '<h3 class="text-lg font-bold text-gray-800">门店列表</h3>' +
     '<div class="flex-1"></div>' +
@@ -16470,8 +17053,8 @@ function injectStoreFormModals() {
   detailModal.setAttribute('data-align', 'center');
   detailModal.setAttribute('onclick', 'if(event.target===this)closeStoreDetailModal()');
   detailModal.innerHTML =
-    '<div class="relative w-full max-w-2xl bg-white rounded-2xl shadow-xl max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">' +
-    '<div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 sticky top-0 bg-white rounded-t-2xl z-10">' +
+    '<div class="relative w-full max-w-2xl bg-white rounded-xl shadow-[0_12px_30px_rgba(15,23,42,0.14)] max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">' +
+    '<div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 sticky top-0 bg-white rounded-t-xl z-10">' +
     '<h3 id="store-detail-title" class="text-lg font-semibold text-gray-800">门店详情</h3>' +
     '<button type="button" onclick="closeStoreDetailModal()" class="shrink-0 rounded-lg p-1.5 text-gray-400 transition-all duration-200 hover:bg-gray-100 hover:text-gray-600 active:scale-[0.98]">' +
     '<svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>' +
@@ -16490,7 +17073,7 @@ function injectStoreFormModals() {
   formModal.setAttribute('data-align', 'center');
   formModal.setAttribute('onclick', 'if(event.target===this)closeStoreFormModal()');
   formModal.innerHTML =
-    '<div class="store-form-dialog relative w-full max-w-lg bg-white rounded-2xl shadow-xl max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">' +
+    '<div class="store-form-dialog relative w-full max-w-lg bg-white rounded-xl shadow-[0_12px_30px_rgba(15,23,42,0.14)] max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">' +
     '<div class="flex items-start justify-between gap-4 px-6 pt-6 pb-2">' +
     '<h3 id="store-form-title" class="store-form-title text-lg font-semibold text-gray-900">新增门店</h3>' +
     '<button type="button" onclick="closeStoreFormModal()" class="store-form-close shrink-0 rounded-lg p-1.5 text-gray-400 transition-all duration-200 hover:bg-gray-100 hover:text-gray-600 active:scale-[0.98]" aria-label="关闭">' +
@@ -16534,7 +17117,7 @@ function injectStoreFormModals() {
   deleteModal.setAttribute('data-align', 'center');
   deleteModal.setAttribute('onclick', 'if(event.target===this)closeStoreDeleteModal()');
   deleteModal.innerHTML =
-    '<div class="relative w-full max-w-sm bg-white rounded-2xl shadow-xl overflow-hidden" onclick="event.stopPropagation()">' +
+    '<div class="relative w-full max-w-sm bg-white rounded-xl shadow-[0_12px_30px_rgba(15,23,42,0.14)] overflow-hidden" onclick="event.stopPropagation()">' +
     '<div class="p-6 text-center">' +
     '<div class="mx-auto w-12 h-12 rounded-full bg-red-100 flex items-center justify-center mb-4">' +
     '<svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>' +
@@ -17561,7 +18144,7 @@ function renderAccountSettingsPage(container) {
   // Load persisted UI preferences
   var sidebarCollapsed = localStorage.getItem('sidebar_collapsed_v1') === '1';
   var themeDark = getResolvedThemeDark();
-  var digitalHumanPrefs = getDigitalHumanPreferences();
+  var digitalHumanPrefs = reloadDigitalHumanPreferencesFromStorage();
   // Fetch latest /api/me to get phone and store_id
   fetchAccountSettingsData();
 
@@ -17857,7 +18440,7 @@ function renderAuditLogsPage(container) {
   if (!isAdmin) {
     container.innerHTML =
       '<div class="mx-auto max-w-5xl p-8 lg:p-10">' +
-      '<div class="bg-white rounded-2xl shadow-sm p-10 text-center">' +
+      '<div class="bg-white rounded-xl shadow-sm p-10 text-center">' +
       '<div class="text-5xl mb-4">🔒</div>' +
       '<h2 class="text-xl font-semibold text-[#1D1D1F] mb-2">无权访问</h2>' +
       '<p class="text-[#86868b]">审查记录仅管理员可查看</p>' +
@@ -17899,7 +18482,7 @@ function renderAuditLogsPage(container) {
         '<h1 class="app-page-title">审查记录</h1>' +
       '</div>' +
       /* filters */
-      '<div class="bg-white rounded-2xl shadow-sm p-4 space-y-3">' +
+      '<div class="bg-white rounded-xl shadow-sm p-4 space-y-3">' +
         '<div class="flex flex-wrap items-end gap-3">' +
           '<div class="flex-1 min-w-[140px] max-w-[200px]">' +
             '<label class="block text-xs text-[#86868b] mb-1">操作人</label>' +
@@ -17923,7 +18506,7 @@ function renderAuditLogsPage(container) {
               '<span id="audit-date-range-label" class="truncate text-[13px]">全部日期</span>' +
               '<svg class="w-3.5 h-3.5 text-[#86868b] transition-transform duration-200 flex-shrink-0" id="audit-date-range-arrow" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>' +
             '</button>' +
-            '<div id="audit-date-range-panel" class="absolute left-0 top-full mt-1.5 z-50 w-[272px] bg-white rounded-2xl shadow-xl shadow-black/[0.08] border border-black/[0.06] transition-all duration-200 ease-out" style="opacity:0;visibility:hidden;transform:translateY(-8px);pointer-events:none">' +
+            '<div id="audit-date-range-panel" class="absolute left-0 top-full mt-1.5 z-50 w-[272px] bg-white rounded-xl shadow-[0_8px_22px_rgba(15,23,42,0.06)] border border-black/[0.06] transition-all duration-200 ease-out" style="opacity:0;visibility:hidden;transform:translateY(-8px);pointer-events:none">' +
               '<div class="px-4 pt-4 pb-3">' +
                 '<div class="text-xs font-semibold text-[#1D1D1F] mb-3 tracking-wide">选择日期范围</div>' +
                 '<div class="grid grid-cols-3 gap-1.5" id="audit-date-presets">' +
@@ -17962,7 +18545,7 @@ function renderAuditLogsPage(container) {
         '</div>' +
       '</div>' +
       /* table */
-      '<div class="bg-white rounded-2xl shadow-sm overflow-hidden">' +
+      '<div class="bg-white rounded-xl shadow-sm overflow-hidden">' +
         '<div id="audit-table-scroll" class="audit-table-scroll-shell overflow-x-auto overflow-y-auto">' +
           '<table class="w-full min-w-[920px] text-sm">' +
             '<thead>' +
@@ -18480,7 +19063,7 @@ function renderSystemLogsPage(container) {
   if (!isAdmin) {
     container.innerHTML =
       '<div class="mx-auto max-w-5xl p-8 lg:p-10">' +
-      '<div class="bg-white rounded-2xl shadow-sm p-10 text-center">' +
+      '<div class="bg-white rounded-xl shadow-sm p-10 text-center">' +
       '<div class="text-5xl mb-4">🔒</div>' +
       '<h2 class="text-xl font-semibold text-[#1D1D1F] mb-2">无权访问</h2>' +
       '<p class="text-[#86868b]">系统日志仅管理员可查看</p>' +
@@ -18529,7 +19112,7 @@ function renderSystemLogsPage(container) {
       /* info bar */
       '<div id="syslog-info" class="text-xs text-[#86868b]"></div>' +
       /* ── 黑框终端 ── */
-      '<div class="bg-[#1e1e1e] rounded-2xl shadow-sm overflow-hidden">' +
+      '<div class="bg-[#1e1e1e] rounded-xl shadow-sm overflow-hidden">' +
         /* 标题栏：mac 三点 + app.log + 计数 */
         '<div class="flex items-center justify-between px-4 py-2.5 bg-[#2d2d2d] border-b border-[#3d3d3d]">' +
           '<div class="flex items-center gap-2">' +
@@ -18895,6 +19478,1630 @@ function renderSystemLogsPage(container) {
   }
 }
 
+/* ═══════════════════════ 智能体记忆中枢 ═══════════════════════ */
+
+(function initEvoFeedbackControls() {
+  if (typeof window === 'undefined') return;
+  window.AgentO = window.AgentO || {};
+  window.AgentO.renderEvoFeedbackHtml = function renderEvoFeedbackHtml(episodeId) {
+    var id = String(episodeId || '').trim();
+    if (!id) return '';
+    return '<div class="evo-feedback-controls" data-evo-episode-id="' + escapeHtml(id) + '">' +
+      '<button type="button" class="evo-feedback-btn evo-feedback-btn--up" onclick="submitEvoEpisodeFeedback(\'' + escapeJs(id) + '\', \'thumb_up\')">有用</button>' +
+      '<button type="button" class="evo-feedback-btn evo-feedback-btn--down" onclick="submitEvoEpisodeFeedback(\'' + escapeJs(id) + '\', \'thumb_down\')">没用</button>' +
+      '<button type="button" class="evo-feedback-btn evo-feedback-btn--correct" onclick="submitEvoEpisodeCorrection(\'' + escapeJs(id) + '\')">纠正</button>' +
+    '</div>';
+  };
+})();
+
+async function submitEvoEpisodeFeedback(episodeId, signal) {
+  var id = String(episodeId || '').trim();
+  if (!id) return;
+  try {
+    await apiFetch('/api/evo/episodes/' + encodeURIComponent(id) + '/feedback', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ signal: signal }),
+    });
+    showToast(signal === 'thumb_up' ? '已记录有用反馈' : '已进入反馈池待复盘', 'ok');
+  } catch (e) {
+    showToast(e && e.message ? e.message : '反馈提交失败', 'error');
+  }
+}
+
+async function submitEvoEpisodeCorrection(episodeId) {
+  var id = String(episodeId || '').trim();
+  if (!id) return;
+  var text = window.prompt('请输入正确说法或需要补充的规则');
+  text = String(text || '').trim();
+  if (!text) return;
+  try {
+    await apiFetch('/api/evo/episodes/' + encodeURIComponent(id) + '/correction', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ correction_text: text }),
+    });
+    showToast('纠正已生成候选记忆，等待管理层审核', 'ok');
+  } catch (e) {
+    showToast(e && e.message ? e.message : '纠正提交失败', 'error');
+  }
+}
+
+var EVO_GOV_TABS = [
+  { key: 'overview', label: '总览' },
+  { key: 'feedback', label: '反馈沉淀' },
+  { key: 'lineage', label: '记忆关系' },
+  { key: 'promotions', label: '升级审批' },
+  { key: 'safety', label: '安全网' },
+];
+
+function evoGovAllowedTabsForRole(role) {
+  if (normalizeRole(role) === 'store_manager') return ['overview', 'feedback', 'lineage'];
+  return EVO_GOV_TABS.map(function (tab) { return tab.key; });
+}
+
+function evoGovNormalizeActiveTabForRole(state, role) {
+  var allowedTabs = evoGovAllowedTabsForRole(role);
+  if (allowedTabs.indexOf(state.activeTab) === -1) {
+    state.activeTab = allowedTabs[0] || 'overview';
+    state.detail = null;
+  }
+  if (normalizeRole(role) === 'store_manager' && state.scopeType === 'global') state.scopeType = '';
+  return allowedTabs;
+}
+
+var EVO_GOV_MEMORY_TYPE_LABELS = {
+  semantic: '事实记忆',
+  reflective: '反思日志',
+  procedural: '技能规则',
+  semantic_merge: '事实合并',
+};
+
+var EVO_GOV_SCOPE_LABELS = {
+  user: '个人',
+  store: '门店',
+  global: '全局',
+};
+
+var EVO_GOV_STATUS_LABELS = {
+  active: '生效',
+  auto: '自动生效',
+  pending: '待审',
+  archived: '已归档',
+  auto_disabled: '自动停用',
+  quarantined: '已隔离',
+  approved: '已通过',
+  rejected: '已拒绝',
+  passed: '通过',
+  failed: '失败',
+  open: '未处理',
+  resolved: '已处理',
+};
+
+var EVO_GOV_WRITE_MODE_LABELS = {
+  auto: '自动写入',
+  human: '人工写入',
+};
+
+var EVO_GOV_MODULE_LABELS = {
+  assistant: '实战助手',
+  qa: '知识问答',
+  quick_query: '一句话查询',
+  practice: '练习',
+};
+
+var EVO_GOV_EVAL_CASE_SOURCE_LABELS = {
+  baseline: '合规基线',
+  manual: '人工新增',
+  document_import: '文档导入',
+  promotion_preflight: '升级前置',
+};
+
+var EVO_GOV_PROMOTION_PROPOSAL_LABELS = {
+  user_procedural_to_store: '个人经验升门店规则',
+  store_procedural_to_global: '门店规则升全局规则',
+  semantic_merge: '事实记忆合并',
+};
+
+var EVO_GOV_TARGET_TYPE_LABELS = {
+  semantic: '事实记忆',
+  reflective: '反思日志',
+  procedural: '技能规则',
+  semantic_cluster: '事实记忆组',
+  eval_case: '回归用例',
+  eval_run: '运行记录',
+  anomaly: '异常告警',
+  memory: '记忆命中',
+};
+
+var EVO_GOV_AUDIT_ACTION_LABELS = {
+  semantic_write: '写入事实记忆',
+  semantic_review_enqueue: '加入待审',
+  reflective_write: '写入反思日志',
+  procedural_write: '生成技能规则',
+  procedural_auto_disable_stale: '自动停用规则',
+  promotion_suggested: '提出升级建议',
+  promotion_approved: '通过升级',
+  promotion_rejected: '拒绝升级',
+  memory_update: '更新记忆',
+  memory_rollback: '回滚记忆',
+  memory_hit: '命中记忆',
+  memory_pending_review: '转入待审',
+  memory_confidence_decay: '下调置信度',
+  memory_quarantine: '隔离记忆',
+  anomaly_opened: '发现异常',
+  anomaly_resolved: '处理异常',
+  eval_case_seeded: '导入合规基线',
+  eval_run_started: '运行回归测试',
+  eval_run_finished: '完成回归测试',
+};
+
+var EVO_GOV_ANOMALY_LABELS = {
+  semantic_trigger_conflict: '同一问题出现矛盾记忆',
+  scope_conflict: '个人/门店/全局记忆冲突',
+  negative_feedback_spike: '命中后负反馈偏高',
+  eval_case_failed: '回归用例失败',
+};
+
+var EVO_GOV_DIAGNOSTIC_LABELS = {
+  no_active_procedural: '没有可扫描的技能规则',
+  no_hit_procedural: '技能规则还没有真实命中',
+  no_memory_hits: '记忆命中日志为空',
+  not_enough_semantic_for_merge: '同范围事实记忆不足，暂不触发合并提议',
+  threshold_not_met: '真实数据未达到升级阈值',
+  no_eval_cases: '没有可运行的回归用例',
+  no_eval_runs: '安全网还没有运行记录',
+  no_active_semantic: '没有生效的事实记忆可比对',
+  no_negative_feedback: '没有负反馈或纠正记录可扫描',
+  no_active_memory: '没有生效记忆可纳入安全扫描',
+  no_feedback_for_reflection: '没有可沉淀的负反馈或纠正',
+  needs_real_query_hits: '需要真实业务查询命中技能规则',
+};
+
+function evoGovState() {
+  var state = moduleState.evoGovernance || {};
+  moduleState.evoGovernance = state;
+  state.activeTab = state.activeTab || 'overview';
+  if (state.activeTab === 'memories' || state.activeTab === 'reflective') state.activeTab = 'lineage';
+  if (state.activeTab === 'eval') state.activeTab = 'safety';
+  state.feedbackEvents = Array.isArray(state.feedbackEvents) ? state.feedbackEvents : [];
+  state.feedbackSignal = state.feedbackSignal || 'all';
+  state.feedbackModule = state.feedbackModule || '';
+  state.feedbackQuery = state.feedbackQuery || '';
+  state.memories = Array.isArray(state.memories) ? state.memories : [];
+  state.promotions = Array.isArray(state.promotions) ? state.promotions : [];
+  state.evalCases = Array.isArray(state.evalCases) ? state.evalCases : [];
+  state.evalRuns = Array.isArray(state.evalRuns) ? state.evalRuns : [];
+  state.anomalies = Array.isArray(state.anomalies) ? state.anomalies : [];
+  state.evalCaseModule = state.evalCaseModule || '';
+  state.evalCaseSeverity = state.evalCaseSeverity || '';
+  state.evalCaseSource = state.evalCaseSource || '';
+  state.promotionScanSummary = state.promotionScanSummary && typeof state.promotionScanSummary === 'object' ? state.promotionScanSummary : null;
+  state.evalRunSummary = state.evalRunSummary && typeof state.evalRunSummary === 'object' ? state.evalRunSummary : null;
+  state.anomalyScanSummary = state.anomalyScanSummary && typeof state.anomalyScanSummary === 'object' ? state.anomalyScanSummary : null;
+  state.pipelineAdvanceSummary = state.pipelineAdvanceSummary && typeof state.pipelineAdvanceSummary === 'object' ? state.pipelineAdvanceSummary : null;
+  state.memoryType = state.memoryType || 'all';
+  state.scopeType = state.scopeType || '';
+  state.status = state.status || '';
+  state.query = state.query || '';
+  return state;
+}
+
+function evoGovLabel(map, value) {
+  return map[String(value || '').trim()] || String(value || '-');
+}
+
+function evoGovFormatConfidence(value) {
+  var num = Number(value || 0);
+  if (!isFinite(num)) num = 0;
+  return Math.round(Math.max(0, Math.min(1, num)) * 100) + '%';
+}
+
+function evoGovTargetLabel(type, id) {
+  var label = evoGovLabel(EVO_GOV_TARGET_TYPE_LABELS, type);
+  var rawId = String(id == null ? '' : id).trim();
+  return label + (rawId ? ' #' + rawId : '');
+}
+
+function evoGovFormatScope(scopeType, scopeId) {
+  var label = evoGovLabel(EVO_GOV_SCOPE_LABELS, scopeType);
+  var id = String(scopeId || '').trim();
+  if (!id || id === 'global') return label;
+  return label + ' ' + id;
+}
+
+function evoGovFormatScopePath(scope) {
+  var raw = String(scope || '').trim();
+  if (!raw) return '-';
+  var parts = raw.split(':');
+  if (parts.length < 2) return raw;
+  return evoGovFormatScope(parts[0], parts.slice(1).join(':'));
+}
+
+function evoGovFormatWriteMode(mode) {
+  return evoGovLabel(EVO_GOV_WRITE_MODE_LABELS, mode);
+}
+
+function evoGovAuditActionLabel(action) {
+  return evoGovLabel(EVO_GOV_AUDIT_ACTION_LABELS, action);
+}
+
+function evoGovAnomalyLabel(type) {
+  return evoGovLabel(EVO_GOV_ANOMALY_LABELS, type);
+}
+
+function evoGovDiagnosticLabel(reason) {
+  return evoGovLabel(EVO_GOV_DIAGNOSTIC_LABELS, reason);
+}
+
+function evoGovFormatTime(iso) {
+  if (!iso) return '-';
+  var d = new Date(iso);
+  if (isNaN(d.getTime())) return String(iso);
+  var y = d.getFullYear();
+  var m = String(d.getMonth() + 1).padStart(2, '0');
+  var day = String(d.getDate()).padStart(2, '0');
+  var h = String(d.getHours()).padStart(2, '0');
+  var min = String(d.getMinutes()).padStart(2, '0');
+  return y + '-' + m + '-' + day + ' ' + h + ':' + min;
+}
+
+function evoGovStatusBadge(status) {
+  var raw = String(status || '').trim();
+  var color = 'bg-gray-100 text-gray-600';
+  if (raw === 'active' || raw === 'auto' || raw === 'approved' || raw === 'passed') color = 'bg-emerald-50 text-emerald-700';
+  if (raw === 'pending' || raw === 'open') color = 'bg-amber-50 text-amber-700';
+  if (raw === 'archived' || raw === 'auto_disabled') color = 'bg-gray-100 text-gray-600';
+  if (raw === 'quarantined' || raw === 'failed' || raw === 'rejected') color = 'bg-red-50 text-red-600';
+  return '<span class="inline-flex items-center rounded-lg px-2 py-1 text-xs font-medium ' + color + '">' + escapeHtml(evoGovLabel(EVO_GOV_STATUS_LABELS, raw)) + '</span>';
+}
+
+function evoGovHasScrollableOverflow(el) {
+  if (!el || !el.ownerDocument || !el.ownerDocument.defaultView) return false;
+  try {
+    var style = el.ownerDocument.defaultView.getComputedStyle(el);
+    if (!style) return false;
+    var overflowY = String(style.overflowY || style.overflow || '').toLowerCase();
+    return overflowY === 'auto' || overflowY === 'scroll' || overflowY === 'overlay';
+  } catch (e) {
+    return false;
+  }
+}
+
+function evoGovIsScrollable(el) {
+  return !!el && evoGovHasScrollableOverflow(el) && (el.scrollHeight - el.clientHeight) > 1;
+}
+
+function evoGovCanScroll(el, deltaY) {
+  if (!evoGovIsScrollable(el)) return false;
+  if (deltaY < 0) return el.scrollTop > 0;
+  if (deltaY > 0) return Math.ceil(el.scrollTop + el.clientHeight) < el.scrollHeight;
+  return false;
+}
+
+function evoGovResolveWheelScrollTarget(root, target, deltaY) {
+  if (!root) return null;
+  var current = target && target.nodeType === 1
+    ? target
+    : (target && target.parentElement ? target.parentElement : null);
+  while (current && current !== root) {
+    if (evoGovCanScroll(current, deltaY)) return current;
+    current = current.parentElement;
+  }
+  var areas = Array.prototype.slice.call(root.querySelectorAll('.evo-gov-safety-scroll'));
+  for (var i = 0; i < areas.length; i += 1) {
+    if (evoGovCanScroll(areas[i], deltaY)) return areas[i];
+  }
+  for (var j = 0; j < areas.length; j += 1) {
+    if (evoGovIsScrollable(areas[j])) return areas[j];
+  }
+  return null;
+}
+
+function evoGovNormalizeWheelDelta(event, fallbackEl) {
+  var deltaY = Number(event && event.deltaY || 0);
+  if (!deltaY) return 0;
+  if (event && event.deltaMode === 1) return deltaY * 16;
+  if (event && event.deltaMode === 2) {
+    var pageHeight = fallbackEl && fallbackEl.clientHeight
+      ? fallbackEl.clientHeight
+      : (window && window.innerHeight ? window.innerHeight : 0);
+    return deltaY * pageHeight;
+  }
+  return deltaY;
+}
+
+function bindEvoGovernanceWheelScroll(root) {
+  if (!root || root.__evoGovWheelBound) return;
+  root.addEventListener('wheel', function (event) {
+    if (!event || event.defaultPrevented || event.ctrlKey) return;
+    var target = evoGovResolveWheelScrollTarget(root, event.target, event.deltaY);
+    if (!target) return;
+    var deltaY = evoGovNormalizeWheelDelta(event, target);
+    if (!deltaY) return;
+    if (!evoGovCanScroll(target, deltaY)) return;
+    target.scrollTop += deltaY;
+    event.preventDefault();
+  }, { passive: false });
+  root.__evoGovWheelBound = true;
+}
+
+function evoGovTabButton(tab, activeTab) {
+  var active = tab.key === activeTab;
+  return '<button type="button" class="evo-gov-tab' + (active ? ' evo-gov-tab--active' : '') + '" data-evo-tab="' + escapeHtml(tab.key) + '">' + escapeHtml(tab.label) + '</button>';
+}
+
+function evoGovMetricCard(label, value, hint, tone) {
+  return '<div class="evo-gov-metric evo-gov-metric--' + escapeHtml(tone || 'neutral') + '">' +
+    '<div class="evo-gov-metric__label">' + escapeHtml(label) + '</div>' +
+    '<div class="evo-gov-metric__value">' + escapeHtml(String(value == null ? '-' : value)) + '</div>' +
+    '<div class="evo-gov-metric__hint">' + escapeHtml(hint || '') + '</div>' +
+  '</div>';
+}
+
+function evoGovDataHealth() {
+  var overview = evoGovState().overview || {};
+  return overview.data_health && typeof overview.data_health === 'object' ? overview.data_health : {};
+}
+
+function evoGovTotalMemoryCount(overview) {
+  var totals = (overview && overview.memory_totals) || {};
+  return ['semantic', 'reflective', 'procedural'].reduce(function (sum, type) {
+    return sum + Number((totals[type] && totals[type].total) || 0);
+  }, 0);
+}
+
+async function loadEvoGovernanceOverview(options) {
+  var silent = options && options.silent;
+  if (!silent) setRequestLoading('evoGovernanceOverview', true);
+  clearRequestError('evoGovernanceOverview');
+  try {
+    var resp = await apiFetch('/api/evo/governance/overview');
+    evoGovState().overview = resp && resp.data ? resp.data : {};
+  } catch (e) {
+    setRequestError('evoGovernanceOverview', e && e.message ? e.message : '加载概览失败');
+  } finally {
+    if (!silent) setRequestLoading('evoGovernanceOverview', false);
+  }
+}
+
+async function loadEvoGovernanceMemories(options) {
+  var state = evoGovState();
+  var silent = options && options.silent;
+  var memoryType = options && options.memoryType ? options.memoryType : (state.memoryType || 'all');
+  if (!silent) setRequestLoading('evoGovernanceMemories', true);
+  clearRequestError('evoGovernanceMemories');
+  var params = new URLSearchParams();
+  params.set('memory_type', memoryType);
+  params.set('limit', '100');
+  if (state.scopeType) params.set('scope_type', state.scopeType);
+  if (state.status) params.set('status', state.status);
+  if (state.query) params.set('q', state.query);
+  try {
+    var resp = await apiFetch('/api/evo/memories?' + params.toString());
+    var data = resp && resp.data ? resp.data : {};
+    state.memories = Array.isArray(data.items) ? data.items : [];
+    state.memoriesTotal = Number(data.total || state.memories.length || 0);
+  } catch (e) {
+    setRequestError('evoGovernanceMemories', e && e.message ? e.message : '加载记忆库失败');
+  } finally {
+    if (!silent) setRequestLoading('evoGovernanceMemories', false);
+  }
+}
+
+async function loadEvoGovernanceFeedbackEvents(options) {
+  var state = evoGovState();
+  var silent = options && options.silent;
+  if (!silent) setRequestLoading('evoGovernanceFeedbackEvents', true);
+  clearRequestError('evoGovernanceFeedbackEvents');
+  var params = new URLSearchParams();
+  params.set('limit', '100');
+  params.set('signal', state.feedbackSignal || 'all');
+  if (state.feedbackModule) params.set('module', state.feedbackModule);
+  if (state.feedbackQuery) params.set('q', state.feedbackQuery);
+  try {
+    var resp = await apiFetch('/api/evo/feedback-events?' + params.toString());
+    var data = resp && resp.data ? resp.data : {};
+    state.feedbackEvents = Array.isArray(data.items) ? data.items : [];
+    state.feedbackEventsTotal = Number(data.total || state.feedbackEvents.length || 0);
+  } catch (e) {
+    setRequestError('evoGovernanceFeedbackEvents', e && e.message ? e.message : '加载反馈流水失败');
+  } finally {
+    if (!silent) setRequestLoading('evoGovernanceFeedbackEvents', false);
+  }
+}
+
+async function loadEvoGovernanceDetail(memoryType, memoryId, options) {
+  var state = evoGovState();
+  var type = String(memoryType || state.selectedMemoryType || '').trim();
+  var id = String(memoryId || state.selectedMemoryId || '').trim();
+  if (!type || !id) return;
+  state.selectedMemoryType = type;
+  state.selectedMemoryId = id;
+  if (!(options && options.silent)) setRequestLoading('evoGovernanceDetail', true);
+  clearRequestError('evoGovernanceDetail');
+  try {
+    var resp = await apiFetch('/api/evo/memories/' + encodeURIComponent(type) + '/' + encodeURIComponent(id));
+    state.detail = resp && resp.data ? resp.data : null;
+  } catch (e) {
+    setRequestError('evoGovernanceDetail', e && e.message ? e.message : '加载记忆详情失败');
+  } finally {
+    if (!(options && options.silent)) setRequestLoading('evoGovernanceDetail', false);
+  }
+}
+
+async function loadEvoGovernancePromotions(options) {
+  if (!(options && options.silent)) setRequestLoading('evoGovernancePromotions', true);
+  clearRequestError('evoGovernancePromotions');
+  try {
+    var resp = await apiFetch('/api/evo/promotions?status=&limit=100');
+    evoGovState().promotions = (resp && resp.data && resp.data.promotions) || [];
+  } catch (e) {
+    setRequestError('evoGovernancePromotions', e && e.message ? e.message : '加载升级提议失败');
+  } finally {
+    if (!(options && options.silent)) setRequestLoading('evoGovernancePromotions', false);
+  }
+}
+
+async function loadEvoGovernanceEval(options) {
+  if (!(options && options.silent)) setRequestLoading('evoGovernanceEval', true);
+  clearRequestError('evoGovernanceEval');
+  try {
+    var state = evoGovState();
+    var params = new URLSearchParams();
+    params.set('status', '');
+    params.set('limit', '100');
+    if (state.evalCaseModule) params.set('module', state.evalCaseModule);
+    if (state.evalCaseSeverity) params.set('severity', state.evalCaseSeverity);
+    if (state.evalCaseSource) params.set('source', state.evalCaseSource);
+    var responses = await Promise.all([
+      apiFetch('/api/evo/eval-cases?' + params.toString()),
+      apiFetch('/api/evo/eval-runs?limit=100'),
+    ]);
+    var casesResp = responses[0];
+    var runsResp = responses[1];
+    state.evalCases = (casesResp && casesResp.data && casesResp.data.eval_cases) || [];
+    state.evalRuns = (runsResp && runsResp.data && runsResp.data.eval_runs) || [];
+  } catch (e) {
+    setRequestError('evoGovernanceEval', e && e.message ? e.message : '加载回归测试失败');
+  } finally {
+    if (!(options && options.silent)) setRequestLoading('evoGovernanceEval', false);
+  }
+}
+
+async function loadEvoGovernanceAnomalies(options) {
+  if (!(options && options.silent)) setRequestLoading('evoGovernanceAnomalies', true);
+  clearRequestError('evoGovernanceAnomalies');
+  try {
+    var resp = await apiFetch('/api/evo/anomalies?status=&limit=100');
+    evoGovState().anomalies = (resp && resp.data && resp.data.anomalies) || [];
+  } catch (e) {
+    setRequestError('evoGovernanceAnomalies', e && e.message ? e.message : '加载异常告警失败');
+  } finally {
+    if (!(options && options.silent)) setRequestLoading('evoGovernanceAnomalies', false);
+  }
+}
+
+async function loadEvoGovernanceActiveTab(options) {
+  var state = evoGovState();
+  evoGovNormalizeActiveTabForRole(state, getCurrentRole());
+  if (state.activeTab === 'overview') {
+    await loadEvoGovernanceOverview(options);
+    return;
+  }
+  if (state.activeTab === 'feedback') {
+    await loadEvoGovernanceFeedbackEvents(options);
+    return;
+  }
+  if (state.activeTab === 'lineage') {
+    await loadEvoGovernanceMemories(options);
+    return;
+  }
+  if (state.activeTab === 'promotions') {
+    await Promise.all([loadEvoGovernancePromotions(options), loadEvoGovernanceOverview({ silent: true })]);
+    return;
+  }
+  if (state.activeTab === 'safety') {
+    await Promise.all([loadEvoGovernanceEval(options), loadEvoGovernanceAnomalies({ silent: true }), loadEvoGovernanceOverview({ silent: true })]);
+  }
+}
+
+function renderEvoGovernanceLifecycle(overview) {
+  var totalMemories = evoGovTotalMemoryCount(overview);
+  var stages = [
+    { name: '用户反馈', metric: overview.today_auto_writes || 0, hint: '今天自动沉淀的有效反馈', tone: 'blue' },
+    { name: '可用记忆', metric: totalMemories, hint: '事实、反思、技能规则总量', tone: 'green' },
+    { name: '需要处理', metric: overview.pending_review_count || 0, hint: '待审或待升级内容', tone: 'amber' },
+    { name: '风险拦截', metric: overview.open_anomaly_count || 0, hint: '安全网发现的未处理异常', tone: 'red' },
+  ];
+  return '<section class="evo-gov-lifecycle" aria-label="自我进化生命周期">' + stages.map(function (stage, index) {
+    return '<div class="evo-gov-stage-card evo-gov-stage-card--' + escapeHtml(stage.tone) + '">' +
+      '<div class="evo-gov-stage-card__step">' + escapeHtml(String(index + 1)) + '</div>' +
+      '<div><div class="evo-gov-stage-card__name">' + escapeHtml(stage.name) + '</div>' +
+      '<div class="evo-gov-stage-card__metric">' + escapeHtml(String(stage.metric)) + '</div>' +
+      '<div class="evo-gov-stage-card__hint">' + escapeHtml(stage.hint) + '</div></div>' +
+    '</div>';
+  }).join('') + '</section>';
+}
+
+function renderEvoGovernanceAttentionList(pendingReviews, recentAnomalies) {
+  var items = [];
+  var pendingCount = Array.isArray(pendingReviews) ? pendingReviews.length : 0;
+  var anomalyCount = Array.isArray(recentAnomalies) ? recentAnomalies.length : 0;
+  (Array.isArray(pendingReviews) ? pendingReviews : []).slice(0, 2).forEach(function (item) {
+    items.push({
+      tone: 'amber',
+      id: item.id,
+      title: evoGovAttentionTitle(item.reason || '有记忆需要人工确认'),
+      meta: evoGovTargetLabel(item.target_type, item.target_id),
+      badge: '待审',
+      kind: 'review',
+    });
+  });
+  (Array.isArray(recentAnomalies) ? recentAnomalies : []).slice(0, 2).forEach(function (item) {
+    items.push({
+      tone: 'red',
+      title: evoGovAttentionTitle(item.reason || evoGovAnomalyLabel(item.anomaly_type)),
+      meta: evoGovTargetLabel(item.target_type, item.target_id),
+      badge: '异常',
+    });
+  });
+  items = items.slice(0, 3);
+  if (!items.length) {
+    return '<section class="evo-gov-panel evo-gov-attention evo-gov-attention--ok">' +
+      '<div class="evo-gov-panel-head"><h2 class="evo-gov-panel__title">待处理事项</h2></div>' +
+      '<div class="evo-gov-attention-empty">' +
+        '<div class="evo-gov-attention-empty__title">暂无待处理事项</div>' +
+        '<div class="evo-gov-attention-empty__text">审批、异常和记录可在对应标签页查看。</div>' +
+      '</div>' +
+    '</section>';
+  }
+  return '<section class="evo-gov-panel evo-gov-attention">' +
+    '<div class="evo-gov-panel-head"><h2 class="evo-gov-panel__title">待处理事项</h2><span class="evo-gov-count">待审 ' + escapeHtml(String(pendingCount)) + ' · 异常 ' + escapeHtml(String(anomalyCount)) + '</span></div>' +
+    '<div class="evo-gov-attention-list">' + items.map(function (item) {
+      return '<div class="evo-gov-attention-item evo-gov-attention-item--' + escapeHtml(item.tone) + '">' +
+        '<span class="evo-gov-attention-badge">' + escapeHtml(item.badge) + '</span>' +
+        '<div class="evo-gov-attention-copy"><div class="evo-gov-feed-row__title">' + escapeHtml(item.title) + '</div><div class="evo-gov-feed-row__sub">' + escapeHtml(item.meta) + '</div></div>' +
+        (item.kind === 'review'
+          ? '<div class="evo-gov-attention-actions"><button type="button" class="evo-gov-link-btn" data-evo-review="' + escapeHtml(String(item.id)) + '" data-decision="approve">上线</button><button type="button" class="evo-gov-link-btn evo-gov-link-btn--danger" data-evo-review="' + escapeHtml(String(item.id)) + '" data-decision="reject">驳回</button></div>'
+          : '') +
+      '</div>';
+    }).join('') + '</div>' +
+  '</section>';
+}
+
+function evoGovAttentionTitle(text) {
+  var title = String(text || '').trim();
+  title = title.replace(/^[A-Za-z0-9_-]+:\s*/, '');
+  title = title.replace(/全局范围候选记忆[，,]\s*(需|需要)管理员审核后上线/g, '全局记忆待确认，确认后上线');
+  title = title.replace(/全局范围候选记忆/g, '全局记忆待确认');
+  title = title.replace(/需管理员审核后上线/g, '待管理员确认后上线');
+  title = title.replace(/需要管理员审核后上线/g, '待管理员确认后上线');
+  title = title.replace(/需管理员复核/g, '待管理员复核');
+  title = title.replace(/需要管理员复核/g, '待管理员复核');
+  title = title.replace(/建议复核注入内容/g, '建议复核相关内容');
+  return title || '有事项需要处理';
+}
+
+function renderEvoGovernanceQuickEntryCards(overview) {
+  var totalMemories = evoGovTotalMemoryCount(overview);
+  var allowedTabs = evoGovAllowedTabsForRole(getCurrentRole());
+  var cards = [
+    { key: 'lineage', tone: 'green', label: '记忆关系', title: '来源与命中', meta: totalMemories + ' 条可查' },
+    { key: 'promotions', tone: 'amber', label: '升级审批', title: '处理待审', meta: '待审 ' + (overview.pending_review_count || 0) + ' 项' },
+    { key: 'safety', tone: 'red', label: '安全网', title: '检查风险', meta: '异常 ' + (overview.open_anomaly_count || 0) + ' 项' },
+  ].filter(function (card) { return allowedTabs.indexOf(card.key) !== -1; });
+  return '<section class="evo-gov-quick-grid evo-gov-quick-grid--compact" aria-label="常用入口">' + cards.map(function (card) {
+    return '<button type="button" class="evo-gov-quick-card evo-gov-quick-card--' + escapeHtml(card.tone) + '" data-evo-tab="' + escapeHtml(card.key) + '">' +
+      '<div class="evo-gov-quick-card__label">' + escapeHtml(card.label) + '</div>' +
+      '<div class="evo-gov-quick-card__title">' + escapeHtml(card.title) + '</div>' +
+      '<div class="evo-gov-quick-card__meta">' + escapeHtml(card.meta) + '</div>' +
+    '</button>';
+  }).join('') + '</section>';
+}
+
+function renderEvoGovernanceOverviewStats(overview) {
+  var totalMemories = evoGovTotalMemoryCount(overview);
+  var pendingCount = Number(overview.pending_review_count || 0);
+  var anomalyCount = Number(overview.open_anomaly_count || 0);
+  var pendingTotal = pendingCount + anomalyCount;
+  var stats = [
+    { label: '今日新记忆', value: overview.today_auto_writes || 0 },
+    { label: '今日命中', value: overview.today_memory_hits || 0 },
+    { label: '可查记忆', value: totalMemories },
+    { label: '待人工确认', value: pendingCount },
+  ];
+  return '<section class="evo-gov-panel evo-gov-overview-summary" aria-label="关键概览">' +
+    '<div class="evo-gov-overview-primary">' +
+      '<div class="evo-gov-overview-kicker">当前待处理</div>' +
+      '<div class="evo-gov-overview-value">' + escapeHtml(String(pendingTotal)) + '</div>' +
+      '<div class="evo-gov-overview-note">待审 ' + escapeHtml(String(pendingCount)) + ' / 风险 ' + escapeHtml(String(anomalyCount)) + '</div>' +
+    '</div>' +
+    '<div class="evo-gov-overview-stat-list">' + stats.map(function (item) {
+      return '<div class="evo-gov-overview-stat">' +
+        '<div class="evo-gov-overview-stat__label">' + escapeHtml(item.label) + '</div>' +
+        '<div class="evo-gov-overview-stat__value">' + escapeHtml(String(item.value)) + '</div>' +
+      '</div>';
+    }).join('') + '</div>' +
+  '</section>';
+}
+
+function renderEvoGovernanceReadiness(readiness) {
+  var data = readiness && typeof readiness === 'object' ? readiness : {};
+  var ready = data.status === 'ready';
+  var reasons = Array.isArray(data.reasons) ? data.reasons : [];
+  return '<span class="evo-gov-readiness evo-gov-readiness--' + (ready ? 'ready' : 'blocked') + '">' +
+    escapeHtml(ready ? '就绪' : (reasons.length ? evoGovDiagnosticLabel(reasons[0]) : '未就绪')) +
+  '</span>';
+}
+
+function renderEvoGovernancePipelineHealth(overview) {
+  var state = evoGovState();
+  var health = (overview && overview.data_health) || {};
+  var items = [
+    {
+      label: '反馈基座',
+      value: Number(health.episode_count || 0),
+      hint: '原始对话/反馈',
+      meta: '命中 ' + Number(health.memory_hit_count || 0),
+    },
+    {
+      label: '记忆沉淀',
+      value: Number(health.active_semantic_count || 0) + Number(health.active_reflective_count || 0) + Number(health.procedural_count || 0),
+      hint: '事实、反思、规则',
+      meta: '技能规则 ' + Number(health.procedural_count || 0),
+    },
+    {
+      label: '升级审批',
+      value: Number(health.pending_promotion_count || 0),
+      hint: '达阈值后生成',
+      meta: renderEvoGovernanceReadiness(health.promotion_readiness),
+    },
+    {
+      label: '安全网',
+      value: Number(health.open_anomaly_count || 0),
+      hint: '回归/扫描产生',
+      meta: renderEvoGovernanceReadiness(health.safety_readiness),
+    },
+  ];
+  return '<section class="evo-gov-panel evo-gov-pipeline" aria-label="数据链路">' +
+    '<div class="evo-gov-panel-head"><h2 class="evo-gov-panel__title">数据链路</h2><button type="button" class="evo-gov-secondary-btn" id="evo-gov-pipeline-advance">推进</button></div>' +
+    '<div class="evo-gov-health-grid">' + items.map(function (item) {
+      return '<div class="evo-gov-health-item">' +
+        '<div class="evo-gov-health-item__label">' + escapeHtml(item.label) + '</div>' +
+        '<div class="evo-gov-health-item__value">' + escapeHtml(String(item.value)) + '</div>' +
+        '<div class="evo-gov-health-item__hint">' + escapeHtml(item.hint) + '</div>' +
+        '<div class="evo-gov-health-item__meta">' + (String(item.meta || '').indexOf('<') >= 0 ? item.meta : escapeHtml(item.meta || '')) + '</div>' +
+      '</div>';
+    }).join('') + '</div>' +
+    '<div class="evo-gov-pipeline-note">仅处理真实反馈、反思和技能规则，不补造命中或升级提议。</div>' +
+    renderEvoGovernanceScanSummary(state.pipelineAdvanceSummary) +
+  '</section>';
+}
+
+function evoGovDiagnosticReasons(diagnostics) {
+  var data = diagnostics && typeof diagnostics === 'object' ? diagnostics : {};
+  var reasons = Array.isArray(data.reasons) ? data.reasons : [];
+  return reasons.filter(function (reason, index) {
+    return reason && reasons.indexOf(reason) === index;
+  });
+}
+
+function renderEvoGovernanceScanSummary(summary) {
+  var payload = summary && typeof summary === 'object' ? summary : null;
+  if (!payload) return '';
+  var core = payload.summary && typeof payload.summary === 'object' ? payload.summary : payload;
+  var diagnostics = payload.diagnostics && typeof payload.diagnostics === 'object' ? payload.diagnostics : {};
+  var reasons = evoGovDiagnosticReasons(core).concat(evoGovDiagnosticReasons(diagnostics)).filter(function (reason, index, arr) {
+    return arr.indexOf(reason) === index;
+  });
+  var count = core.created_count != null ? core.created_count : (core.run_count != null ? core.run_count : '');
+  var statusLabel = core.status === 'created' ? '已产生新结果' : (core.status === 'advanced' ? '已推进真实链路' : (core.status === 'clear' ? '已扫描无异常' : (core.status === 'not_ready' ? '链路未就绪' : (core.status === 'no_new_writes' ? '没有新增写入' : '已扫描'))));
+  return '<div class="evo-gov-scan-summary">' +
+    '<div><strong>' + escapeHtml(statusLabel) + '</strong><span>' + (count === '' ? '真实数据已刷新' : ('数量 ' + escapeHtml(String(count)))) + '</span></div>' +
+    (reasons.length ? '<div class="evo-gov-scan-summary__reasons">' + reasons.map(function (reason) {
+      return '<span>' + escapeHtml(evoGovDiagnosticLabel(reason)) + '</span>';
+    }).join('') + '</div>' : '') +
+  '</div>';
+}
+
+function renderEvoGovernanceDiagnosticEmptyState(kind, diagnostics) {
+  var data = diagnostics && typeof diagnostics === 'object' ? diagnostics : {};
+  var reasons = evoGovDiagnosticReasons(data);
+  var title = '暂无数据';
+  var text = '当前没有数据库记录。';
+  if (kind === 'promotions') {
+    title = '暂无可升级提议';
+    text = reasons.indexOf('no_active_procedural') >= 0
+      ? '没有可扫描的技能规则，先让反馈沉淀形成技能规则并产生真实命中。'
+      : '已有真实数据，但还没有达到跨员工、跨门店或事实合并的升级阈值。';
+  } else if (kind === 'eval_cases') {
+    title = '暂无回归用例';
+    text = '安全网需要真实回归用例；可以导入合规基线或按业务风险手动新增用例。';
+  } else if (kind === 'eval_runs') {
+    title = '暂无运行记录';
+    text = '已有用例后点击立即运行，运行结果会写入回归测试历史。';
+  } else if (kind === 'anomalies_clear') {
+    title = '安全网已运行且暂无异常';
+    text = '回归运行或异常扫描没有发现未处理风险。';
+  } else if (kind === 'anomalies') {
+    title = '暂无异常';
+    text = reasons.length ? '当前扫描链路缺少可比对的真实数据。' : '暂无未处理异常。';
+  }
+  return '<div class="evo-gov-empty-diagnostic">' +
+    '<div class="evo-gov-empty-diagnostic__title">' + escapeHtml(title) + '</div>' +
+    '<div class="evo-gov-empty-diagnostic__text">' + escapeHtml(text) + '</div>' +
+    (reasons.length ? '<div class="evo-gov-empty-diagnostic__reasons">' + reasons.map(function (reason) {
+      return '<span>' + escapeHtml(evoGovDiagnosticLabel(reason)) + '</span>';
+    }).join('') + '</div>' : '') +
+  '</div>';
+}
+
+function renderEvoGovernancePromotionEvalCases(cases) {
+  var items = Array.isArray(cases) ? cases : [];
+  if (!items.length) {
+    return '<div class="evo-gov-candidate-preview__eval-empty">缺少前置回归用例</div>';
+  }
+  return '<div class="evo-gov-candidate-preview__evals">' + items.slice(0, 4).map(function (item) {
+    return '<span>' + escapeHtml(evoGovLabel(EVO_GOV_EVAL_CASE_SOURCE_LABELS, item.source)) + ' · ' +
+      escapeHtml(evoGovLabel(EVO_GOV_MODULE_LABELS, item.module)) + ' · S' + escapeHtml(String(item.severity || 0)) + '</span>';
+  }).join('') + (items.length > 4 ? '<span>+' + escapeHtml(String(items.length - 4)) + '</span>' : '') + '</div>';
+}
+
+function renderEvoGovernancePromotionCandidatePreview(diagnostics) {
+  var data = diagnostics && typeof diagnostics === 'object' ? diagnostics : {};
+  var items = Array.isArray(data.candidate_preview) ? data.candidate_preview : [];
+  if (!items.length) {
+    return '<div class="evo-gov-candidate-preview">' +
+      '<div class="evo-gov-candidate-preview__head"><h3>候选预览</h3><span>扫描后展示真实差距</span></div>' +
+      '<div class="evo-gov-candidate-preview__empty">暂无可预览候选；需要技能规则产生真实命中后再扫描。</div>' +
+    '</div>';
+  }
+  return '<div class="evo-gov-candidate-preview">' +
+    '<div class="evo-gov-candidate-preview__head"><h3>候选预览</h3><span>展示接近升级阈值的真实规则组合</span></div>' +
+    '<div class="evo-gov-candidate-preview__list">' + items.slice(0, 6).map(function (item) {
+      var statusText = item.status === 'ready' ? '已达阈值' : '继续积累';
+      var missingParts = [];
+      if (Number(item.missing_scope_count || 0) > 0) missingParts.push('还差覆盖 ' + Number(item.missing_scope_count || 0));
+      if (Number(item.missing_hit_count || 0) > 0) missingParts.push('还差命中 ' + Number(item.missing_hit_count || 0));
+      if (item.existing_promotion) missingParts.push('已有待处理提议');
+      return '<article class="evo-gov-candidate-card evo-gov-candidate-card--' + escapeHtml(item.status || 'needs_more_data') + '">' +
+        '<div class="evo-gov-candidate-card__main">' +
+          '<div class="evo-gov-candidate-card__title">' + escapeHtml(evoGovLabel(EVO_GOV_PROMOTION_PROPOSAL_LABELS, item.proposal_type)) + '</div>' +
+          '<div class="evo-gov-candidate-card__meta">' + escapeHtml(evoGovFormatScopePath(item.current_scope)) + ' → ' + escapeHtml(evoGovFormatScopePath(item.target_scope)) + '</div>' +
+          '<div class="evo-gov-candidate-card__ids">记忆 #' + escapeHtml((item.source_memory_ids || []).join(' / ')) + '</div>' +
+        '</div>' +
+        '<div class="evo-gov-candidate-card__facts">' +
+          '<div><span>覆盖</span><strong>' + escapeHtml(String(item.scope_count || 0)) + '/' + escapeHtml(String(item.min_scope_count || 0)) + '</strong></div>' +
+          '<div><span>命中</span><strong>' + escapeHtml(String(item.hit_count || 0)) + '/' + escapeHtml(String(item.min_total_hits || 0)) + '</strong></div>' +
+          '<div><span>状态</span><strong>' + escapeHtml(statusText) + '</strong></div>' +
+        '</div>' +
+        '<div class="evo-gov-candidate-card__foot">' +
+          renderEvoGovernancePromotionEvalCases(item.required_eval_cases) +
+          (missingParts.length ? '<div class="evo-gov-candidate-card__gap">' + escapeHtml(missingParts.join(' · ')) + '</div>' : '') +
+        '</div>' +
+      '</article>';
+    }).join('') + '</div>' +
+  '</div>';
+}
+
+function renderEvoGovernanceOverview() {
+  var state = evoGovState();
+  var overview = state.overview || {};
+  if (requestLoading('evoGovernanceOverview')) {
+    return '<div class="evo-gov-panel"><div class="evo-gov-loading">正在加载概览...</div></div>';
+  }
+  var err = requestError('evoGovernanceOverview');
+  if (err) {
+    return '<div class="evo-gov-panel"><div class="evo-gov-error">' + escapeHtml(err) + '</div></div>';
+  }
+  var recentAnomalies = Array.isArray(overview.recent_anomalies) ? overview.recent_anomalies : [];
+  var pendingReviews = Array.isArray(overview.pending_reviews) ? overview.pending_reviews : [];
+  return '<div class="evo-gov-stack evo-gov-stack--overview">' +
+    renderEvoGovernanceAttentionList(pendingReviews, recentAnomalies) +
+    renderEvoGovernancePipelineHealth(overview) +
+    renderEvoGovernanceQuickEntryCards(overview) +
+  '</div>';
+}
+
+function renderEvoGovernanceMemoryFilters(mode) {
+  var state = evoGovState();
+  var isFeedback = mode === 'feedback';
+  var hideGlobalForStoreManagers = true;
+  var storeManagers = normalizeRole(getCurrentRole()) === 'store_manager';
+  var globalScopeOption = storeManagers && hideGlobalForStoreManagers ? '' : '<option value="global">全局</option>';
+  return '<div class="evo-gov-filters' + (isFeedback ? ' evo-gov-filters--feedback' : '') + '">' +
+    (isFeedback
+      ? '<div class="evo-gov-filter-lock"><span>类型</span><strong>事实记忆</strong></div>'
+      : '<select id="evo-gov-memory-type" class="evo-gov-select" aria-label="记忆类型"><option value="all">全部类型</option><option value="semantic">事实记忆</option><option value="procedural">技能规则</option><option value="reflective">反思日志</option></select>') +
+    '<select id="evo-gov-scope-type" class="evo-gov-select" aria-label="记忆范围"><option value="">个人/门店范围</option><option value="user">个人</option><option value="store">门店</option>' + globalScopeOption + '</select>' +
+    '<select id="evo-gov-status" class="evo-gov-select" aria-label="记忆状态"><option value="">全部状态</option><option value="active">生效</option><option value="auto">自动生效</option><option value="pending">待审</option><option value="archived">已归档</option><option value="auto_disabled">自动停用</option><option value="quarantined">已隔离</option></select>' +
+    '<input id="evo-gov-query" class="evo-gov-search" aria-label="搜索记忆" value="' + escapeHtml(state.query || '') + '" placeholder="搜索触发词、内容或范围">' +
+    '<button type="button" id="evo-gov-filter-apply" class="evo-gov-primary-btn">查询</button>' +
+  '</div>';
+}
+
+function renderEvoGovernanceMemoryCard(item, mode) {
+  var isFeedback = mode === 'feedback';
+  var memoryType = item.memory_type || 'semantic';
+  var sourceCount = Number(item.source_episode_count || 0);
+  var title = item.title || item.content || '-';
+  var trigger = item.trigger_text || item.content || '';
+  var meta = '<span>' + escapeHtml(evoGovLabel(EVO_GOV_MEMORY_TYPE_LABELS, memoryType)) + '</span>' +
+    '<span>' + escapeHtml(evoGovFormatScope(item.scope_type, item.scope_id)) + '</span>' +
+    evoGovStatusBadge(item.status);
+  return '<article class="evo-gov-memory-card">' +
+    '<div class="evo-gov-memory-card__main">' +
+      '<div class="evo-gov-memory-card__meta">' + meta + '</div>' +
+      '<div class="evo-gov-memory-title">' + escapeHtml(title) + '</div>' +
+      (trigger ? '<div class="evo-gov-memory-sub">' + escapeHtml(trigger) + '</div>' : '') +
+    '</div>' +
+    '<div class="evo-gov-memory-card__facts">' +
+      '<div><span>' + escapeHtml(isFeedback ? '来源反馈' : '置信度') + '</span><strong>' + escapeHtml(isFeedback ? (sourceCount + ' 条') : evoGovFormatConfidence(item.confidence)) + '</strong></div>' +
+      '<div><span>命中</span><strong>' + escapeHtml(String(item.hit_count || 0)) + ' 次</strong></div>' +
+      '<div><span>最近</span><strong>' + escapeHtml(evoGovFormatTime(item.last_hit_at || item.created_at)) + '</strong></div>' +
+    '</div>' +
+    '<div class="evo-gov-memory-card__action">' +
+      '<button type="button" class="evo-gov-secondary-btn" data-evo-memory-type="' + escapeHtml(memoryType) + '" data-evo-memory-id="' + escapeHtml(String(item.id)) + '">看详情</button>' +
+    '</div>' +
+  '</article>';
+}
+
+function renderEvoGovernanceMemoryRows(mode) {
+  var state = evoGovState();
+  var items = state.memories || [];
+  var isFeedback = mode === 'feedback';
+  if (requestLoading('evoGovernanceMemories')) {
+    return '<div class="evo-gov-loading">正在加载记忆...</div>';
+  }
+  var err = requestError('evoGovernanceMemories');
+  if (err) return '<div class="evo-gov-error">' + escapeHtml(err) + '</div>';
+  if (!items.length) return renderEmptyState(isFeedback ? '反馈沉淀' : '记忆关系');
+  return '<div class="evo-gov-memory-list">' + items.map(function (item) {
+    return renderEvoGovernanceMemoryCard(item, mode);
+  }).join('') + '</div>';
+}
+
+function evoGovEpisodeSignalLabel(signal, episodeType) {
+  var raw = String(signal || '').trim();
+  if (raw === 'thumb_up') return '有用 / 准';
+  if (raw === 'thumb_down') return '没用 / 不准';
+  if (raw === 'correction' || episodeType === 'correction') return '纠正意见';
+  return '未反馈';
+}
+
+function evoGovSourceFeedbackText(source, correction) {
+  var item = correction || source || {};
+  var signal = String(item.signal || (source && source.signal) || '').trim();
+  var correctionText = String(item.correction_text || '').trim();
+  if (correctionText) return correctionText;
+  if (signal === 'thumb_up') return '用户标记为有用 / 准。';
+  if (signal === 'thumb_down') return '用户标记为没用 / 不准。';
+  if (signal === 'correction') return '用户提交了纠正，具体意见见关联纠正记录。';
+  return '暂无反馈信号。';
+}
+
+function evoGovPairSourceEpisodes(sources) {
+  var rows = Array.isArray(sources) ? sources : [];
+  var byId = {};
+  rows.forEach(function (item) {
+    if (item && item.id != null) byId[String(item.id)] = item;
+  });
+  var correctionsByParent = {};
+  rows.forEach(function (item) {
+    var parentId = item && item.parent_episode_id != null ? String(item.parent_episode_id) : '';
+    if (item && item.episode_type === 'correction' && parentId) {
+      correctionsByParent[parentId] = item;
+    }
+  });
+  var pairedCorrectionIds = {};
+  var pairs = [];
+  rows.forEach(function (item) {
+    if (!item) return;
+    var id = String(item.id);
+    if (item.episode_type === 'correction') {
+      var parentId = item.parent_episode_id != null ? String(item.parent_episode_id) : '';
+      if (parentId && byId[parentId]) return;
+      pairs.push({ source: item, correction: item });
+      pairedCorrectionIds[id] = true;
+      return;
+    }
+    var correction = correctionsByParent[id] || null;
+    if (correction && correction.id != null) pairedCorrectionIds[String(correction.id)] = true;
+    pairs.push({ source: item, correction: correction });
+  });
+  rows.forEach(function (item) {
+    if (item && item.episode_type === 'correction' && !pairedCorrectionIds[String(item.id)]) {
+      pairs.push({ source: item, correction: item });
+    }
+  });
+  return pairs;
+}
+
+function evoGovSourcePreviewFromPairs(pairs) {
+  var list = Array.isArray(pairs) ? pairs : [];
+  if (!list.length) return '暂无来源记录';
+  var corrected = list.find(function (pair) {
+    return pair.correction && String(pair.correction.correction_text || '').trim();
+  });
+  var picked = corrected || list.find(function (pair) {
+    return String((pair.correction || pair.source || {}).signal || '').trim() === 'thumb_down';
+  }) || list[0];
+  var source = picked.source || picked.correction || {};
+  var correction = picked.correction || null;
+  var label = evoGovEpisodeSignalLabel((correction || source).signal, (correction || source).episode_type);
+  var feedback = evoGovSourceFeedbackText(source, correction);
+  return label + '：' + feedback;
+}
+
+function evoGovSourcePreview(sources) {
+  return evoGovSourcePreviewFromPairs(evoGovPairSourceEpisodes(sources));
+}
+
+function renderEvoGovernanceSourceField(label, value, extraClass) {
+  var text = String(value || '').trim() || '-';
+  return '<div class="evo-gov-source-field ' + escapeHtml(extraClass || '') + '">' +
+    '<div class="evo-gov-source-field__label">' + escapeHtml(label) + '</div>' +
+    '<div class="evo-gov-source-field__text">' + escapeHtml(text) + '</div>' +
+  '</div>';
+}
+
+function renderEvoGovernanceSourceRow(pair) {
+  var source = (pair && pair.source) || (pair && pair.correction) || {};
+  var correction = (pair && pair.correction) || null;
+  var feedbackSource = correction || source;
+  var signalLabel = evoGovEpisodeSignalLabel(feedbackSource.signal, feedbackSource.episode_type);
+  var meta = '#' + String(source.id || '-');
+  if (correction && correction.id && correction.id !== source.id) meta += ' / 纠正 #' + String(correction.id);
+  meta += ' · ' + evoGovLabel(EVO_GOV_MODULE_LABELS, source.module || feedbackSource.module);
+  meta += ' · ' + evoGovFormatTime(source.created_at || feedbackSource.created_at);
+  return '<div class="evo-gov-source-row">' +
+    '<div class="evo-gov-source-row__meta"><span>' + escapeHtml(meta) + '</span><span class="evo-gov-feedback-badge">' + escapeHtml(signalLabel) + '</span></div>' +
+    renderEvoGovernanceSourceField('原问题', source.query_text || feedbackSource.query_text) +
+    renderEvoGovernanceSourceField('智能体原回答', source.response_text || feedbackSource.response_text) +
+    renderEvoGovernanceSourceField('用户反馈', evoGovSourceFeedbackText(source, correction), 'evo-gov-source-field--feedback') +
+  '</div>';
+}
+
+function renderEvoGovernanceFeedbackFilters() {
+  var state = evoGovState();
+  return '<div class="evo-gov-filters evo-gov-feedback-filters">' +
+    '<select id="evo-gov-feedback-signal" class="evo-gov-select" aria-label="反馈类型"><option value="all">全部反馈</option><option value="thumb_up">有用 / 准</option><option value="thumb_down">没用 / 不准</option><option value="correction">纠正意见</option></select>' +
+    '<select id="evo-gov-feedback-module" class="evo-gov-select" aria-label="来源模块"><option value="">全部模块</option><option value="assistant">实战助手</option><option value="qa">知识问答</option><option value="quick_query">一句话查询</option></select>' +
+    '<input id="evo-gov-feedback-query" class="evo-gov-search" aria-label="搜索反馈" value="' + escapeHtml(state.feedbackQuery || '') + '" placeholder="搜索原问题、原回答或纠正意见">' +
+    '<button type="button" id="evo-gov-feedback-filter-apply" class="evo-gov-primary-btn">查询</button>' +
+  '</div>';
+}
+
+function renderEvoGovernanceEvalFilters() {
+  var state = evoGovState();
+  return '<div class="evo-gov-filters evo-gov-eval-filters">' +
+    '<select id="evo-gov-eval-module" class="evo-gov-select" aria-label="用例模块"><option value="">全部模块</option><option value="assistant">实战助手</option><option value="qa">知识问答</option></select>' +
+    '<select id="evo-gov-eval-severity" class="evo-gov-select" aria-label="用例严重度"><option value="">全部严重度</option><option value="3">严重度 3</option><option value="2">严重度 2</option><option value="1">严重度 1</option></select>' +
+    '<select id="evo-gov-eval-source" class="evo-gov-select" aria-label="用例来源"><option value="">全部来源</option><option value="baseline">合规基线</option><option value="manual">人工新增</option><option value="document_import">文档导入</option><option value="promotion_preflight">升级前置</option></select>' +
+    '<button type="button" id="evo-gov-eval-filter-apply" class="evo-gov-primary-btn">查询</button>' +
+  '</div>';
+}
+
+function renderEvoGovernanceLinkedMemories(refs) {
+  var items = Array.isArray(refs) ? refs : [];
+  if (!items.length) return '<div class="evo-gov-feedback-linked-empty">尚未沉淀成记忆</div>';
+  return '<div class="evo-gov-feedback-linked">' + items.slice(0, 5).map(function (item) {
+    return '<button type="button" class="evo-gov-feedback-memory-chip" data-evo-open-memory="1" data-evo-memory-type="' + escapeHtml(item.memory_type || '') + '" data-evo-memory-id="' + escapeHtml(String(item.id || '')) + '">' +
+      escapeHtml(evoGovLabel(EVO_GOV_MEMORY_TYPE_LABELS, item.memory_type)) + ' #' + escapeHtml(String(item.id || '-')) +
+    '</button>';
+  }).join('') + (items.length > 5 ? '<span class="evo-gov-feedback-linked-more">+' + escapeHtml(String(items.length - 5)) + '</span>' : '') + '</div>';
+}
+
+function renderEvoGovernanceCompactSourceField(label, value, extraClass) {
+  var text = String(value || '').trim() || '-';
+  return '<div class="evo-gov-source-compact-field ' + escapeHtml(extraClass || '') + '">' +
+    '<span>' + escapeHtml(label) + '</span>' +
+    '<strong>' + escapeHtml(text) + '</strong>' +
+  '</div>';
+}
+
+function renderEvoGovernanceFeedbackEventCard(item) {
+  var episode = (item && item.episode) || item || {};
+  var correction = item && item.correction ? item.correction : null;
+  var signal = String((item && item.signal) || (correction && correction.signal) || episode.signal || '').trim();
+  var label = evoGovEpisodeSignalLabel(signal, correction ? 'correction' : episode.episode_type);
+  var feedbackText = evoGovSourceFeedbackText(episode, correction);
+  var correctionMeta = correction && correction.id ? ' · 关联纠正记录 #' + String(correction.id) : '';
+  return '<article class="evo-gov-feedback-card">' +
+    '<div class="evo-gov-feedback-card__head">' +
+      '<div><div class="evo-gov-source-row__meta"><span>原回答 #' + escapeHtml(String(episode.id || item.id || '-')) + correctionMeta + ' · ' + escapeHtml(evoGovLabel(EVO_GOV_MODULE_LABELS, item.module || episode.module)) + ' · ' + escapeHtml(evoGovFormatTime(item.created_at || episode.created_at)) + '</span></div></div>' +
+      '<span class="evo-gov-feedback-badge">' + escapeHtml(label) + '</span>' +
+    '</div>' +
+    '<div class="evo-gov-feedback-card__body">' +
+      renderEvoGovernanceCompactSourceField('原问题', item.query_text || episode.query_text) +
+      renderEvoGovernanceCompactSourceField('智能体原回答', item.response_text || episode.response_text) +
+      renderEvoGovernanceCompactSourceField('用户反馈', feedbackText, 'evo-gov-source-field--feedback') +
+      '<div class="evo-gov-source-field"><div class="evo-gov-source-field__label">已沉淀记忆</div>' + renderEvoGovernanceLinkedMemories(item && item.linked_memories) + '</div>' +
+    '</div>' +
+  '</article>';
+}
+
+function renderEvoGovernanceFeedbackEvents() {
+  var state = evoGovState();
+  var items = state.feedbackEvents || [];
+  if (requestLoading('evoGovernanceFeedbackEvents')) {
+    return '<div class="evo-gov-loading">正在加载反馈流水...</div>';
+  }
+  var err = requestError('evoGovernanceFeedbackEvents');
+  if (err) return '<div class="evo-gov-error">' + escapeHtml(err) + '</div>';
+  if (!items.length) return renderEmptyState('反馈流水');
+  return '<div class="evo-gov-feedback-list">' + items.map(renderEvoGovernanceFeedbackEventCard).join('') + '</div>';
+}
+
+function renderEvoGovernanceRelationshipChain(detail) {
+  var memory = detail.memory || {};
+  var sources = Array.isArray(detail.source_episodes) ? detail.source_episodes : [];
+  var hits = detail.hit_history && Array.isArray(detail.hit_history.recent_hits) ? detail.hit_history.recent_hits : [];
+  var derived = detail.derived_path || {};
+  var promotions = Array.isArray(derived.promotions) ? derived.promotions : [];
+  var anomalies = Array.isArray(derived.anomalies) ? derived.anomalies : [];
+  var evalCases = Array.isArray(derived.eval_cases) ? derived.eval_cases : [];
+  var reviews = Array.isArray(derived.review_queue) ? derived.review_queue : [];
+  var proceduralChildren = Array.isArray(derived.procedural_children) ? derived.procedural_children : [];
+  var sourcePairs = evoGovPairSourceEpisodes(sources);
+  var sourcePreview = evoGovSourcePreviewFromPairs(sourcePairs);
+  var latestHit = hits.length ? (hits[0].query_text || '-') : '暂无命中记录';
+  var impactCount = promotions.length + proceduralChildren.length;
+  var riskCount = anomalies.length + evalCases.length + reviews.length;
+  var cards = [
+    { label: '来源反馈', value: sourcePairs.length + ' 组', text: sourcePreview },
+    { label: '当前记忆', value: evoGovLabel(EVO_GOV_MEMORY_TYPE_LABELS, memory.memory_type), text: memory.content || memory.title || '-' },
+    { label: '命中回答', value: (memory.hit_count || 0) + ' 次', text: latestHit },
+    { label: '后续影响', value: impactCount + ' 项', text: '升级 ' + promotions.length + ' / 技能规则 ' + proceduralChildren.length },
+    { label: '风险与待审', value: riskCount + ' 项', text: '异常 ' + anomalies.length + ' / 用例 ' + evalCases.length + ' / 待审 ' + reviews.length },
+  ];
+  return '<div class="evo-gov-detail-section"><div class="evo-gov-detail-label">关系链</div>' +
+    '<div class="evo-gov-chain">' + cards.map(function (card, index) {
+      return '<div class="evo-gov-chain__node">' +
+        '<div class="evo-gov-chain__index">' + escapeHtml(String(index + 1)) + '</div>' +
+        '<div><div class="evo-gov-chain__label">' + escapeHtml(card.label) + '</div>' +
+        '<div class="evo-gov-chain__value">' + escapeHtml(card.value) + '</div>' +
+        '<div class="evo-gov-chain__text">' + escapeHtml(card.text) + '</div></div>' +
+      '</div>';
+    }).join('') + '</div></div>';
+}
+
+function renderEvoGovernanceMemoryDetail() {
+  var state = evoGovState();
+  var detail = state.detail || null;
+  if (requestLoading('evoGovernanceDetail')) {
+    return '<aside class="evo-gov-detail"><div class="evo-gov-loading">正在加载详情...</div></aside>';
+  }
+  var err = requestError('evoGovernanceDetail');
+  if (err) return '<aside class="evo-gov-detail"><div class="evo-gov-error">' + escapeHtml(err) + '</div></aside>';
+  if (!detail || !detail.memory) {
+    return '<aside class="evo-gov-detail"><h2 class="evo-gov-panel__title">记忆详情</h2>' + renderEmptyState('详情') + '</aside>';
+  }
+  var memory = detail.memory;
+  var sources = Array.isArray(detail.source_episodes) ? detail.source_episodes : [];
+  var hits = detail.hit_history && Array.isArray(detail.hit_history.recent_hits) ? detail.hit_history.recent_hits : [];
+  var derived = detail.derived_path || {};
+  var promotions = Array.isArray(derived.promotions) ? derived.promotions : [];
+  var anomalies = Array.isArray(derived.anomalies) ? derived.anomalies : [];
+  var evalCases = Array.isArray(derived.eval_cases) ? derived.eval_cases : [];
+  var reviews = Array.isArray(derived.review_queue) ? derived.review_queue : [];
+  var proceduralChildren = Array.isArray(derived.procedural_children) ? derived.procedural_children : [];
+  return '<aside class="evo-gov-detail">' +
+    '<div class="evo-gov-detail__head">' +
+      '<div><div class="evo-gov-detail__eyebrow">' + escapeHtml(evoGovLabel(EVO_GOV_MEMORY_TYPE_LABELS, memory.memory_type)) + '</div><h2>' + escapeHtml(memory.title || '-') + '</h2></div>' +
+      evoGovStatusBadge(memory.status) +
+    '</div>' +
+    '<div class="evo-gov-detail__body">' +
+      renderEvoGovernanceRelationshipChain(detail) +
+      '<div class="evo-gov-detail-section"><div class="evo-gov-detail-label">内容</div><div class="evo-gov-detail-text">' + escapeHtml(memory.content || '-') + '</div></div>' +
+      '<div class="evo-gov-detail-grid">' +
+        '<label>范围<span>' + escapeHtml(evoGovFormatScope(memory.scope_type, memory.scope_id)) + '</span></label>' +
+        '<label>置信度<span>' + escapeHtml(evoGovFormatConfidence(memory.confidence)) + '</span></label>' +
+        '<label>命中次数<span>' + escapeHtml(String(memory.hit_count || 0)) + '</span></label>' +
+        '<label>创建时间<span>' + escapeHtml(evoGovFormatTime(memory.created_at)) + '</span></label>' +
+      '</div>' +
+      '<div class="evo-gov-detail-section"><div class="evo-gov-detail-label">治理操作</div>' +
+        '<div class="evo-gov-action-grid">' +
+          '<button type="button" class="evo-gov-secondary-btn" data-evo-action="enable">启用</button>' +
+          '<button type="button" class="evo-gov-secondary-btn" data-evo-action="disable">停用</button>' +
+          '<button type="button" class="evo-gov-secondary-btn" data-evo-action="archive">归档</button>' +
+          '<button type="button" class="evo-gov-danger-btn" data-evo-action="rollback">回滚路径</button>' +
+        '</div>' +
+        '<div class="evo-gov-confidence-row"><input id="evo-gov-confidence-input" aria-label="记忆置信度" type="number" min="0" max="1" step="0.01" value="' + escapeHtml(Number(memory.confidence || 0).toFixed(2)) + '"><button type="button" class="evo-gov-primary-btn" data-evo-action="confidence">更新置信度</button></div>' +
+      '</div>' +
+      '<div class="evo-gov-detail-section"><div class="evo-gov-detail-label">来源反馈</div>' +
+        (sources.length ? evoGovPairSourceEpisodes(sources).map(renderEvoGovernanceSourceRow).join('') : renderEmptyState('来源反馈')) +
+      '</div>' +
+      '<div class="evo-gov-detail-section"><div class="evo-gov-detail-label">命中回答</div>' +
+        (hits.length ? hits.slice(0, 8).map(function (item) {
+          return '<div class="evo-gov-hit-row"><span>' + escapeHtml(item.query_text || '-') + '</span><strong>匹配 ' + escapeHtml(evoGovFormatConfidence(item.score)) + '</strong></div>';
+        }).join('') : renderEmptyState('命中回答')) +
+      '</div>' +
+      '<div class="evo-gov-detail-section"><div class="evo-gov-detail-label">后续影响</div>' +
+        '<div class="evo-gov-derived">' +
+          '<div>升级审批 <strong>' + escapeHtml(String(promotions.length)) + '</strong></div>' +
+          '<div>技能规则 <strong>' + escapeHtml(String(proceduralChildren.length)) + '</strong></div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="evo-gov-detail-section"><div class="evo-gov-detail-label">风险与待审</div>' +
+        '<div class="evo-gov-derived">' +
+          '<div>异常告警 <strong>' + escapeHtml(String(anomalies.length)) + '</strong></div>' +
+          '<div>回归用例 <strong>' + escapeHtml(String(evalCases.length)) + '</strong></div>' +
+          '<div>待审队列 <strong>' + escapeHtml(String(reviews.length)) + '</strong></div>' +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+  '</aside>';
+}
+
+function renderEvoGovernanceFeedbackTab() {
+  return '<section class="evo-gov-panel evo-gov-panel--wide">' +
+    '<div class="evo-gov-panel-head"><h2 class="evo-gov-panel__title">反馈沉淀</h2><span class="evo-gov-count">共 ' + escapeHtml(String(evoGovState().feedbackEventsTotal || 0)) + ' 条</span></div>' +
+    renderEvoGovernanceFeedbackFilters() +
+    renderEvoGovernanceFeedbackEvents() +
+  '</section>';
+}
+
+function renderEvoGovernanceLineageTab() {
+  var state = evoGovState();
+  var hasDetailPane = requestLoading('evoGovernanceDetail') || requestError('evoGovernanceDetail') || (state.detail && state.detail.memory);
+  return '<div class="evo-gov-memory-layout' + (hasDetailPane ? ' evo-gov-memory-layout--with-detail' : '') + '">' +
+    '<section class="evo-gov-panel evo-gov-panel--wide">' +
+      '<div class="evo-gov-panel-head"><h2 class="evo-gov-panel__title">记忆关系</h2><span class="evo-gov-count">共 ' + escapeHtml(String(evoGovState().memoriesTotal || 0)) + ' 条</span></div>' +
+      renderEvoGovernanceMemoryFilters('lineage') +
+      renderEvoGovernanceMemoryRows('lineage') +
+    '</section>' +
+    (hasDetailPane ? renderEvoGovernanceMemoryDetail() : '') +
+  '</div>';
+}
+
+function renderEvoGovernancePromotionsTab() {
+  var state = evoGovState();
+  if (requestLoading('evoGovernancePromotions')) return '<div class="evo-gov-panel"><div class="evo-gov-loading">正在加载升级审批...</div></div>';
+  var err = requestError('evoGovernancePromotions');
+  if (err) return '<div class="evo-gov-panel"><div class="evo-gov-error">' + escapeHtml(err) + '</div></div>';
+  var items = state.promotions || [];
+  var health = evoGovDataHealth();
+  var diagnostics = (state.promotionScanSummary && state.promotionScanSummary.diagnostics) || {};
+  if (!diagnostics.reasons && health.promotion_readiness && health.promotion_readiness.reasons) {
+    diagnostics = {
+      reasons: health.promotion_readiness.reasons,
+      status: health.promotion_readiness.status,
+      procedural_count: health.procedural_count,
+      memory_hit_count: health.memory_hit_count,
+    };
+  }
+  return '<section class="evo-gov-panel">' +
+    '<div class="evo-gov-panel-head"><h2 class="evo-gov-panel__title">升级审批</h2><button type="button" class="evo-gov-secondary-btn" id="evo-gov-promotion-scan">扫描提议</button></div>' +
+    renderEvoGovernanceScanSummary(state.promotionScanSummary) +
+    renderEvoGovernancePromotionCandidatePreview(diagnostics) +
+    (items.length ? '<div class="evo-gov-table-wrap"><table class="evo-gov-table"><thead><tr><th>来源</th><th>范围</th><th>原因</th><th>状态</th><th>前置检查</th><th>时间</th><th>操作</th></tr></thead><tbody>' + items.map(function (item) {
+      var preflightBadge = (window.AgentOEvoGovernance && typeof window.AgentOEvoGovernance.renderPreflightBadge === 'function')
+        ? window.AgentOEvoGovernance.renderPreflightBadge(item.preflight)
+        : evoGovStatusBadge((item.preflight && item.preflight.status) || 'not_run');
+      return '<tr><td>' + escapeHtml(evoGovTargetLabel(item.source_memory_type, item.source_memory_id)) + '</td><td>' + escapeHtml(evoGovFormatScopePath(item.current_scope)) + ' → ' + escapeHtml(evoGovFormatScopePath(item.target_scope)) + '</td><td>' + escapeHtml(item.reason || '-') + '</td><td>' + evoGovStatusBadge(item.status) + '</td><td>' + preflightBadge + '</td><td>' + escapeHtml(evoGovFormatTime(item.suggested_at)) + '</td><td>' +
+        (item.status === 'pending' ? '<button type="button" class="evo-gov-link-btn" data-evo-promotion="' + escapeHtml(String(item.id)) + '" data-decision="approve">通过</button><button type="button" class="evo-gov-link-btn evo-gov-link-btn--danger" data-evo-promotion="' + escapeHtml(String(item.id)) + '" data-decision="reject">拒绝</button>' : '-') +
+      '</td></tr>';
+    }).join('') + '</tbody></table></div>' : renderEvoGovernanceDiagnosticEmptyState('promotions', diagnostics)) +
+  '</section>';
+}
+
+function renderEvoGovernanceSafetyTab() {
+  var state = evoGovState();
+  if (requestLoading('evoGovernanceEval')) return '<div class="evo-gov-panel"><div class="evo-gov-loading">正在加载安全网...</div></div>';
+  var err = requestError('evoGovernanceEval');
+  if (err) return '<div class="evo-gov-panel"><div class="evo-gov-error">' + escapeHtml(err) + '</div></div>';
+  var anomalyErr = requestError('evoGovernanceAnomalies');
+  var cases = state.evalCases || [];
+  var runs = state.evalRuns || [];
+  var anomalies = state.anomalies || [];
+  var health = evoGovDataHealth();
+  var safetyDiagnostics = (health && health.safety_readiness) || {};
+  var anomalyDiagnostics = (state.anomalyScanSummary && state.anomalyScanSummary.diagnostics) || safetyDiagnostics;
+  var passedCount = runs.filter(function (item) { return item.status === 'passed'; }).length;
+  var failedCount = runs.filter(function (item) { return item.status && item.status !== 'passed'; }).length;
+  var anomalyEmptyKind = anomalies.length ? '' : ((runs.length || (state.anomalyScanSummary && state.anomalyScanSummary.summary && state.anomalyScanSummary.summary.status === 'clear')) ? 'anomalies_clear' : 'anomalies');
+  return '<div class="evo-gov-grid-2">' +
+    '<section class="evo-gov-panel evo-gov-panel--span"><div class="evo-gov-panel-head"><h2 class="evo-gov-panel__title">安全网概况</h2><span class="evo-gov-count">真实运行结果</span></div>' +
+      '<div class="evo-gov-health-grid evo-gov-health-grid--compact">' +
+        '<div class="evo-gov-health-item"><div class="evo-gov-health-item__label">回归用例</div><div class="evo-gov-health-item__value">' + escapeHtml(String(cases.length)) + '</div><div class="evo-gov-health-item__hint">数据库中的用例数</div></div>' +
+        '<div class="evo-gov-health-item"><div class="evo-gov-health-item__label">运行记录</div><div class="evo-gov-health-item__value">' + escapeHtml(String(runs.length)) + '</div><div class="evo-gov-health-item__hint">最近 100 次</div></div>' +
+        '<div class="evo-gov-health-item"><div class="evo-gov-health-item__label">失败/错误</div><div class="evo-gov-health-item__value">' + escapeHtml(String(failedCount)) + '</div><div class="evo-gov-health-item__hint">通过 ' + escapeHtml(String(passedCount)) + '</div></div>' +
+        '<div class="evo-gov-health-item"><div class="evo-gov-health-item__label">未处理异常</div><div class="evo-gov-health-item__value">' + escapeHtml(String(anomalies.length)) + '</div><div class="evo-gov-health-item__hint">来自回归失败或扫描</div></div>' +
+      '</div>' +
+      renderEvoGovernanceScanSummary(state.evalRunSummary) +
+      renderEvoGovernanceScanSummary(state.anomalyScanSummary) +
+    '</section>' +
+    '<section class="evo-gov-panel"><div class="evo-gov-panel-head"><h2 class="evo-gov-panel__title">用例治理</h2><button type="button" class="evo-gov-secondary-btn" id="evo-gov-seed-eval">导入合规基线</button></div>' +
+      renderEvoGovernanceEvalFilters() +
+      '<div class="evo-gov-safety-scroll">' +
+      (cases.length ? cases.map(function (item) {
+        var boundCount = Array.isArray(item.bound_memory_ids) ? item.bound_memory_ids.length : 0;
+        return '<div class="evo-gov-feed-row"><div><div class="evo-gov-feed-row__title">' + escapeHtml(item.question || '-') + '</div><div class="evo-gov-feed-row__sub">' + escapeHtml(evoGovLabel(EVO_GOV_EVAL_CASE_SOURCE_LABELS, item.source)) + ' · ' + escapeHtml(evoGovLabel(EVO_GOV_MODULE_LABELS, item.module)) + ' · 严重度 ' + escapeHtml(String(item.severity || 0)) + ' · 绑定记忆 ' + escapeHtml(String(boundCount)) + '</div></div>' + evoGovStatusBadge(item.status) + '</div>';
+      }).join('') : renderEvoGovernanceDiagnosticEmptyState('eval_cases', safetyDiagnostics)) +
+      '</div>' +
+    '</section>' +
+    '<section class="evo-gov-panel"><div class="evo-gov-panel-head"><h2 class="evo-gov-panel__title">运行历史</h2><button type="button" class="evo-gov-primary-btn" id="evo-gov-run-eval">立即运行</button></div>' +
+      '<div class="evo-gov-safety-scroll">' +
+      (runs.length ? runs.slice(0, 20).map(function (item) {
+        return '<div class="evo-gov-feed-row"><div><div class="evo-gov-feed-row__title">' + escapeHtml(item.question || '-') + '</div><div class="evo-gov-feed-row__sub">' + escapeHtml(evoGovFormatTime(item.created_at)) + '</div></div>' + evoGovStatusBadge(item.status) + '</div>';
+      }).join('') : renderEvoGovernanceDiagnosticEmptyState('eval_runs', safetyDiagnostics)) +
+      '</div>' +
+    '</section>' +
+    '<section class="evo-gov-panel evo-gov-panel--span"><div class="evo-gov-panel-head"><h2 class="evo-gov-panel__title">安全网异常</h2><button type="button" class="evo-gov-secondary-btn" id="evo-gov-scan-anomaly">扫描异常</button></div>' +
+      (anomalyErr ? '<div class="evo-gov-error">' + escapeHtml(anomalyErr) + '</div>' : (anomalies.length ? anomalies.map(function (item) {
+        return '<div class="evo-gov-feed-row"><div><div class="evo-gov-feed-row__title">' + escapeHtml(item.reason || evoGovAnomalyLabel(item.anomaly_type)) + '</div><div class="evo-gov-feed-row__sub">' + escapeHtml(evoGovTargetLabel(item.target_type, item.target_id)) + ' · 严重度 ' + escapeHtml(String(item.severity || 0)) + '</div></div>' + evoGovStatusBadge(item.status) + '</div>';
+      }).join('') : renderEvoGovernanceDiagnosticEmptyState(anomalyEmptyKind, anomalyDiagnostics))) +
+    '</section>' +
+  '</div>';
+}
+
+function renderEvoGovernanceTabContent() {
+  var state = evoGovState();
+  if (state.activeTab === 'overview') return renderEvoGovernanceOverview();
+  if (state.activeTab === 'feedback') return renderEvoGovernanceFeedbackTab();
+  if (state.activeTab === 'lineage') return renderEvoGovernanceLineageTab();
+  if (state.activeTab === 'promotions') return renderEvoGovernancePromotionsTab();
+  if (state.activeTab === 'safety') return renderEvoGovernanceSafetyTab();
+  return renderEvoGovernanceOverview();
+}
+
+function syncEvoGovernanceFilterControls() {
+  var state = evoGovState();
+  var typeEl = document.getElementById('evo-gov-memory-type');
+  var scopeEl = document.getElementById('evo-gov-scope-type');
+  var statusEl = document.getElementById('evo-gov-status');
+  var queryEl = document.getElementById('evo-gov-query');
+  if (typeEl) typeEl.value = state.memoryType || 'all';
+  if (scopeEl) scopeEl.value = state.scopeType || '';
+  if (statusEl) statusEl.value = state.status || '';
+  if (queryEl) queryEl.value = state.query || '';
+}
+
+function syncEvoGovernanceFeedbackControls() {
+  var state = evoGovState();
+  var signalEl = document.getElementById('evo-gov-feedback-signal');
+  var moduleEl = document.getElementById('evo-gov-feedback-module');
+  var queryEl = document.getElementById('evo-gov-feedback-query');
+  if (signalEl) signalEl.value = state.feedbackSignal || 'all';
+  if (moduleEl) moduleEl.value = state.feedbackModule || '';
+  if (queryEl) queryEl.value = state.feedbackQuery || '';
+}
+
+function syncEvoGovernanceEvalControls() {
+  var state = evoGovState();
+  var moduleEl = document.getElementById('evo-gov-eval-module');
+  var severityEl = document.getElementById('evo-gov-eval-severity');
+  var sourceEl = document.getElementById('evo-gov-eval-source');
+  if (moduleEl) moduleEl.value = state.evalCaseModule || '';
+  if (severityEl) severityEl.value = state.evalCaseSeverity || '';
+  if (sourceEl) sourceEl.value = state.evalCaseSource || '';
+}
+
+function bindEvoGovernancePage(container) {
+  var state = evoGovState();
+  Array.prototype.forEach.call(container.querySelectorAll('[data-evo-tab]'), function (btn) {
+    btn.addEventListener('click', function () {
+      var tab = btn.getAttribute('data-evo-tab') || 'overview';
+      if (evoGovAllowedTabsForRole(getCurrentRole()).indexOf(tab) === -1) return;
+      if (state.activeTab === tab) return;
+      var previousTab = state.activeTab;
+      state.activeTab = tab;
+      state.detail = null;
+      if (tab === 'lineage' && previousTab === 'feedback') state.memoryType = 'all';
+      rerenderCurrentPage();
+      loadEvoGovernanceActiveTab().then(rerenderCurrentPage);
+    });
+  });
+  syncEvoGovernanceFilterControls();
+  syncEvoGovernanceFeedbackControls();
+  syncEvoGovernanceEvalControls();
+  var filterBtn = document.getElementById('evo-gov-filter-apply');
+  if (filterBtn) {
+    filterBtn.addEventListener('click', function () {
+      var typeEl = document.getElementById('evo-gov-memory-type');
+      var scopeEl = document.getElementById('evo-gov-scope-type');
+      var statusEl = document.getElementById('evo-gov-status');
+      var queryEl = document.getElementById('evo-gov-query');
+      if (typeEl) state.memoryType = typeEl.value || 'all';
+      if (scopeEl) state.scopeType = scopeEl.value || '';
+      if (statusEl) state.status = statusEl.value || '';
+      if (queryEl) state.query = queryEl.value || '';
+      state.detail = null;
+      if (state.activeTab === 'feedback') {
+        state.memoryType = 'semantic';
+        loadEvoGovernanceMemories({ memoryType: 'semantic' }).then(rerenderCurrentPage);
+      } else {
+        loadEvoGovernanceMemories().then(rerenderCurrentPage);
+      }
+    });
+  }
+  var queryEl = document.getElementById('evo-gov-query');
+  if (queryEl) {
+    queryEl.addEventListener('keydown', function (ev) {
+      if (ev.key === 'Enter' && filterBtn) filterBtn.click();
+    });
+  }
+  var feedbackFilterBtn = document.getElementById('evo-gov-feedback-filter-apply');
+  if (feedbackFilterBtn) {
+    feedbackFilterBtn.addEventListener('click', function () {
+      var signalEl = document.getElementById('evo-gov-feedback-signal');
+      var moduleEl = document.getElementById('evo-gov-feedback-module');
+      var feedbackQueryEl = document.getElementById('evo-gov-feedback-query');
+      if (signalEl) state.feedbackSignal = signalEl.value || 'all';
+      if (moduleEl) state.feedbackModule = moduleEl.value || '';
+      if (feedbackQueryEl) state.feedbackQuery = feedbackQueryEl.value || '';
+      loadEvoGovernanceFeedbackEvents().then(rerenderCurrentPage);
+    });
+  }
+  var feedbackQueryEl = document.getElementById('evo-gov-feedback-query');
+  if (feedbackQueryEl) {
+    feedbackQueryEl.addEventListener('keydown', function (ev) {
+      if (ev.key === 'Enter' && feedbackFilterBtn) feedbackFilterBtn.click();
+    });
+  }
+  var evalFilterBtn = document.getElementById('evo-gov-eval-filter-apply');
+  if (evalFilterBtn) {
+    evalFilterBtn.addEventListener('click', function () {
+      var moduleEl = document.getElementById('evo-gov-eval-module');
+      var severityEl = document.getElementById('evo-gov-eval-severity');
+      var sourceEl = document.getElementById('evo-gov-eval-source');
+      if (moduleEl) state.evalCaseModule = moduleEl.value || '';
+      if (severityEl) state.evalCaseSeverity = severityEl.value || '';
+      if (sourceEl) state.evalCaseSource = sourceEl.value || '';
+      loadEvoGovernanceEval().then(rerenderCurrentPage);
+    });
+  }
+  Array.prototype.forEach.call(container.querySelectorAll('[data-evo-memory-type][data-evo-memory-id]'), function (btn) {
+    btn.addEventListener('click', function () {
+      var type = btn.getAttribute('data-evo-memory-type');
+      var id = btn.getAttribute('data-evo-memory-id');
+      if (btn.getAttribute('data-evo-open-memory') || state.activeTab === 'feedback') {
+        state.activeTab = 'lineage';
+        state.memoryType = type || 'all';
+        state.detail = null;
+        rerenderCurrentPage();
+        Promise.all([
+          loadEvoGovernanceMemories({ memoryType: type || 'all' }),
+          loadEvoGovernanceDetail(type, id),
+        ]).then(rerenderCurrentPage);
+        return;
+      }
+      loadEvoGovernanceDetail(type, id).then(rerenderCurrentPage);
+    });
+  });
+  Array.prototype.forEach.call(container.querySelectorAll('[data-evo-action]'), function (btn) {
+    btn.addEventListener('click', function () {
+      evoGovernanceRunMemoryAction(btn.getAttribute('data-evo-action'));
+    });
+  });
+  Array.prototype.forEach.call(container.querySelectorAll('[data-evo-promotion][data-decision]'), function (btn) {
+    btn.addEventListener('click', function () {
+      evoGovernanceDecidePromotion(btn.getAttribute('data-evo-promotion'), btn.getAttribute('data-decision'));
+    });
+  });
+  Array.prototype.forEach.call(container.querySelectorAll('[data-evo-review][data-decision]'), function (btn) {
+    btn.addEventListener('click', function () {
+      evoGovernanceDecideReview(btn.getAttribute('data-evo-review'), btn.getAttribute('data-decision'));
+    });
+  });
+  var refreshBtn = document.getElementById('evo-gov-refresh');
+  if (refreshBtn) {
+    refreshBtn.addEventListener('click', function () {
+      loadEvoGovernanceActiveTab().then(rerenderCurrentPage);
+    });
+  }
+  var scanBtn = document.getElementById('evo-gov-promotion-scan');
+  if (scanBtn) scanBtn.addEventListener('click', evoGovernanceScanPromotions);
+  var runEvalBtn = document.getElementById('evo-gov-run-eval');
+  if (runEvalBtn) runEvalBtn.addEventListener('click', evoGovernanceRunEval);
+  var seedEvalBtn = document.getElementById('evo-gov-seed-eval');
+  if (seedEvalBtn) seedEvalBtn.addEventListener('click', evoGovernanceSeedEvalCases);
+  var scanAnomalyBtn = document.getElementById('evo-gov-scan-anomaly');
+  if (scanAnomalyBtn) scanAnomalyBtn.addEventListener('click', evoGovernanceScanAnomalies);
+  var pipelineBtn = document.getElementById('evo-gov-pipeline-advance');
+  if (pipelineBtn) pipelineBtn.addEventListener('click', evoGovernanceAdvancePipeline);
+}
+
+function renderEvoGovernancePage(container) {
+  var role = normalizeRole(localStorage.getItem('role') || '');
+  if (!isManagementRole(role)) {
+    container.innerHTML =
+      '<div class="mx-auto max-w-5xl p-8 lg:p-10">' +
+      '<div class="bg-white rounded-xl shadow-sm p-10 text-center">' +
+      '<h2 class="text-xl font-semibold text-[#1D1D1F] mb-2">无权访问</h2>' +
+      '<p class="text-[#86868b]">智能体记忆中枢仅管理角色可查看</p>' +
+      '</div></div>';
+    return;
+  }
+  var state = evoGovState();
+  var allowedTabs = evoGovNormalizeActiveTabForRole(state, role);
+  var visibleTabs = EVO_GOV_TABS.filter(function (tab) { return allowedTabs.indexOf(tab.key) !== -1; });
+  container.innerHTML =
+    '<div class="app-page-shell app-page-shell--xl evo-gov-shell">' +
+      '<header class="app-page-header app-page-header--split evo-gov-header">' +
+        '<div>' +
+          '<h1 class="app-page-title">智能体记忆中枢</h1>' +
+          '<p class="app-page-desc">查看反馈、记忆、审批与安全状态。</p>' +
+        '</div>' +
+        '<button type="button" id="evo-gov-refresh" class="evo-gov-secondary-btn">刷新</button>' +
+      '</header>' +
+      '<nav class="evo-gov-tabs" aria-label="智能体记忆中枢">' + visibleTabs.map(function (tab) { return evoGovTabButton(tab, state.activeTab); }).join('') + '</nav>' +
+      '<div id="evo-gov-content">' + renderEvoGovernanceTabContent() + '</div>' +
+    '</div>';
+  bindEvoGovernancePage(container);
+  bindEvoGovernanceWheelScroll(container.querySelector('.evo-gov-shell'));
+  if (!state._loadedOnce) {
+    state._loadedOnce = true;
+    loadEvoGovernanceActiveTab({ silent: true }).then(rerenderCurrentPage);
+  }
+}
+
+async function evoGovernanceRunMemoryAction(action) {
+  var state = evoGovState();
+  var detail = state.detail && state.detail.memory ? state.detail.memory : null;
+  if (!detail) return;
+  var type = detail.memory_type;
+  var id = detail.id;
+  try {
+    setRequestLoading('evoGovernanceAction', true);
+    if (action === 'confidence') {
+      var input = document.getElementById('evo-gov-confidence-input');
+      var value = input ? Number(input.value) : detail.confidence;
+      await apiFetch('/api/evo/memories/' + type + '/' + id, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ confidence: value }),
+      });
+      showToast('置信度已更新', 'ok');
+    } else if (action === 'enable') {
+      await apiFetch('/api/evo/memories/' + type + '/' + id, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'active' }),
+      });
+      showToast('已启用', 'ok');
+    } else if (action === 'disable') {
+      await apiFetch('/api/evo/memories/' + type + '/' + id, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'auto_disabled' }),
+      });
+      showToast('已停用', 'ok');
+    } else if (action === 'archive') {
+      await apiFetch('/api/evo/memories/' + type + '/' + id, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'archived' }),
+      });
+      showToast('已归档', 'ok');
+    } else if (action === 'rollback') {
+      if (!confirm('确认回滚这条记忆及其衍生路径？')) return;
+      await apiFetch('/api/evo/memories/' + type + '/' + id + '/rollback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reason: '管理后台手动回滚' }),
+      });
+      showToast('回滚完成', 'ok');
+    }
+    await Promise.all([
+      loadEvoGovernanceMemories({ silent: true }),
+      loadEvoGovernanceDetail(type, id, { silent: true }),
+      loadEvoGovernanceOverview({ silent: true }),
+    ]);
+    rerenderCurrentPage();
+  } catch (e) {
+    showToast(e && e.message ? e.message : '治理操作失败', 'error');
+  } finally {
+    setRequestLoading('evoGovernanceAction', false);
+  }
+}
+
+async function evoGovernanceDecidePromotion(id, decision) {
+  try {
+    await apiFetch('/api/evo/promotions/' + encodeURIComponent(String(id)) + '/decision', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ decision: decision }),
+    });
+    showToast(decision === 'approve' ? '已通过升级' : '已拒绝升级', 'ok');
+    await loadEvoGovernancePromotions({ silent: true });
+    rerenderCurrentPage();
+  } catch (e) {
+    showToast(e && e.message ? e.message : '处理升级提议失败', 'error');
+  }
+}
+
+async function evoGovernanceDecideReview(id, decision) {
+  try {
+    await apiFetch('/api/evo/review-queue/' + encodeURIComponent(String(id)) + '/decision', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ decision: decision }),
+    });
+    showToast(decision === 'approve' ? '候选记忆已上线' : '候选记忆已驳回', 'ok');
+    await Promise.all([
+      loadEvoGovernanceOverview({ silent: true }),
+      loadEvoGovernanceMemories({ silent: true }),
+    ]);
+    rerenderCurrentPage();
+  } catch (e) {
+    showToast(e && e.message ? e.message : '处理待审记忆失败', 'error');
+  }
+}
+
+async function evoGovernanceAdvancePipeline() {
+  try {
+    var resp = await apiFetch('/api/evo/pipeline/advance', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ window_hours: 720 }),
+    });
+    evoGovState().pipelineAdvanceSummary = resp && resp.data ? resp.data : null;
+    showToast('真实链路推进完成', 'ok');
+    await Promise.all([
+      loadEvoGovernanceOverview({ silent: true }),
+      loadEvoGovernancePromotions({ silent: true }),
+      loadEvoGovernanceMemories({ silent: true }),
+    ]);
+    rerenderCurrentPage();
+  } catch (e) {
+    showToast(e && e.message ? e.message : '推进链路失败', 'error');
+  }
+}
+
+async function evoGovernanceScanPromotions() {
+  try {
+    var resp = await apiFetch('/api/evo/promotions/scan', { method: 'POST' });
+    evoGovState().promotionScanSummary = resp && resp.data ? resp.data : null;
+    showToast('升级提议扫描完成', 'ok');
+    await Promise.all([loadEvoGovernancePromotions({ silent: true }), loadEvoGovernanceOverview({ silent: true })]);
+    rerenderCurrentPage();
+  } catch (e) {
+    showToast(e && e.message ? e.message : '扫描失败', 'error');
+  }
+}
+
+async function evoGovernanceRunEval() {
+  try {
+    var resp = await apiFetch('/api/evo/eval-runs', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ case_ids: [], module: '' }),
+    });
+    evoGovState().evalRunSummary = resp && resp.data ? resp.data : null;
+    showToast('回归测试已运行', 'ok');
+    await Promise.all([loadEvoGovernanceEval({ silent: true }), loadEvoGovernanceAnomalies({ silent: true }), loadEvoGovernanceOverview({ silent: true })]);
+    rerenderCurrentPage();
+  } catch (e) {
+    showToast(e && e.message ? e.message : '运行回归测试失败', 'error');
+  }
+}
+
+async function evoGovernanceSeedEvalCases() {
+  try {
+    await apiFetch('/api/evo/eval-cases/seed-defaults', { method: 'POST' });
+    showToast('合规基线已导入', 'ok');
+    await Promise.all([loadEvoGovernanceEval({ silent: true }), loadEvoGovernanceOverview({ silent: true })]);
+    rerenderCurrentPage();
+  } catch (e) {
+    showToast(e && e.message ? e.message : '导入合规基线失败', 'error');
+  }
+}
+
+async function evoGovernanceScanAnomalies() {
+  try {
+    var resp = await apiFetch('/api/evo/anomalies/scan', { method: 'POST' });
+    evoGovState().anomalyScanSummary = resp && resp.data ? resp.data : null;
+    showToast('异常扫描完成', 'ok');
+    await Promise.all([loadEvoGovernanceAnomalies({ silent: true }), loadEvoGovernanceOverview({ silent: true })]);
+    rerenderCurrentPage();
+  } catch (e) {
+    showToast(e && e.message ? e.message : '异常扫描失败', 'error');
+  }
+}
+
 /* ═══════════════════════ 知识库管理页面 ═══════════════════════ */
 
 var _kbPollTimer = null;
@@ -18984,7 +21191,7 @@ function renderKnowledgeManagePage(container) {
   if (!isAdmin) {
     container.innerHTML =
       '<div class="mx-auto max-w-5xl p-8 lg:p-10">' +
-      '<div class="bg-white rounded-2xl shadow-sm p-10 text-center">' +
+      '<div class="bg-white rounded-xl shadow-sm p-10 text-center">' +
       '<div class="text-5xl mb-4">🔒</div>' +
       '<h2 class="text-xl font-semibold text-[#1D1D1F] mb-2">无权访问</h2>' +
       '<p class="text-[#86868b]">知识库管理仅管理员可操作</p>' +
@@ -19059,7 +21266,7 @@ function renderKnowledgeManageTheoryTab(container) {
   container.innerHTML = ''
     + '<div class="grid grid-cols-1 xl:grid-cols-[minmax(0,1.5fr)_360px] gap-5">'
     +   '<section class="space-y-4">'
-    +     '<div class="bg-white rounded-2xl border border-[#e5e5ea] p-5 space-y-4">'
+    +     '<div class="bg-white rounded-xl border border-[#e5e5ea] p-5 space-y-4">'
     +       '<div class="flex flex-col lg:flex-row lg:items-center gap-3">'
     +         '<div class="flex-1 relative">'
     +           '<input id="theory-admin-search" type="text" placeholder="按标题或分类筛选" class="w-full rounded-xl border border-[#e5e5ea] px-4 py-2.5 text-sm focus:border-[#007AFF] focus:ring-1 focus:ring-[#007AFF] outline-none transition">'
@@ -19073,9 +21280,9 @@ function renderKnowledgeManageTheoryTab(container) {
     +     '</div>'
     +   '</section>'
     +   '<aside class="space-y-4">'
-    +     '<div class="bg-white rounded-2xl border border-[#e5e5ea] p-5">'
+    +     '<div class="bg-white rounded-xl border border-[#e5e5ea] p-5">'
     +       '<h3 class="text-base font-semibold text-[#1D1D1F] mb-1">上传网页文档</h3>'
-    +       '<p class="text-sm text-[#86868b] mb-4">员工侧只读浏览已发布文档，支持 PDF、Markdown、TXT</p>'
+    +       '<p class="text-sm text-[#86868b] mb-4">员工侧只读浏览已发布文档，支持任意类型文件</p>'
     +       '<form id="theory-admin-upload-form" class="space-y-3">'
     +         '<div><input id="theory-admin-title" type="text" placeholder="文档标题" class="w-full rounded-xl border border-[#e5e5ea] px-4 py-2.5 text-sm focus:border-[#007AFF] focus:ring-1 focus:ring-[#007AFF] outline-none transition"></div>'
     +         '<div><input id="theory-admin-category-input" type="text" placeholder="分类，如：产品知识" class="w-full rounded-xl border border-[#e5e5ea] px-4 py-2.5 text-sm focus:border-[#007AFF] focus:ring-1 focus:ring-[#007AFF] outline-none transition"></div>'
@@ -19086,12 +21293,12 @@ function renderKnowledgeManageTheoryTab(container) {
     +             '<div class="text-sm font-medium text-[#1D1D1F]">选择要上传的文件</div>'
     +             '<div id="theory-admin-file-name" class="text-xs text-[#86868b]">未选择文件</div>'
     +           '</div>'
-    +           '<input id="theory-admin-file" type="file" class="hidden" accept=".pdf,.txt,.md,.markdown">'
+    +           '<input id="theory-admin-file" type="file" class="hidden">'
     +         '</label>'
     +         '<button id="theory-admin-submit" type="submit" class="w-full px-4 py-3 rounded-xl bg-[#007AFF] text-white text-sm font-medium hover:bg-[#0066DD] transition-colors">上传文档</button>'
     +       '</form>'
     +     '</div>'
-    +     '<div id="theory-admin-detail" class="bg-white rounded-2xl border border-[#e5e5ea] p-5"></div>'
+    +     '<div id="theory-admin-detail" class="bg-white rounded-xl border border-[#e5e5ea] p-5"></div>'
     +   '</aside>'
     + '</div>';
 
@@ -19227,13 +21434,13 @@ function renderKnowledgeManageTheoryTab(container) {
 
   function renderList() {
     if (state.loading) {
-      listEl.innerHTML = '<div class="rounded-2xl border border-[#e5e5ea] bg-white p-8 text-sm text-[#86868b] text-center">正在加载文档...</div>';
+      listEl.innerHTML = '<div class="rounded-xl border border-[#e5e5ea] bg-white p-8 text-sm text-[#86868b] text-center">正在加载文档...</div>';
       renderDetail();
       return;
     }
     var items = getFilteredItems();
     if (!items.length) {
-      listEl.innerHTML = '<div class="rounded-2xl border border-[#e5e5ea] bg-white p-8 text-sm text-[#86868b] text-center">暂无匹配文档</div>';
+      listEl.innerHTML = '<div class="rounded-xl border border-[#e5e5ea] bg-white p-8 text-sm text-[#86868b] text-center">暂无匹配文档</div>';
       renderDetail();
       return;
     }
@@ -19243,7 +21450,7 @@ function renderKnowledgeManageTheoryTab(container) {
     listEl.innerHTML = items.map(function (item) {
       var isActive = String(item.id) === String(state.selectedId);
       return ''
-        + '<button type="button" class="theory-admin-row w-full text-left rounded-2xl border p-4 transition-colors ' + (isActive ? 'border-[#007AFF] bg-blue-50/70' : 'border-[#e5e5ea] bg-white hover:border-[#c7c7cc] hover:bg-[#fafafa]') + '" data-id="' + escapeHtml(item.id) + '">'
+        + '<button type="button" class="theory-admin-row w-full text-left rounded-xl border p-4 transition-colors ' + (isActive ? 'border-[#007AFF] bg-blue-50/70' : 'border-[#e5e5ea] bg-white hover:border-[#c7c7cc] hover:bg-[#fafafa]') + '" data-id="' + escapeHtml(item.id) + '">'
         +   '<div class="flex items-start justify-between gap-3">'
         +     '<div class="min-w-0">'
         +       '<div class="text-sm font-semibold text-[#1D1D1F] truncate">' + escapeHtml(item.title || '') + '</div>'
@@ -19274,7 +21481,7 @@ function renderKnowledgeManageTheoryTab(container) {
       renderList();
     } catch (error) {
       state.loading = false;
-      listEl.innerHTML = '<div class="rounded-2xl border border-red-200 bg-red-50 p-8 text-sm text-red-600 text-center">' + escapeHtml((error && error.message) ? error.message : '加载失败') + '</div>';
+      listEl.innerHTML = '<div class="rounded-xl border border-red-200 bg-red-50 p-8 text-sm text-red-600 text-center">' + escapeHtml((error && error.message) ? error.message : '加载失败') + '</div>';
       detailEl.innerHTML = '<h3 class="text-base font-semibold text-[#1D1D1F] mb-3">文档详情</h3>' + renderEmptyState('文档');
       return;
     }
@@ -19366,7 +21573,7 @@ function renderTheoryLearningPage(container) {
     +   '</header>'
     +   '<div class="grid grid-cols-1 xl:grid-cols-[minmax(0,1.5fr)_360px] gap-5">'
     +     '<section class="space-y-4">'
-    +       '<div class="bg-white rounded-2xl border border-[#e5e5ea] p-5 space-y-4">'
+    +       '<div class="bg-white rounded-xl border border-[#e5e5ea] p-5 space-y-4">'
     +         '<div class="flex flex-col lg:flex-row gap-3">'
     +           '<input id="theory-learning-search" type="text" placeholder="搜索标题、分类或摘要" class="flex-1 rounded-xl border border-[#e5e5ea] px-4 py-2.5 text-sm focus:border-[#007AFF] focus:ring-1 focus:ring-[#007AFF] outline-none transition">'
     +           '<select id="theory-learning-category" class="knowledge-theory-filter-select" data-ios-select-variant="knowledge-theory-filter">'
@@ -19376,7 +21583,7 @@ function renderTheoryLearningPage(container) {
     +         '<div id="theory-learning-list" class="space-y-3"></div>'
     +       '</div>'
     +     '</section>'
-    +     '<aside id="theory-learning-detail" class="bg-white rounded-2xl border border-[#e5e5ea] p-5"></aside>'
+    +     '<aside id="theory-learning-detail" class="bg-white rounded-xl border border-[#e5e5ea] p-5"></aside>'
     +   '</div>'
     + '</div>';
 
@@ -19505,19 +21712,19 @@ function renderTheoryLearningPage(container) {
         digitalHumanSpeak(questions[Math.floor(Math.random() * questions.length)], { bubbleKind: 'greeting', pose: 'think' });
       };
     } catch (error) {
-      detailEl.innerHTML = '<div class="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-600">' + escapeHtml((error && error.message) ? error.message : '加载详情失败') + '</div>';
+      detailEl.innerHTML = '<div class="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-600">' + escapeHtml((error && error.message) ? error.message : '加载详情失败') + '</div>';
     }
   }
 
   function renderList() {
     if (state.loading) {
-      listEl.innerHTML = '<div class="rounded-2xl border border-[#e5e5ea] bg-white p-8 text-sm text-[#86868b] text-center">正在加载文档...</div>';
+      listEl.innerHTML = '<div class="rounded-xl border border-[#e5e5ea] bg-white p-8 text-sm text-[#86868b] text-center">正在加载文档...</div>';
       return;
     }
     var items = getFilteredItems();
     if (!items.length) {
       state.selectedId = null;
-      listEl.innerHTML = '<div class="rounded-2xl border border-[#e5e5ea] bg-white p-8 text-sm text-[#86868b] text-center">暂无可学习文档</div>';
+      listEl.innerHTML = '<div class="rounded-xl border border-[#e5e5ea] bg-white p-8 text-sm text-[#86868b] text-center">暂无可学习文档</div>';
       loadDetail(null);
       return;
     }
@@ -19528,7 +21735,7 @@ function renderTheoryLearningPage(container) {
     listEl.innerHTML = items.map(function (item) {
       var isActive = String(item.id) === String(state.selectedId);
       return ''
-        + '<button type="button" class="theory-learning-row w-full text-left rounded-2xl border p-4 transition-colors ' + (isActive ? 'border-[#007AFF] bg-blue-50/70' : 'border-[#e5e5ea] bg-white hover:border-[#c7c7cc] hover:bg-[#fafafa]') + '" data-id="' + escapeHtml(item.id) + '">'
+        + '<button type="button" class="theory-learning-row w-full text-left rounded-xl border p-4 transition-colors ' + (isActive ? 'border-[#007AFF] bg-blue-50/70' : 'border-[#e5e5ea] bg-white hover:border-[#c7c7cc] hover:bg-[#fafafa]') + '" data-id="' + escapeHtml(item.id) + '">'
         +   '<div class="flex items-start justify-between gap-3">'
         +     '<div class="min-w-0">'
         +       '<div class="text-sm font-semibold text-[#1D1D1F] truncate">' + escapeHtml(item.title || '') + '</div>'
@@ -19561,8 +21768,8 @@ function renderTheoryLearningPage(container) {
       if (state.selectedId) loadDetail(state.selectedId);
     } catch (error) {
       state.loading = false;
-      listEl.innerHTML = '<div class="rounded-2xl border border-red-200 bg-red-50 p-8 text-sm text-red-600 text-center">' + escapeHtml((error && error.message) ? error.message : '加载失败') + '</div>';
-      detailEl.innerHTML = '<div class="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-600">无法加载理论学习文档</div>';
+      listEl.innerHTML = '<div class="rounded-xl border border-red-200 bg-red-50 p-8 text-sm text-red-600 text-center">' + escapeHtml((error && error.message) ? error.message : '加载失败') + '</div>';
+      detailEl.innerHTML = '<div class="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-600">无法加载理论学习文档</div>';
     }
   }
 
@@ -19588,7 +21795,7 @@ function renderKnowledgeManageDifyTab(container) {
   if (!isAdmin) {
     container.innerHTML =
       '<div class="mx-auto max-w-5xl p-8 lg:p-10">' +
-      '<div class="bg-white rounded-2xl shadow-sm p-10 text-center">' +
+      '<div class="bg-white rounded-xl shadow-sm p-10 text-center">' +
       '<div class="text-5xl mb-4">🔒</div>' +
       '<h2 class="text-xl font-semibold text-[#1D1D1F] mb-2">无权访问</h2>' +
       '<p class="text-[#86868b]">知识库管理仅管理员可操作</p>' +
@@ -19689,7 +21896,7 @@ function renderKnowledgeManageDifyTab(container) {
         '</div>' +
 
         '<div id="kb-doc-empty" class="kb-detail-empty">' +
-          '<div class="rounded-2xl bg-gradient-to-b from-[#f5f5f7] to-white p-10 text-center">' +
+          '<div class="rounded-xl bg-gradient-to-b from-[#f5f5f7] to-white p-10 text-center">' +
             '<div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-[#007AFF]/10 flex items-center justify-center">' +
               '<svg class="w-8 h-8 text-[#007AFF]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>' +
             '</div>' +
@@ -19716,7 +21923,7 @@ function renderKnowledgeManageDifyTab(container) {
     if (el) el.remove();
   });
   var createModalHtml =
-    '<div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">' +
+    '<div class="bg-white rounded-xl shadow-[0_12px_30px_rgba(15,23,42,0.14)] w-full max-w-md overflow-hidden">' +
       '<div class="flex items-center justify-between px-6 py-4 border-b border-[#e5e5ea]">' +
         '<h3 class="text-lg font-semibold text-[#1D1D1F]">新建知识库</h3>' +
         '<button id="kb-create-modal-close" class="text-[#86868b] hover:text-[#1D1D1F] text-xl leading-none">&times;</button>' +
@@ -19739,7 +21946,7 @@ function renderKnowledgeManageDifyTab(container) {
       '</div>' +
     '</div>';
   var textModalHtml =
-    '<div class="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden">' +
+    '<div class="bg-white rounded-xl shadow-[0_12px_30px_rgba(15,23,42,0.14)] w-full max-w-lg overflow-hidden">' +
       '<div class="flex items-center justify-between px-6 py-4 border-b border-[#e5e5ea]">' +
         '<h3 class="text-lg font-semibold text-[#1D1D1F]">粘贴文本创建文档</h3>' +
         '<button id="kb-text-modal-close" class="text-[#86868b] hover:text-[#1D1D1F] text-xl leading-none">&times;</button>' +
@@ -19763,7 +21970,7 @@ function renderKnowledgeManageDifyTab(container) {
       '</div>' +
     '</div>';
   var segmentsModalHtml =
-    '<div class="bg-white rounded-2xl shadow-xl w-full max-w-2xl overflow-hidden max-h-[80vh] flex flex-col">' +
+    '<div class="bg-white rounded-xl shadow-[0_12px_30px_rgba(15,23,42,0.14)] w-full max-w-2xl overflow-hidden max-h-[80vh] flex flex-col">' +
       '<div class="flex items-center justify-between px-6 py-4 border-b border-[#e5e5ea] shrink-0">' +
         '<h3 class="text-lg font-semibold text-[#1D1D1F] truncate" id="kb-segments-title">文档分段</h3>' +
         '<button id="kb-segments-modal-close" class="text-[#86868b] hover:text-[#1D1D1F] text-xl leading-none">&times;</button>' +
@@ -20539,7 +22746,7 @@ function renderTrainingSummaryCards(items) {
   var html = '<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">';
   for (var i = 0; i < cards.length; i++) {
     var c = cards[i];
-    html += '<div class="rounded-[24px] border border-slate-200 bg-white px-5 py-5 shadow-[0_10px_30px_rgba(15,23,42,0.04)]">';
+    html += '<div class="rounded-xl border border-slate-200 bg-white px-5 py-5 shadow-[0_8px_22px_rgba(15,23,42,0.04)]">';
     html += '<div class="ios-eyebrow">' + c.label + '</div>';
     html += '<div class="mt-3 ios-stat-value ' + c.color + '">' + c.count + '</div>';
     html += '<div class="mt-2 ios-inline-note">' + c.desc + '</div>';
@@ -20582,7 +22789,7 @@ function renderTrainingEmployeeTable(filteredItems, totalItems) {
   if (isPhoneViewport()) {
     var mobileHtml = '<div class="training-mobile-list">';
     if (!filteredItems.length) {
-      mobileHtml += '<div class="rounded-[24px] border border-slate-200 bg-white px-5 py-12 text-center text-slate-400 text-sm shadow-[0_10px_30px_rgba(15,23,42,0.04)]">暂无匹配员工</div>';
+      mobileHtml += '<div class="rounded-xl border border-slate-200 bg-white px-5 py-12 text-center text-slate-400 text-sm shadow-[0_8px_22px_rgba(15,23,42,0.04)]">暂无匹配员工</div>';
     }
     for (var mi = 0; mi < filteredItems.length; mi++) {
       var mobileItem = filteredItems[mi];
@@ -20593,7 +22800,7 @@ function renderTrainingEmployeeTable(filteredItems, totalItems) {
       var mobilePct = mobileHasCycle && mobileItem.total_days > 0 ? Math.round(mobileItem.current_day / mobileItem.total_days * 100) : 0;
 
       mobileHtml +=
-        '<article class="training-mobile-card rounded-[24px] border border-slate-200 bg-white p-4 shadow-[0_10px_30px_rgba(15,23,42,0.04)]">' +
+        '<article class="training-mobile-card rounded-xl border border-slate-200 bg-white p-4 shadow-[0_8px_22px_rgba(15,23,42,0.04)]">' +
           '<button type="button" class="training-mobile-card__hitarea block w-full text-left" onclick="openTrainingDetailModal(\'' + escapeJs(mobileItem.user_id) + '\')">' +
             '<div class="flex items-start gap-3">' +
               '<div class="min-w-0 flex-1">' +
@@ -20604,9 +22811,9 @@ function renderTrainingEmployeeTable(filteredItems, totalItems) {
               '</div>' +
             '</div>' +
             '<div class="training-mobile-meta mt-4 grid grid-cols-2 gap-3 text-sm">' +
-              '<div class="rounded-2xl bg-slate-50 px-3 py-3"><div class="text-[11px] text-slate-400">训练类型</div><div class="mt-1 font-medium text-slate-800">' + escapeHtml(mobileCycleText) + '</div></div>' +
-              '<div class="rounded-2xl bg-slate-50 px-3 py-3"><div class="text-[11px] text-slate-400">阶段</div><div class="mt-1 font-medium text-slate-800">' + escapeHtml(mobileHasCycle ? ('阶段' + mobileItem.stage_no + ' · ' + (mobileItem.stage_name || '-')) : '-') + '</div></div>' +
-              '<div class="rounded-2xl bg-slate-50 px-3 py-3 col-span-2">' +
+              '<div class="rounded-lg bg-slate-50 px-3 py-3"><div class="text-[11px] text-slate-400">训练类型</div><div class="mt-1 font-medium text-slate-800">' + escapeHtml(mobileCycleText) + '</div></div>' +
+              '<div class="rounded-lg bg-slate-50 px-3 py-3"><div class="text-[11px] text-slate-400">阶段</div><div class="mt-1 font-medium text-slate-800">' + escapeHtml(mobileHasCycle ? ('阶段' + mobileItem.stage_no + ' · ' + (mobileItem.stage_name || '-')) : '-') + '</div></div>' +
+              '<div class="rounded-lg bg-slate-50 px-3 py-3 col-span-2">' +
                 '<div class="flex items-center justify-between gap-3 text-[11px] text-slate-400"><span>进度</span><span>' + (mobileHasCycle ? (mobileItem.current_day + '/' + mobileItem.total_days + ' 天') : '-') + '</span></div>' +
                 '<div class="mt-2 h-2 overflow-hidden rounded-full bg-slate-200"><div class="h-full rounded-full bg-blue-500 transition-all" style="width:' + mobilePct + '%"></div></div>' +
               '</div>' +
@@ -20626,7 +22833,7 @@ function renderTrainingEmployeeTable(filteredItems, totalItems) {
     return mobileHtml;
   }
 
-  var html = '<div class="rounded-[24px] border border-slate-200 bg-white shadow-[0_10px_30px_rgba(15,23,42,0.04)] overflow-hidden">';
+  var html = '<div class="rounded-xl border border-slate-200 bg-white shadow-[0_8px_22px_rgba(15,23,42,0.04)] overflow-hidden">';
   html += '<div class="overflow-x-auto">';
   html += '<table class="w-full text-sm">';
 
@@ -20712,7 +22919,7 @@ function injectTrainingManageModals() {
   var modalHtml = '';
   modalHtml += '<div id="tm-detail-modal" class="fixed inset-0 z-[190] hidden" role="dialog">';
   modalHtml += '<div class="tm-detail-backdrop absolute inset-0 bg-black/30 backdrop-blur-sm" onclick="closeTrainingDetailModal()"></div>';
-  modalHtml += '<div class="tm-detail-modal-card absolute inset-x-3 bottom-3 top-auto sm:inset-8 md:inset-y-8 md:left-[50%] md:right-[10%] lg:inset-y-10 lg:left-[55%] lg:right-[8%] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden">';
+  modalHtml += '<div class="tm-detail-modal-card absolute inset-x-3 bottom-3 top-auto sm:inset-8 md:inset-y-8 md:left-[50%] md:right-[10%] lg:inset-y-10 lg:left-[55%] lg:right-[8%] bg-white rounded-xl shadow-[0_14px_34px_rgba(15,23,42,0.14)] flex flex-col overflow-hidden">';
   // Sticky header
   modalHtml += '<div id="tm-detail-header" class="tm-detail-header sticky top-0 z-10 flex items-center justify-between px-4 py-4 sm:px-6 bg-white">';
   modalHtml += '<h2 class="text-lg font-semibold text-slate-800" id="tm-detail-title">员工详情</h2>';
@@ -21277,7 +23484,7 @@ function showEndTrainingModal(cycleId, employeeName) {
   modalHtml += '<p class="text-xs text-gray-400 mb-6">该操作将作废当前阶段训练及未完成的任务，且不可恢复</p>';
   modalHtml += '<div class="flex gap-3 justify-center">';
   modalHtml += '<button onclick="iosCloseModal(this.closest(\'.ios-modal\'))" class="px-5 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-600 hover:bg-gray-50">取消</button>';
-  modalHtml += '<button onclick="doEndTraining(\'' + escapeJs(cycleId) + '\',this,\'' + escapeHtml(employeeName).replace(/'/g, "\\'") + '\')" class="px-5 py-2.5 rounded-lg text-white text-sm font-semibold transition hover:brightness-105 active:scale-[0.98]" style="background:#dc2626;color:#fff">确认结束</button>';
+  modalHtml += '<button onclick="doEndTraining(\'' + escapeJs(cycleId) + '\',this,\'' + escapeJs(employeeName) + '\')" class="px-5 py-2.5 rounded-lg text-white text-sm font-semibold transition hover:brightness-105 active:scale-[0.98]" style="background:#dc2626;color:#fff">确认结束</button>';
   modalHtml += '</div>';
   modalHtml += '</div>';
 
@@ -21359,7 +23566,7 @@ function showStartTrainingModal(userId, employeeName) {
   // Buttons
   modalHtml += '<div class="flex gap-3 justify-center">';
   modalHtml += '<button onclick="iosCloseModal(this.closest(\'.ios-modal\'))" class="px-5 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-600 hover:bg-gray-50">取消</button>';
-  modalHtml += '<button onclick="doStartTraining(\'' + escapeJs(userId) + '\',this,\'' + escapeHtml(employeeName).replace(/'/g, "\\'") + '\')" class="px-5 py-2.5 rounded-lg text-white text-sm font-semibold transition hover:brightness-105 active:scale-[0.98]" style="background:#16a34a;color:#fff">确认发起</button>';
+  modalHtml += '<button onclick="doStartTraining(\'' + escapeJs(userId) + '\',this,\'' + escapeJs(employeeName) + '\')" class="px-5 py-2.5 rounded-lg text-white text-sm font-semibold transition hover:brightness-105 active:scale-[0.98]" style="background:#16a34a;color:#fff">确认发起</button>';
   modalHtml += '</div>';
   modalHtml += '</div>';
 
@@ -21483,7 +23690,7 @@ function showRetrainingModal(userId, employeeName) {
   // Buttons
   modalHtml += '<div class="flex gap-3 justify-center">';
   modalHtml += '<button onclick="iosCloseModal(this.closest(\'.ios-modal\'))" class="px-5 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-600 hover:bg-gray-50">取消</button>';
-  modalHtml += '<button onclick="doRetrainingReset(\'' + userId + '\',this,\'' + escapeHtml(employeeName).replace(/'/g, "\\'") + '\')" class="px-5 py-2.5 rounded-lg text-white text-sm font-semibold transition hover:brightness-105 active:scale-[0.98]" style="background:#f97316;color:#fff">确认发起</button>';
+  modalHtml += '<button onclick="doRetrainingReset(\'' + escapeJs(userId) + '\',this,\'' + escapeJs(employeeName) + '\')" class="px-5 py-2.5 rounded-lg text-white text-sm font-semibold transition hover:brightness-105 active:scale-[0.98]" style="background:#f97316;color:#fff">确认发起</button>';
   modalHtml += '</div>';
   modalHtml += '</div>';
 
@@ -21538,6 +23745,7 @@ const PAGE_RENDERERS = {
   home: renderHomePage,
   training_path: renderTrainingPathPage,
   assessment: renderExamCenterPage,
+  wrong_questions: renderWrongQuestionsPage,
   task_list: renderTaskListPage,
   task_publish: renderTaskPublishPage,
   growth_plan: renderGrowthPlanPage,
@@ -21556,11 +23764,507 @@ const PAGE_RENDERERS = {
   store_manage: renderStoreManagePage,
   account_settings: renderAccountSettingsPage,
   digital_human_settings: renderDigitalHumanSettingsPage,
+  evo_governance: renderEvoGovernancePage,
   system_logs: renderSystemLogsPage,
   audit_logs: renderAuditLogsPage,
   knowledge_manage: renderKnowledgeManagePage,
   training_manage: renderTrainingManagePage,
 };
+
+// ═══════════════════════════════════════════════════════════════════
+// 错题本（D2）
+// ═══════════════════════════════════════════════════════════════════
+
+function renderWrongQuestionsPage(container) {
+  var role = getCurrentRole();
+  var canPickScope = isManagementRole(role);
+  var desc = canPickScope
+    ? '先选门店，再切员工查看试卷错题、陪练弱项与在岗高风险提问。'
+    : '汇总你的试卷错题、陪练弱项与在岗高风险提问，按能力维度针对性复盘。';
+
+  container.innerHTML =
+    '<div class="app-page-shell app-page-shell--xl space-y-6">' +
+      '<header class="app-page-header app-page-header--split">' +
+        '<div>' +
+          '<h1 class="app-page-title">复盘本</h1>' +
+          '<p class="app-page-desc">' + escapeHtml(desc) + '</p>' +
+        '</div>' +
+        '<div id="wrong-questions-filter-slot" class="wq-filter-slot"></div>' +
+      '</header>' +
+      '<div id="wrong-questions-root" class="app-page-panel p-5"></div>' +
+    '</div>';
+
+  var root = container.querySelector('#wrong-questions-root');
+  var filterSlot = container.querySelector('#wrong-questions-filter-slot');
+  if (!root) return;
+  if (!window.AgentO || !window.AgentO.wrongQuestions || typeof window.AgentO.wrongQuestions.render !== 'function') {
+    root.innerHTML = '<div class="wq-error">复盘本组件未加载，请刷新页面。</div>';
+    return;
+  }
+
+  var ownUserId = localStorage.getItem('userId') || localStorage.getItem('employeeNo') || '';
+  var ownStoreId = String(localStorage.getItem('store_id') || '').trim();
+  var ownName = String(localStorage.getItem('displayName') || localStorage.getItem('username') || '').trim() || '本人';
+  var usersCache = [];
+  var storesCache = [];
+  var canPickAllStores = role === 'admin';
+  var selectedStoreId = canPickScope ? (canPickAllStores ? '' : ownStoreId) : ownStoreId;
+  var selectedTargetUserId = '';
+
+  function renderForTarget(targetUserId) {
+    var resolvedTargetUserId = canPickScope && targetUserId && targetUserId !== ownUserId ? targetUserId : '';
+    selectedTargetUserId = resolvedTargetUserId || '';
+    var opts = {
+      apiFetch: function (path, opts) { return apiFetch(path, opts); },
+      onAction: function (action) {
+        if (action && action.route && typeof navigateTo === 'function') {
+          navigateTo(action.route);
+        }
+      },
+    };
+    // 店长/管理员看自己时也走 my-list；看他人时走 by-user
+    if (resolvedTargetUserId) {
+      opts.targetUserId = resolvedTargetUserId;
+    }
+    window.AgentO.wrongQuestions.render(root, opts);
+  }
+
+  function getStoreLabel(storeId) {
+    var sid = String(storeId || '').trim();
+    if (!sid) return '全部门店';
+    for (var i = 0; i < storesCache.length; i++) {
+      var store = storesCache[i] || {};
+      if (String(store.store_id || '').trim() === sid) {
+        return String(store.store_name || store.label || sid).trim() || sid;
+      }
+    }
+    return sid;
+  }
+
+  function getUserStoreLabel(user) {
+    if (!user) return '';
+    return String(user.store_label || user.store_name || '').trim() || getStoreLabel(user.store_id || '');
+  }
+
+  function getScopedUsers() {
+    var sid = String(selectedStoreId || '').trim();
+    var list = [];
+    var seen = {};
+    for (var i = 0; i < usersCache.length; i++) {
+      var user = usersCache[i] || {};
+      var uid = String(user.user_id || user.id || '').trim();
+      if (!uid || seen[uid]) continue;
+      if (uid === ownUserId) continue;
+      if (sid && String(user.store_id || '').trim() !== sid) continue;
+      seen[uid] = true;
+      list.push(user);
+    }
+    return list;
+  }
+
+  function syncSelectedUserAfterStoreChange() {
+    var scoped = getScopedUsers();
+    var exists = false;
+    for (var i = 0; i < scoped.length; i++) {
+      var u = scoped[i] || {};
+      if (String(u.user_id || u.id || '').trim() === String(selectedTargetUserId || '').trim()) {
+        exists = true;
+        break;
+      }
+    }
+    if (!exists) selectedTargetUserId = '';
+  }
+
+  function renderFilterPanel() {
+    if (!canPickScope) return '';
+    var scopedUsers = getScopedUsers();
+    var storeOptions = [];
+    if (canPickAllStores) {
+      storeOptions.push(
+        '<button type="button" class="wq-scope-option' + (!selectedStoreId ? ' is-selected' : '') + '" data-wq-scope-store="" role="option" aria-selected="' + (!selectedStoreId ? 'true' : 'false') + '"><span class="wq-scope-option__title">全部门店</span><span class="wq-scope-option__sub">全局</span></button>'
+      );
+    }
+    for (var i = 0; i < storesCache.length; i++) {
+      var store = storesCache[i] || {};
+      var sid = String(store.store_id || '').trim();
+      if (!sid) continue;
+      var sname = String(store.store_name || store.label || sid).trim() || sid;
+      storeOptions.push(
+        '<button type="button" class="wq-scope-option' + (sid === selectedStoreId ? ' is-selected' : '') + '" data-wq-scope-store="' + escapeHtml(sid) + '" role="option" aria-selected="' + (sid === selectedStoreId ? 'true' : 'false') + '"><span class="wq-scope-option__title">' + escapeHtml(sname) + '</span><span class="wq-scope-option__sub">' + escapeHtml(sid) + '</span></button>'
+      );
+    }
+
+    var userOptions = [];
+    userOptions.push(
+      '<button type="button" class="wq-scope-option' + (!selectedTargetUserId ? ' is-selected' : '') + '" data-wq-scope-user="" role="option" aria-selected="' + (!selectedTargetUserId ? 'true' : 'false') + '"><span class="wq-scope-option__title">' + escapeHtml(ownName) + '（本人）</span><span class="wq-scope-option__sub">' + escapeHtml(selectedStoreId ? getStoreLabel(selectedStoreId) : '当前账号') + '</span></button>'
+    );
+    if (!scopedUsers.length) {
+      userOptions.push('<button type="button" class="wq-scope-option is-disabled" disabled><span class="wq-scope-option__title">暂无可选员工</span><span class="wq-scope-option__sub">' + escapeHtml(selectedStoreId ? getStoreLabel(selectedStoreId) : '当前范围') + '</span></button>');
+    } else {
+      for (var j = 0; j < scopedUsers.length; j++) {
+        var user = scopedUsers[j] || {};
+        var uid = String(user.user_id || user.id || '').trim();
+        if (!uid) continue;
+        var uname = String(user.display_name || user.username || uid).trim() || uid;
+        var meta = getUserStoreLabel(user) || '当前门店';
+        userOptions.push(
+          '<button type="button" class="wq-scope-option' + (uid === selectedTargetUserId ? ' is-selected' : '') + '" data-wq-scope-user="' + escapeHtml(uid) + '" role="option" aria-selected="' + (uid === selectedTargetUserId ? 'true' : 'false') + '"><span class="wq-scope-option__title">' + escapeHtml(uname) + '</span><span class="wq-scope-option__sub">' + escapeHtml(meta) + '</span></button>'
+        );
+      }
+    }
+
+    var storeLabel = selectedStoreId ? getStoreLabel(selectedStoreId) : '全部门店';
+    var userLabel = selectedTargetUserId ? scopedUsers.reduce(function (acc, user) {
+      if (acc) return acc;
+      var uid = String(user.user_id || user.id || '').trim();
+      return uid === selectedTargetUserId ? (String(user.display_name || user.username || uid).trim() || uid) : '';
+    }, '') : ownName + '（本人）';
+    var arrowIcon = '<svg class="wq-scope-select__icon wb-store-picker__arrow" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M5.5 7.5 10 12l4.5-4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+    return '' +
+      '<div class="wq-scope-selects" aria-label="复盘本筛选范围">' +
+        '<div class="wq-scope-select-field wb-store-picker" data-wq-scope-picker="store">' +
+          '<span class="wq-scope-select-label">门店</span>' +
+          '<button type="button" class="wq-scope-select wb-store-picker__btn" data-wq-scope-trigger aria-haspopup="listbox" aria-expanded="false"><span class="wq-scope-select__text">' + escapeHtml(storeLabel) + '</span>' + arrowIcon + '</button>' +
+          '<div class="wq-scope-menu wb-store-picker__list" role="listbox" aria-label="选择门店">' + storeOptions.join('') + '</div>' +
+        '</div>' +
+        '<div class="wq-scope-select-field wb-store-picker" data-wq-scope-picker="user">' +
+          '<span class="wq-scope-select-label">员工</span>' +
+          '<button type="button" class="wq-scope-select wb-store-picker__btn" data-wq-scope-trigger aria-haspopup="listbox" aria-expanded="false"><span class="wq-scope-select__text">' + escapeHtml(userLabel || ownName) + '</span>' + arrowIcon + '</button>' +
+          '<div class="wq-scope-menu wb-store-picker__list" role="listbox" aria-label="选择员工">' + userOptions.join('') + '</div>' +
+        '</div>' +
+      '</div>';
+  }
+
+  function renderAll() {
+    if (!canPickScope) {
+      renderForTarget('');
+      return;
+    }
+    filterSlot.innerHTML = renderFilterPanel();
+    renderForTarget(selectedTargetUserId);
+  }
+
+  function handleStoreChange(storeId) {
+    selectedStoreId = String(storeId || '').trim();
+    syncSelectedUserAfterStoreChange();
+    renderAll();
+  }
+
+  function handleUserChange(userId) {
+    selectedTargetUserId = String(userId || '').trim();
+    renderAll();
+  }
+
+  function closeScopeDropdowns() {
+    if (!filterSlot) return;
+    var pickers = filterSlot.querySelectorAll('[data-wq-scope-picker].is-open');
+    for (var i = 0; i < pickers.length; i++) {
+      pickers[i].classList.remove('is-open');
+      var trigger = pickers[i].querySelector('[data-wq-scope-trigger]');
+      if (trigger) trigger.setAttribute('aria-expanded', 'false');
+    }
+  }
+
+  if (!canPickScope) {
+    renderForTarget('');
+    return;
+  }
+
+  filterSlot.innerHTML = '<div class="wq-scope-loading">正在加载门店和员工…</div>';
+  Promise.all([
+    apiFetch('/api/stores', { method: 'GET' }),
+    apiFetch('/api/users', { method: 'GET' }),
+  ]).then(function (results) {
+    var storesRes = results[0];
+    var usersRes = results[1];
+    storesCache = (storesRes && storesRes.data && Array.isArray(storesRes.data.items)) ? storesRes.data.items : [];
+    usersCache = (usersRes && usersRes.data && Array.isArray(usersRes.data.items)) ? usersRes.data.items : [];
+    if (!selectedStoreId && !canPickAllStores) selectedStoreId = ownStoreId || '';
+    syncSelectedUserAfterStoreChange();
+    renderAll();
+  }).catch(function (err) {
+    filterSlot.innerHTML = '<div class="wq-scope-error">门店或员工列表加载失败</div>';
+    try { console.warn('[review_notebook] filters load failed', err); } catch (e) {}
+    renderForTarget(ownUserId);
+  });
+
+  if (!filterSlot.dataset.bound) {
+    filterSlot.addEventListener('click', function (event) {
+      var trigger = event.target && event.target.closest ? event.target.closest('[data-wq-scope-trigger]') : null;
+      if (trigger) {
+        event.preventDefault();
+        var picker = trigger.closest('[data-wq-scope-picker]');
+        var shouldOpen = picker && !picker.classList.contains('is-open');
+        closeScopeDropdowns();
+        if (picker && shouldOpen) {
+          picker.classList.add('is-open');
+          trigger.setAttribute('aria-expanded', 'true');
+        }
+        return;
+      }
+      var storeBtn = event.target && event.target.closest ? event.target.closest('[data-wq-scope-store]') : null;
+      if (storeBtn) {
+        event.preventDefault();
+        handleStoreChange(storeBtn.getAttribute('data-wq-scope-store') || '');
+        return;
+      }
+      var userBtn = event.target && event.target.closest ? event.target.closest('[data-wq-scope-user]') : null;
+      if (userBtn) {
+        event.preventDefault();
+        handleUserChange(userBtn.getAttribute('data-wq-scope-user') || '');
+      }
+    });
+    filterSlot.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape') closeScopeDropdowns();
+    });
+    if (typeof window !== 'undefined' && !window._wqScopeOutsideDismissBound) {
+      document.addEventListener('click', function (event) {
+        if (event.target && event.target.closest && event.target.closest('.wq-scope-selects')) return;
+        var openPickers = document.querySelectorAll('[data-wq-scope-picker].is-open');
+        for (var i = 0; i < openPickers.length; i++) {
+          openPickers[i].classList.remove('is-open');
+          var trigger = openPickers[i].querySelector('[data-wq-scope-trigger]');
+          if (trigger) trigger.setAttribute('aria-expanded', 'false');
+        }
+      });
+      window._wqScopeOutsideDismissBound = true;
+    }
+    filterSlot.dataset.bound = '1';
+  }
+}
+
+var _wqPickerOutsideDismissBound = false;
+
+function closeWqPicker(picker, trigger, focusTrigger) {
+  if (!picker) return;
+  picker.classList.remove('is-open');
+  if (trigger) trigger.setAttribute('aria-expanded', 'false');
+  if (focusTrigger && trigger && typeof trigger.focus === 'function') {
+    try {
+      trigger.focus({ preventScroll: true });
+    } catch (e) {
+      trigger.focus();
+    }
+  }
+}
+
+function closeAllWqPickers() {
+  var pickers = document.querySelectorAll('.wq-picker.is-open');
+  for (var i = 0; i < pickers.length; i++) {
+    var picker = pickers[i];
+    closeWqPicker(picker, picker.querySelector('[data-wq-picker-trigger]'), false);
+  }
+}
+
+function bindWqPickerOutsideDismiss() {
+  if (_wqPickerOutsideDismissBound) return;
+  document.addEventListener('click', function (event) {
+    if (event.target && event.target.closest && event.target.closest('.wq-picker')) return;
+    closeAllWqPickers();
+  });
+  _wqPickerOutsideDismissBound = true;
+}
+
+function getWqPickerOptionNodes(listEl) {
+  return listEl ? Array.prototype.slice.call(listEl.querySelectorAll('[data-wq-picker-option]')) : [];
+}
+
+function getWqPickerOptionByValue(listEl, value) {
+  var nodes = getWqPickerOptionNodes(listEl);
+  var normalized = String(value || '').trim();
+  for (var i = 0; i < nodes.length; i++) {
+    if (String(nodes[i].getAttribute('data-value') || '').trim() === normalized) return nodes[i];
+  }
+  return null;
+}
+
+function setWqPickerActiveOption(listEl, optionEl) {
+  var nodes = getWqPickerOptionNodes(listEl);
+  for (var i = 0; i < nodes.length; i++) {
+    var isActive = nodes[i] === optionEl;
+    nodes[i].classList.toggle('is-active', isActive);
+    nodes[i].setAttribute('tabindex', isActive ? '0' : '-1');
+    nodes[i].setAttribute('aria-selected', isActive ? 'true' : 'false');
+  }
+}
+
+function renderPicker(slot, users, ownUserId, onChange, selectedUserId) {
+  if (!slot) return;
+  var seen = {};
+  var normalizedOwnUserId = String(ownUserId || '').trim();
+  var normalizedSelectedUserId = String(selectedUserId || '').trim();
+  var localName = String(localStorage.getItem('displayName') || localStorage.getItem('username') || '').trim();
+  var localStore = String(localStorage.getItem('store_label') || localStorage.getItem('store_name') || localStorage.getItem('store_id') || '').trim();
+  var selfName = localName || '本人';
+  var selfMeta = localStore || '当前登录人';
+  var options = [];
+
+  function addOption(value, title, meta, selected, isSelf) {
+    options.push(
+      '<button type="button" class="wq-picker-option' + (selected ? ' is-selected' : '') + '" role="option" aria-selected="' + (selected ? 'true' : 'false') + '" tabindex="' + (selected ? '0' : '-1') + '" data-wq-picker-option data-value="' + escapeHtml(value) + '">'
+        + '<span class="wq-picker-option__main">'
+          + '<span class="wq-picker-option__title">' + escapeHtml(title) + '</span>'
+          + (isSelf ? '<span class="wq-picker-option__tag">本人</span>' : '')
+        + '</span>'
+        + '<span class="wq-picker-option__meta">' + escapeHtml(meta || '') + '</span>'
+      + '</button>'
+    );
+  }
+
+  addOption('', selfName, selfMeta, !normalizedSelectedUserId, true);
+
+  for (var i = 0; i < users.length; i++) {
+    var u = users[i] || {};
+    var uid = String(u.user_id || u.id || '').trim();
+    if (!uid || uid === normalizedOwnUserId || seen[uid]) continue;
+    seen[uid] = true;
+    var label = String(u.display_name || u.username || uid).trim();
+    var storeLabel = String(u.store_label || u.store_name || '').trim();
+    addOption(uid, label || uid, storeLabel || '查看员工', uid === normalizedSelectedUserId, false);
+  }
+
+  var selectedName = selfName;
+  var selectedMeta = selfMeta;
+  if (normalizedSelectedUserId) {
+    for (var j = 0; j < users.length; j++) {
+      var candidate = users[j] || {};
+      var candidateId = String(candidate.user_id || candidate.id || '').trim();
+      if (candidateId === normalizedSelectedUserId) {
+        selectedName = String(candidate.display_name || candidate.username || candidateId || '').trim() || candidateId;
+        selectedMeta = String(candidate.store_label || candidate.store_name || '').trim() || '当前门店';
+        break;
+      }
+    }
+  }
+
+  slot.innerHTML =
+    '<div class="wq-picker" data-wq-picker>' +
+      '<button type="button" class="wq-picker__trigger" data-wq-picker-trigger aria-haspopup="listbox" aria-expanded="false" aria-controls="wq-target-user-list">' +
+        '<span class="wq-picker__copy">' +
+          '<span class="wq-picker__label">查看员工</span>' +
+          '<span class="wq-picker__value">' + escapeHtml(selectedName) + '</span>' +
+          '<span class="wq-picker__sub">' + escapeHtml(selectedMeta) + '</span>' +
+        '</span>' +
+        '<svg class="wq-picker__icon" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M5.5 7.5 10 12l4.5-4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+      '</button>' +
+      '<div class="wq-picker__panel" id="wq-target-user-list" role="listbox" aria-label="选择查看员工">' +
+        '<div class="wq-picker__list" data-wq-picker-list>' + options.join('') + '</div>' +
+      '</div>' +
+    '</div>';
+
+  bindWqPickerOutsideDismiss();
+
+  var picker = slot.querySelector('[data-wq-picker]');
+  var trigger = slot.querySelector('[data-wq-picker-trigger]');
+  var listEl = slot.querySelector('[data-wq-picker-list]');
+  if (!picker || !trigger || !listEl) return;
+
+  function getDisplayTextByValue(value) {
+    return value ? selectedName : selfName;
+  }
+
+  function openPicker(focusValue) {
+    closeAllWqPickers();
+    picker.classList.add('is-open');
+    trigger.setAttribute('aria-expanded', 'true');
+    var focusOption = getWqPickerOptionByValue(listEl, focusValue || normalizedSelectedUserId) || getWqPickerOptionByValue(listEl, '') || listEl.querySelector('[data-wq-picker-option]');
+    if (focusOption) {
+      setWqPickerActiveOption(listEl, focusOption);
+      try {
+        focusOption.focus({ preventScroll: true });
+      } catch (e) {
+        focusOption.focus();
+      }
+      if (typeof focusOption.scrollIntoView === 'function') {
+        focusOption.scrollIntoView({ block: 'nearest' });
+      }
+    }
+  }
+
+  function selectValue(value) {
+    var nextValue = String(value || '').trim();
+    if (typeof onChange === 'function') onChange(nextValue);
+    closeWqPicker(picker, trigger, false);
+  }
+
+  function moveFocus(current, step) {
+    var nodes = getWqPickerOptionNodes(listEl);
+    if (!nodes.length) return;
+    var index = nodes.indexOf(current);
+    if (index < 0) index = 0;
+    if (step === 'home') index = 0;
+    else if (step === 'end') index = nodes.length - 1;
+    else index = Math.max(0, Math.min(nodes.length - 1, index + step));
+    var target = nodes[index];
+    setWqPickerActiveOption(listEl, target);
+    try {
+      target.focus({ preventScroll: true });
+    } catch (e) {
+      target.focus();
+    }
+    if (typeof target.scrollIntoView === 'function') {
+      target.scrollIntoView({ block: 'nearest' });
+    }
+  }
+
+  trigger.addEventListener('click', function (event) {
+    event.preventDefault();
+    event.stopPropagation();
+    if (picker.classList.contains('is-open')) {
+      closeWqPicker(picker, trigger, false);
+      return;
+    }
+    openPicker(normalizedSelectedUserId);
+  });
+
+  trigger.addEventListener('keydown', function (event) {
+    if (event.key === 'Enter' || event.key === ' ' || event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+      event.preventDefault();
+      if (!picker.classList.contains('is-open')) {
+        openPicker(normalizedSelectedUserId);
+      }
+    } else if (event.key === 'Escape') {
+      closeWqPicker(picker, trigger, true);
+    }
+  });
+
+  listEl.addEventListener('click', function (event) {
+    var option = event.target && event.target.closest ? event.target.closest('[data-wq-picker-option]') : null;
+    if (!option) return;
+    event.preventDefault();
+    event.stopPropagation();
+    selectValue(option.getAttribute('data-value') || '');
+  });
+
+  listEl.addEventListener('keydown', function (event) {
+    var option = event.target && event.target.closest ? event.target.closest('[data-wq-picker-option]') : null;
+    if (!option) return;
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      moveFocus(option, 1);
+    } else if (event.key === 'ArrowUp') {
+      event.preventDefault();
+      moveFocus(option, -1);
+    } else if (event.key === 'Home') {
+      event.preventDefault();
+      moveFocus(option, 'home');
+    } else if (event.key === 'End') {
+      event.preventDefault();
+      moveFocus(option, 'end');
+    } else if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      selectValue(option.getAttribute('data-value') || '');
+    } else if (event.key === 'Escape') {
+      event.preventDefault();
+      closeWqPicker(picker, trigger, true);
+    }
+  });
+
+  setWqPickerActiveOption(listEl, getWqPickerOptionByValue(listEl, normalizedSelectedUserId) || getWqPickerOptionByValue(listEl, '') || listEl.querySelector('[data-wq-picker-option]'));
+  trigger.querySelector('.wq-picker__value').textContent = selectedName;
+  trigger.querySelector('.wq-picker__sub').textContent = selectedMeta;
+}
 
 // ═══════════════════════════════════════════════════════════════════
 // ═══════════════════════════════════════════════════════════════════
@@ -21593,7 +24297,7 @@ function renderTrainingPathPage(container) {
   } else {
     // Progress bar
     var pct = s.overallProgress || 0;
-    html += '<div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-4 mb-4">';
+    html += '<div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 mb-4">';
     html += '<div class="flex items-center justify-between mb-2">';
     html += '<span class="text-sm font-medium text-gray-700 dark:text-gray-300">第 ' + s.currentDay + ' 天 / 共 ' + s.totalDays + ' 天</span>';
     html += '<span class="text-sm text-blue-500 font-medium">' + pct + '%</span>';
@@ -21708,7 +24412,7 @@ function _renderDayCard(d, title, state) {
                 state === 'completed' ? 'bg-white dark:bg-gray-800 shadow-sm' :
                 'bg-gray-50 dark:bg-gray-800/50 opacity-60';
 
-  var html = '<div class="rounded-2xl p-4 ' + bgClass + '">';
+  var html = '<div class="rounded-xl p-4 ' + bgClass + '">';
 
   // Day header
   html += '<div class="flex items-center space-x-3">';
@@ -21765,7 +24469,7 @@ function _renderScoreSummary(scores) {
     { key: 'sales_communication', label: '销售沟通', color: 'purple' },
     { key: 'response', label: '应变能力', color: 'orange' },
   ];
-  var html = '<div class="mt-4 bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-4">';
+  var html = '<div class="mt-4 bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4">';
   html += '<h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">模块分数</h3>';
   html += '<div class="space-y-3">';
   for (var i = 0; i < dims.length; i++) {
@@ -21788,7 +24492,7 @@ function _renderScoreSummary(scores) {
 }
 
 function _renderDailyFeedback(fb) {
-  var html = '<div class="mt-4 bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-4 border border-blue-100 dark:border-blue-900">';
+  var html = '<div class="mt-4 bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 border border-blue-100 dark:border-blue-900">';
   html += '<div class="flex items-center space-x-2 mb-3">';
   html += '<svg class="w-4 h-4 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>';
   html += '<h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300">昨日训练反馈</h3>';
@@ -21818,7 +24522,7 @@ function _renderDailyFeedback(fb) {
 }
 
 function _renderCycleCelebration() {
-  var html = '<div class="mt-4 rounded-2xl bg-gradient-to-br from-yellow-50 via-orange-50 to-pink-50 dark:from-yellow-900/20 dark:via-orange-900/20 dark:to-pink-900/20 p-6 text-center border border-yellow-200 dark:border-yellow-800">';
+  var html = '<div class="mt-4 rounded-xl bg-gradient-to-br from-yellow-50 via-orange-50 to-pink-50 dark:from-yellow-900/20 dark:via-orange-900/20 dark:to-pink-900/20 p-6 text-center border border-yellow-200 dark:border-yellow-800">';
   html += '<div class="text-4xl mb-2">&#127942;</div>';
   html += '<h3 class="text-lg font-bold text-gray-800 dark:text-gray-100">恭喜完成 7 天训练周期！</h3>';
   html += '<p class="text-sm text-gray-500 dark:text-gray-400 mt-2">你已经走完整个闯关训练路径，所有模块分数已更新</p>';
@@ -21834,8 +24538,8 @@ function _renderCycleQuizModal(s) {
   var result = s.quizResult;
 
   var html = '<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">';
-  html += '<div class="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">';
-  html += '<div class="sticky top-0 z-10 bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700 px-5 py-4 flex items-center justify-between rounded-t-3xl">';
+  html += '<div class="bg-white dark:bg-gray-800 rounded-xl shadow-[0_14px_34px_rgba(15,23,42,0.16)] w-full max-w-lg max-h-[90vh] overflow-y-auto">';
+  html += '<div class="sticky top-0 z-10 bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700 px-5 py-4 flex items-center justify-between rounded-t-xl">';
   html += '<h3 class="text-base font-bold text-gray-800 dark:text-gray-100">' + escapeHtml(task.title) + '</h3>';
   html += '<button class="w-8 h-8 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-center" onclick="closeCycleQuiz()">';
   html += '<svg class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>';
@@ -21855,7 +24559,7 @@ function _renderCycleQuizModal(s) {
     // Show questions
     for (var i = 0; i < questions.length; i++) {
       var q = questions[i];
-      html += '<div class="rounded-2xl border border-gray-100 dark:border-gray-700 p-4">';
+      html += '<div class="rounded-xl border border-gray-100 dark:border-gray-700 p-4">';
       html += '<div class="text-sm font-medium text-gray-800 dark:text-gray-100 mb-3">第 ' + (i + 1) + ' 题：' + escapeHtml(q.title) + '</div>';
       html += '<div class="space-y-2">';
       for (var o = 0; o < q.options.length; o++) {
@@ -22547,7 +25251,7 @@ function setAnimatedVisibility(el, show, options) {
 function swapContainerWithTransition(container, renderFn, options) {
   if (!container || typeof renderFn !== 'function') {
     if (typeof renderFn === 'function') renderFn();
-    return;
+    return Promise.resolve();
   }
   options = options || {};
   var exitClass = options.exitClass || 'ios-page-exit';
@@ -22560,26 +25264,29 @@ function swapContainerWithTransition(container, renderFn, options) {
 
   if (prefersReducedMotion()) {
     renderFn();
-    return;
+    return Promise.resolve();
   }
 
   container.classList.add(exitClass);
-  container._uiTransitionTimer = setTimeout(function () {
-    container.classList.remove(exitClass);
-    renderFn();
-    void container.offsetWidth;
-    container.classList.add(enterClass);
-    container._uiAnimationEnd = function (ev) {
-      if (ev.target !== container) return;
-      clearUiTransitionState(container);
-      container.classList.remove(enterClass);
-    };
-    container.addEventListener('animationend', container._uiAnimationEnd);
+  return new Promise(function (resolve) {
     container._uiTransitionTimer = setTimeout(function () {
-      clearUiTransitionState(container);
-      container.classList.remove(enterClass);
-    }, enterDuration + 80);
-  }, exitDelay);
+      container.classList.remove(exitClass);
+      renderFn();
+      resolve();
+      void container.offsetWidth;
+      container.classList.add(enterClass);
+      container._uiAnimationEnd = function (ev) {
+        if (ev.target !== container) return;
+        clearUiTransitionState(container);
+        container.classList.remove(enterClass);
+      };
+      container.addEventListener('animationend', container._uiAnimationEnd);
+      container._uiTransitionTimer = setTimeout(function () {
+        clearUiTransitionState(container);
+        container.classList.remove(enterClass);
+      }, enterDuration + 80);
+    }, exitDelay);
+  });
 }
 
 /** 登录/恢复会话后首屏：支持 index.html#on_duty_assistant 等与 PAGE_RENDERERS 一致的 deep link */
@@ -22655,6 +25362,7 @@ async function navigateTo(page) {
   }
   var prevPage = currentPage;
   currentPage = page;
+  syncAgentActivityPanelForPage(page);
   await ensureDigitalHumanSystemSettingsLoaded({ force: false });
   // Digital human: mount on DH pages, destroy when leaving to non-DH pages
   var _dhPages = (typeof window._DH_ENABLED_PAGES !== 'undefined') ? window._DH_ENABLED_PAGES : ['practical_training'];
@@ -22694,7 +25402,7 @@ async function navigateTo(page) {
   var area = document.getElementById('content-area');
   if (!area) return;
 
-  swapContainerWithTransition(area, function () {
+  await swapContainerWithTransition(area, function () {
     renderPageIntoArea(area, page);
   }, {
     exitClass: 'ios-page-exit',
@@ -23486,7 +26194,7 @@ function ensurePersonnelDeleteModal() {
   modal.className = 'fixed inset-0 z-[210] hidden flex items-center justify-center bg-black/20 backdrop-blur-sm p-4';
   modal.setAttribute('onclick', 'if(event.target===this)closePersonnelDeleteModal()');
   modal.innerHTML =
-    '<div class="relative w-full max-w-sm bg-white rounded-2xl shadow-xl overflow-hidden" onclick="event.stopPropagation()">' +
+    '<div class="relative w-full max-w-sm bg-white rounded-xl shadow-[0_12px_30px_rgba(15,23,42,0.14)] overflow-hidden" onclick="event.stopPropagation()">' +
     '<div class="p-6 text-center">' +
     '<div class="mx-auto w-12 h-12 rounded-full bg-red-100 flex items-center justify-center mb-4">' +
     '<svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>' +

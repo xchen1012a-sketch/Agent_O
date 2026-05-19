@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import mimetypes
 import os
 from pathlib import Path
 from typing import Any
@@ -18,12 +19,6 @@ router = APIRouter(prefix="/api/theory-learning", tags=["theory-learning"])
 
 _WORKFLOW_CODE = "theory_learning"
 THEORY_DOCS_DIR = Path(__file__).resolve().parent.parent / "theory_learning_docs"
-_ALLOWED_EXTENSIONS = {
-    ".txt": "text/plain",
-    ".md": "text/markdown",
-    ".markdown": "text/markdown",
-    ".pdf": "application/pdf",
-}
 
 
 def _is_admin(current_user: dict[str, Any]) -> bool:
@@ -36,6 +31,13 @@ def _parse_publish_flag(raw_value: str) -> bool:
 
 def _document_storage_path(stored_file_name: str) -> Path:
     return THEORY_DOCS_DIR / stored_file_name
+
+
+def _resolve_content_type(filename: str, upload_content_type: str | None) -> str:
+    if upload_content_type:
+        return upload_content_type
+    guessed_type, _ = mimetypes.guess_type(filename)
+    return guessed_type or "application/octet-stream"
 
 
 def _serialize_document(row: Any) -> dict[str, Any]:
@@ -104,13 +106,27 @@ async def upload_theory_document(
     category: str = Form(""),
     summary: str = Form(""),
     is_published: str = Form("0"),
-    file: UploadFile = File(...),
+    file: UploadFile | None = File(None),
     current_user: Annotated[dict[str, Any], Depends(require_roles(["admin"]))] = None,
 ) -> dict[str, Any]:
     title_value = (title or "").strip()
     category_value = (category or "").strip()
     summary_value = (summary or "").strip()
+    if file is None:
+        return error_response(
+            workflow_code=_WORKFLOW_CODE,
+            message="文件名不能为空",
+            data={},
+            http_status=400,
+        )
     filename = (file.filename or "").strip()
+    if not filename:
+        return error_response(
+            workflow_code=_WORKFLOW_CODE,
+            message="文件名不能为空",
+            data={},
+            http_status=400,
+        )
     suffix = Path(filename).suffix.lower()
     if not title_value:
         return error_response(
@@ -123,13 +139,6 @@ async def upload_theory_document(
         return error_response(
             workflow_code=_WORKFLOW_CODE,
             message="分类不能为空",
-            data={},
-            http_status=400,
-        )
-    if suffix not in _ALLOWED_EXTENSIONS:
-        return error_response(
-            workflow_code=_WORKFLOW_CODE,
-            message="仅支持 PDF、Markdown、TXT 文件",
             data={},
             http_status=400,
         )
@@ -168,7 +177,7 @@ async def upload_theory_document(
     stored_path = _document_storage_path(stored_file_name)
     stored_path.write_bytes(file_bytes)
 
-    content_type = _ALLOWED_EXTENSIONS[suffix]
+    content_type = _resolve_content_type(filename, file.content_type)
     now = now_iso()
     actor_id = str((current_user or {}).get("user_id") or "")
     published_flag = 1 if _parse_publish_flag(is_published) else 0

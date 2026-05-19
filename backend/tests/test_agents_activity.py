@@ -5,6 +5,8 @@ import sys
 import unittest
 from pathlib import Path
 
+from fastapi import HTTPException
+
 BACKEND_DIR = Path(__file__).resolve().parents[1]
 if str(BACKEND_DIR) not in sys.path:
     sys.path.insert(0, str(BACKEND_DIR))
@@ -18,7 +20,12 @@ from agent_activity import (  # noqa: E402
     unsubscribe_agent_activity,
 )
 from auth import create_access_token  # noqa: E402
-from routers.agents import _get_activity_stream_user, _sse  # noqa: E402
+from routers.agents import _get_activity_stream_user, _sse, get_agent_activity_stream  # noqa: E402
+
+
+class DummyRequest:
+    async def is_disconnected(self) -> bool:
+        return True
 
 
 class AgentActivityTests(unittest.TestCase):
@@ -38,7 +45,7 @@ class AgentActivityTests(unittest.TestCase):
         assert event is not None
         self.assertEqual(event["type"], "agent_call")
         self.assertEqual(event["agent_role"], "practice")
-        self.assertEqual(event["agent_name"], "陪练 Agent")
+        self.assertEqual(event["agent_name"], "陪练智能体")
         self.assertEqual(event["workflow_code"], "practice1")
         self.assertEqual(event["elapsed_label"], "1.2s")
         self.assertEqual(event["knowledge_source"], "销售话术库")
@@ -83,11 +90,29 @@ class AgentActivityTests(unittest.TestCase):
         self.assertEqual(user["user_id"], "u1")
         self.assertEqual(user["role"], "trainee")
 
+    def test_activity_stream_endpoint_accepts_management_user(self) -> None:
+        response = asyncio.run(get_agent_activity_stream(
+            request=DummyRequest(),
+            current_user={"user_id": "manager", "role": "store_manager"},
+        ))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.media_type, "text/event-stream")
+
+    def test_activity_stream_endpoint_rejects_ordinary_employee(self) -> None:
+        with self.assertRaises(HTTPException) as ctx:
+            asyncio.run(get_agent_activity_stream(
+                request=DummyRequest(),
+                current_user={"user_id": "u1", "role": "trainee"},
+            ))
+
+        self.assertEqual(ctx.exception.status_code, 403)
+
     def test_sse_message_uses_named_event_and_json_data(self) -> None:
-        message = _sse("agent_call", {"agent_name": "陪练 Agent", "workflow_code": "practice1"})
+        message = _sse("agent_call", {"agent_name": "陪练智能体", "workflow_code": "practice1"})
 
         self.assertIn("event: agent_call\n", message)
-        self.assertIn('"agent_name": "陪练 Agent"', message)
+        self.assertIn('"agent_name": "陪练智能体"', message)
         self.assertTrue(message.endswith("\n\n"))
 
 

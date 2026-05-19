@@ -19,6 +19,9 @@ class HealthDifyTests(unittest.TestCase):
 
         self.assertIn("qa1", codes)
         self.assertIn("qa_chat", codes)
+        self.assertIn("evo_semantic", codes)
+        self.assertIn("evo_reflective", codes)
+        self.assertIn("evo_procedural", codes)
 
 
 if __name__ == "__main__":

@@ -1,0 +1,292 @@
+app:
+  description: Evo Phase 4 procedural synthesis workflow. Converts repeated reflective lessons into one reusable skill rule.
+  icon: 🧩
+  icon_background: '#F6FFED'
+  mode: workflow
+  name: EVO04 技能规则综合工作流
+  use_icon_as_answer_icon: false
+dependencies:
+- current_identifier: null
+  type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: langgenius/tongyi:0.1.32@20a5454088fa017b72490e1cbaeebff21094d11b13e41197591734d1c08cdbb5
+    version: null
+kind: app
+version: 0.6.0
+workflow:
+  conversation_variables: []
+  environment_variables: []
+  features:
+    file_upload:
+      enabled: false
+      allowed_file_extensions: []
+      allowed_file_types: []
+      allowed_file_upload_methods: []
+      image:
+        enabled: false
+        number_limits: 3
+        transfer_methods: []
+      number_limits: 3
+    opening_statement: ''
+    retriever_resource:
+      enabled: false
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions: []
+    suggested_questions_after_answer:
+      enabled: false
+    text_to_speech:
+      enabled: false
+      language: ''
+      voice: ''
+  graph:
+    edges:
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: start
+        targetType: llm
+      id: procedural-start-to-llm
+      source: procedural_start
+      sourceHandle: source
+      target: procedural_llm
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: llm
+        targetType: code
+      id: procedural-llm-to-normalize
+      source: procedural_llm
+      sourceHandle: source
+      target: procedural_normalize
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: end
+      id: procedural-normalize-to-end
+      source: procedural_normalize
+      sourceHandle: source
+      target: procedural_end
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    nodes:
+    - data:
+        desc: Inputs supplied by backend.evo.procedural_synthesizer._extract_with_dify.
+        selected: false
+        title: Start
+        type: start
+        variables:
+        - label: Scope type
+          max_length: 32
+          options: []
+          required: false
+          type: text-input
+          variable: scope_type
+        - label: Scope ID
+          max_length: 64
+          options: []
+          required: false
+          type: text-input
+          variable: scope_id
+        - label: Synthesized at
+          max_length: 128
+          options: []
+          required: false
+          type: text-input
+          variable: synthesized_at
+        - label: Reflective lessons
+          max_length: 12000
+          options: []
+          required: true
+          type: paragraph
+          variable: reflective_lessons
+      height: 260
+      id: procedural_start
+      position:
+        x: 30
+        y: 250
+      positionAbsolute:
+        x: 30
+        y: 250
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        desc: Synthesize one procedural rule from repeated lessons.
+        model:
+          completion_params:
+            enable_thinking: false
+            temperature: 0.15
+          mode: chat
+          name: qwen-flash
+          provider: langgenius/tongyi/tongyi
+        prompt_template:
+        - edition_type: basic
+          id: procedural-system
+          role: system
+          text: "You synthesize reusable skill rules for a jewelry retail training assistant. Output JSON only. Schema: {\"title\":\"short rule title\",\"trigger\":[\"when to use\"],\"do\":[\"recommended action\"],\"dont\":[\"things to avoid\"],\"example\":\"short safe sample response\",\"confidence\":0.1}. Keep rules compliant: never promise guaranteed appreciation, stable profit, or absolute outcomes."
+        - edition_type: basic
+          id: procedural-user
+          role: user
+          text: "scope_type: {{#procedural_start.scope_type#}}\nscope_id: {{#procedural_start.scope_id#}}\nsynthesized_at: {{#procedural_start.synthesized_at#}}\n\nReflective lessons:\n{{#procedural_start.reflective_lessons#}}\n\nReturn one procedural skill rule JSON object."
+        selected: false
+        title: Synthesize Procedural Rule
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 132
+      id: procedural_llm
+      position:
+        x: 360
+        y: 250
+      positionAbsolute:
+        x: 360
+        y: 250
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "import json\nimport re\n\ndef _extract_json(text):\n    raw = str(text or '').strip()\n    raw = re.sub(r'<think>[\\s\\S]*?</think>', '', raw, flags=re.I).strip()\n    raw = re.sub(r'^```json\\s*', '', raw, flags=re.I)\n    raw = re.sub(r'^```\\s*', '', raw)\n    raw = re.sub(r'\\s*```$', '', raw)\n    try:\n        data = json.loads(raw)\n        return data if isinstance(data, dict) else {}\n    except Exception:\n        pass\n    m = re.search(r'\\{[\\s\\S]*\\}', raw)\n    if m:\n        try:\n            data = json.loads(m.group(0))\n            return data if isinstance(data, dict) else {}\n        except Exception:\n            pass\n    return {}\n\ndef _text(value, default=''):\n    s = str(value or '').strip()\n    return s if s else default\n\ndef _list(value, default=None):\n    default = default or []\n    if isinstance(value, list):\n        out = []\n        for item in value:\n            s = _text(item)\n            if s and s not in out:\n                out.append(s)\n        return out or default\n    s = _text(value)\n    if not s:\n        return default\n    return [p.strip() for p in re.split(r'[,，;；\\n|]+', s) if p.strip()] or default\n\ndef _confidence(value):\n    try:\n        n = float(value)\n    except Exception:\n        n = 0.7\n    return max(0.1, min(1.0, n))\n\ndef main(text: str) -> dict:\n    data = _extract_json(text)\n    title = _text(data.get('title') or data.get('name') or data.get('skill_title'), '通用接待纠偏规则')\n    trigger = _list(data.get('trigger') or data.get('triggers'), [title])[:6]\n    do_items = _list(data.get('do') or data.get('dos') or data.get('steps'), ['先复述顾客问题，再给出合规、可验证的说明'])[:6]\n    dont_items = _list(data.get('dont') or data.get(\"don't\") or data.get('avoid'), ['不要承诺保值、稳赚或绝对效果'])[:6]\n    example = _text(data.get('example') or data.get('sample') or data.get('response_example'))[:1000]\n    confidence = _confidence(data.get('confidence'))\n    payload = {\n        'title': title[:120],\n        'trigger': trigger,\n        'do': do_items,\n        'dont': dont_items,\n        'example': example,\n        'confidence': confidence,\n    }\n    return {\n        **payload,\n        'trigger_json': json.dumps(trigger, ensure_ascii=False),\n        'do_json': json.dumps(do_items, ensure_ascii=False),\n        'dont_json': json.dumps(dont_items, ensure_ascii=False),\n        'procedural_json': json.dumps(payload, ensure_ascii=False),\n        'skill_json': json.dumps(payload, ensure_ascii=False),\n    }\n"
+        code_language: python3
+        desc: Normalize procedural rule JSON for backend.evo.procedural_synthesizer.
+        outputs:
+          confidence:
+            children: null
+            type: number
+          do:
+            children: null
+            type: array[string]
+          do_json:
+            children: null
+            type: string
+          dont:
+            children: null
+            type: array[string]
+          dont_json:
+            children: null
+            type: string
+          example:
+            children: null
+            type: string
+          procedural_json:
+            children: null
+            type: string
+          skill_json:
+            children: null
+            type: string
+          title:
+            children: null
+            type: string
+          trigger:
+            children: null
+            type: array[string]
+          trigger_json:
+            children: null
+            type: string
+        selected: false
+        title: Normalize Procedural JSON
+        type: code
+        variables:
+        - value_selector:
+          - procedural_llm
+          - text
+          variable: text
+      height: 96
+      id: procedural_normalize
+      position:
+        x: 690
+        y: 250
+      positionAbsolute:
+        x: 690
+        y: 250
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        desc: Outputs consumed by backend.evo.procedural_synthesizer.
+        outputs:
+        - value_selector:
+          - procedural_normalize
+          - title
+          variable: title
+        - value_selector:
+          - procedural_normalize
+          - trigger
+          variable: trigger
+        - value_selector:
+          - procedural_normalize
+          - trigger_json
+          variable: trigger_json
+        - value_selector:
+          - procedural_normalize
+          - do
+          variable: do
+        - value_selector:
+          - procedural_normalize
+          - do_json
+          variable: do_json
+        - value_selector:
+          - procedural_normalize
+          - dont
+          variable: dont
+        - value_selector:
+          - procedural_normalize
+          - dont_json
+          variable: dont_json
+        - value_selector:
+          - procedural_normalize
+          - example
+          variable: example
+        - value_selector:
+          - procedural_normalize
+          - confidence
+          variable: confidence
+        - value_selector:
+          - procedural_normalize
+          - procedural_json
+          variable: procedural_json
+        - value_selector:
+          - procedural_normalize
+          - skill_json
+          variable: skill_json
+        selected: false
+        title: End
+        type: end
+      height: 360
+      id: procedural_end
+      position:
+        x: 1020
+        y: 250
+      positionAbsolute:
+        x: 1020
+        y: 250
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    viewport:
+      x: 0
+      y: 0
+      zoom: 0.9
+  rag_pipeline_variables: []

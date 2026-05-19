@@ -65,10 +65,6 @@
       else if (c.risk_level === 'medium') { riskLabel = '中风险'; riskClass = ' kf-risk-medium'; }
       else if (c.risk_level === 'low') { riskLabel = '低风险'; riskClass = ' kf-risk-low'; }
 
-      var keywordsHtml = (c.top_keywords || []).map(function (kw) {
-        return '<span class="kf-keyword">' + escapeHtml(kw) + '</span>';
-      }).join('');
-
       var tagHtml = c.primary_tag ? '<span class="kf-meta-tag">' + escapeHtml(c.primary_tag) + '</span>' : '';
 
       return (
@@ -84,7 +80,6 @@
               '</div>' +
             '</div>' +
           '</div>' +
-          (keywordsHtml ? '<div class="kf-cluster-keywords">' + keywordsHtml + '</div>' : '') +
           '<button type="button" class="kf-dispatch-btn" data-kf-idx="' + (c.rank - 1) + '">派发学习任务</button>' +
         '</div>'
       );

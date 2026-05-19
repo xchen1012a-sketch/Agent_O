@@ -7,7 +7,7 @@
     id: 'user_input',
     label: '用户输入',
     agentName: '用户输入',
-    headline: '训练任务、顾客问题、经营查询统一进入编排层',
+    headline: '任务统一进入中枢',
     color: '#334155',
   };
 
@@ -16,7 +16,8 @@
     tutor: { x: -165, y: -45 },
     practice: { x: 0, y: -58 },
     examiner: { x: 165, y: -45 },
-    analyst: { x: 0, y: 82 },
+    analyst: { x: 92, y: 95 },
+    evolution: { x: -92, y: 95 },
     service: { x: 0, y: 205 },
   };
 
@@ -102,7 +103,13 @@
     var todayCallCount = agents.reduce(function (sum, item) { return sum + item.todayCallCount; }, 0);
     return {
       agentCount: Math.round(asNumber(rawSummary.agent_count != null ? rawSummary.agent_count : rawSummary.agentCount, agents.length)),
-      workflowCount: Math.round(asNumber(rawSummary.workflow_count != null ? rawSummary.workflow_count : rawSummary.workflowCount, workflowCount)),
+      workflowCount: Math.round(asNumber(
+        rawSummary.registered_workflow_count != null
+          ? rawSummary.registered_workflow_count
+          : rawSummary.registeredWorkflowCount,
+        Math.max(workflowCount, Math.round(asNumber(rawSummary.workflow_count != null ? rawSummary.workflow_count : rawSummary.workflowCount, workflowCount)))
+      )),
+      coreWorkflowCount: Math.round(asNumber(rawSummary.workflow_count != null ? rawSummary.workflow_count : rawSummary.workflowCount, workflowCount)),
       configuredWorkflowCount: Math.round(asNumber(rawSummary.configured_workflow_count != null ? rawSummary.configured_workflow_count : rawSummary.configuredWorkflowCount, configuredCount)),
       todayCallCount: Math.round(asNumber(rawSummary.today_call_count != null ? rawSummary.today_call_count : rawSummary.todayCallCount, todayCallCount)),
       hiddenWorkflowCount: Math.round(asNumber(rawSummary.hidden_workflow_count != null ? rawSummary.hidden_workflow_count : rawSummary.hiddenWorkflowCount, 0)),
@@ -248,7 +255,7 @@
       series: [{
         type: 'graph',
         layout: 'none',
-        roam: true,
+        roam: 'move',
         draggable: false,
         left: 20,
         right: 20,
@@ -312,13 +319,14 @@
   function renderWorkflowRow(item) {
     var stateClass = item.configured ? 'is-on' : 'is-off';
     var stateText = item.configured ? '已配置' : '未配置';
+    var callTypeText = item.callType === 'chat' ? '对话应用' : '工作流应用';
     return '<li class="agent-orchestration-workflow">' +
       '<div class="agent-orchestration-workflow__main">' +
         '<span class="agent-orchestration-workflow__code">' + escapeHtml(item.code) + '</span>' +
         '<span class="agent-orchestration-workflow__name">' + escapeHtml(item.label) + '</span>' +
       '</div>' +
       '<div class="agent-orchestration-workflow__meta">' +
-        '<span>' + escapeHtml(item.callType || 'workflow') + '</span>' +
+        '<span>' + escapeHtml(callTypeText) + '</span>' +
         '<span class="agent-orchestration-workflow__state ' + stateClass + '">' + escapeHtml(stateText) + '</span>' +
       '</div>' +
     '</li>';
@@ -329,7 +337,7 @@
     if (!detail) return;
     var agent = selectedAgent(topology, selectedId);
     if (!agent) {
-      detail.innerHTML = '<div class="agent-orchestration-detail-empty">暂无 Agent 数据</div>';
+      detail.innerHTML = '<div class="agent-orchestration-detail-empty">暂无智能体数据</div>';
       return;
     }
     var workflows = agent.workflows.map(renderWorkflowRow).join('');
@@ -388,6 +396,10 @@
 
   function renderFrame(container, topology, selectedId) {
     var summary = topology.summary;
+    var coreWorkflowCount = Math.max(0, Math.round(asNumber(summary.coreWorkflowCount, summary.workflowCount)));
+    var registeredWorkflowCount = Math.max(coreWorkflowCount, Math.round(asNumber(summary.workflowCount, coreWorkflowCount)));
+    var hiddenWorkflowCount = Math.max(0, Math.round(asNumber(summary.hiddenWorkflowCount, 0)));
+    var agentCount = Math.max(topology.agents.length, Math.round(asNumber(summary.agentCount, topology.agents.length)));
     var buttons = topology.agents.map(function (agent) {
       return renderAgentButton(agent, selectedId);
     }).join('');
@@ -396,26 +408,27 @@
       '<section class="agent-orchestration-shell" aria-labelledby="agent-orchestration-title">' +
         '<header class="agent-orchestration-head">' +
           '<div>' +
-            '<div class="agent-orchestration-kicker">智能体编排</div>' +
-            '<h2 id="agent-orchestration-title" class="agent-orchestration-title">5-Agent 协作图</h2>' +
-            '<p class="agent-orchestration-subtitle">从成长计划、实战陪练、上岗考核到经营分析和一线支持，14 条核心工作流被编排为 5 个业务 Agent。</p>' +
+            '<div class="agent-orchestration-kicker">智能体中枢</div>' +
+            '<h2 id="agent-orchestration-title" class="agent-orchestration-title">协作总览</h2>' +
+            '<p class="agent-orchestration-subtitle">已接入 ' + formatCount(registeredWorkflowCount) + ' 条工作流，按 ' + formatCount(agentCount) + ' 个智能体分工运行' + (hiddenWorkflowCount > 0 ? '；' + formatCount(hiddenWorkflowCount) + ' 条辅助链路未展示。' : '。') + '</p>' +
           '</div>' +
-          '<div class="agent-orchestration-badge">Agent-Orchestrated Training OS</div>' +
+          '<div class="agent-orchestration-badge">业务中枢</div>' +
         '</header>' +
         '<div class="agent-orchestration-stats">' +
-          renderStat('Agent', formatCount(summary.agentCount), '业务角色') +
-          renderStat('工作流', formatCount(summary.workflowCount), '核心编排') +
-          renderStat('已配置', formatCount(summary.configuredWorkflowCount), 'Dify 应用') +
-          renderStat('今日调用', formatCount(summary.todayCallCount), '接口请求') +
+          renderStat('智能体', formatCount(agentCount), '分工角色') +
+          renderStat('工作流', formatCount(registeredWorkflowCount), '已接入') +
+          renderStat('核心链路', formatCount(coreWorkflowCount), '主图展示') +
+          renderStat('已配置', formatCount(summary.configuredWorkflowCount), '可调用') +
+          renderStat('今日调用', formatCount(summary.todayCallCount), '今日') +
         '</div>' +
         '<div class="agent-orchestration-layout">' +
           '<div class="agent-orchestration-chart-panel">' +
-            '<div class="agent-orchestration-chart" data-agent-graph role="img" aria-label="5-Agent 协作拓扑图"></div>' +
+            '<div class="agent-orchestration-chart" data-agent-graph role="img" aria-label="智能体协作拓扑图"></div>' +
             '<div class="agent-orchestration-a11y" data-agent-a11y aria-live="polite"></div>' +
           '</div>' +
           '<aside class="agent-orchestration-detail" data-agent-detail aria-live="polite"></aside>' +
         '</div>' +
-        '<div class="agent-orchestration-agent-strip" role="group" aria-label="Agent 节点">' + buttons + '</div>' +
+        '<div class="agent-orchestration-agent-strip" role="group" aria-label="智能体节点">' + buttons + '</div>' +
       '</section>';
   }
 
@@ -424,7 +437,7 @@
     container.innerHTML =
       '<section class="agent-orchestration-shell agent-orchestration-shell--loading">' +
         '<div class="agent-orchestration-head">' +
-          '<div><div class="agent-orchestration-kicker">智能体编排</div><h2 class="agent-orchestration-title">5-Agent 协作图</h2></div>' +
+          '<div><div class="agent-orchestration-kicker">智能体中枢</div><h2 class="agent-orchestration-title">协作总览</h2></div>' +
         '</div>' +
         '<div class="agent-orchestration-loading-grid">' +
           '<div></div><div></div><div></div><div></div>' +
@@ -439,9 +452,9 @@
     container.innerHTML =
       '<section class="agent-orchestration-shell agent-orchestration-shell--empty">' +
         '<div class="agent-orchestration-head">' +
-          '<div><div class="agent-orchestration-kicker">智能体编排</div><h2 class="agent-orchestration-title">5-Agent 协作图</h2></div>' +
+          '<div><div class="agent-orchestration-kicker">智能体中枢</div><h2 class="agent-orchestration-title">协作总览</h2></div>' +
         '</div>' +
-        '<div class="agent-orchestration-empty">' + escapeHtml(message || '暂无 Agent 拓扑数据') + '</div>' +
+        '<div class="agent-orchestration-empty">' + escapeHtml(message || '暂无智能体拓扑数据') + '</div>' +
       '</section>';
     return { topology: null, option: null, chart: null };
   }
@@ -486,7 +499,7 @@
 
   function renderWithData(container, data) {
     var topology = normalizeAgentTopology(data);
-    if (!topology.agents.length) return renderEmpty(container, '暂无 Agent 拓扑数据');
+    if (!topology.agents.length) return renderEmpty(container, '暂无智能体拓扑数据');
     var selectedId = container.dataset && container.dataset.agentOrchestrationSelected
       ? container.dataset.agentOrchestrationSelected
       : topology.agents[0].id;
@@ -515,11 +528,11 @@
         renderWithData(container, data || {});
       }).catch(function (err) {
         if (container.dataset && container.dataset.agentOrchestrationRequest !== requestKey) return;
-        renderEmpty(container, (err && err.message) || 'Agent 拓扑加载失败');
+        renderEmpty(container, (err && err.message) || '智能体拓扑加载失败');
       });
       return { topology: null, option: null, chart: null, pending: true };
     }
-    return renderEmpty(container, '暂无 Agent 拓扑数据');
+    return renderEmpty(container, '暂无智能体拓扑数据');
   }
 
   AgentO.normalizeAgentTopology = normalizeAgentTopology;

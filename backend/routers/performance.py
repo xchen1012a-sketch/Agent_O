@@ -1095,6 +1095,8 @@ def _store_display_name(db: Session, store_id: str) -> str:
 def _list_leaderboard_stores(db: Session) -> list[dict[str, str]]:
     stores: list[dict[str, str]] = []
     for row in db.query(Store).order_by(Store.sort_order.asc(), Store.store_id.asc()).all():
+        if row is None:
+            continue
         sid = _as_text(row.store_id)
         if not sid:
             continue

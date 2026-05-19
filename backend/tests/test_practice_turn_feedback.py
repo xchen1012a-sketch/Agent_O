@@ -9,12 +9,16 @@ from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 
 BACKEND_DIR = Path(__file__).resolve().parents[1]
 if str(BACKEND_DIR) not in sys.path:
     sys.path.insert(0, str(BACKEND_DIR))
 
 import auth
+import database
+from models import AgentEvoEpisode
 import routers.practice as practice_router
 
 
@@ -31,8 +35,17 @@ class TestPracticeTurnFeedback:
         self.original_get_conn = practice_router.get_conn
         self.original_run_practice1_chat = practice_router.run_practice1_chat
         self.original_upsert_employee_profile = practice_router.upsert_employee_profile
+        self.original_session_local = practice_router.SessionLocal
         practice_router.get_conn = self._conn
         practice_router.upsert_employee_profile = lambda *args, **kwargs: None
+        self.evo_engine = create_engine(
+            f"sqlite:///{(Path(self.tmpdir.name) / 'practice_evo.db').as_posix()}",
+            connect_args={"check_same_thread": False},
+            future=True,
+        )
+        database.Base.metadata.create_all(bind=self.evo_engine)
+        self.EvoSession = sessionmaker(bind=self.evo_engine, expire_on_commit=False, future=True)
+        practice_router.SessionLocal = self.EvoSession
 
         app = FastAPI()
         app.include_router(practice_router.router)
@@ -44,6 +57,8 @@ class TestPracticeTurnFeedback:
         practice_router.get_conn = self.original_get_conn
         practice_router.run_practice1_chat = self.original_run_practice1_chat
         practice_router.upsert_employee_profile = self.original_upsert_employee_profile
+        practice_router.SessionLocal = self.original_session_local
+        self.evo_engine.dispose()
         self.tmpdir.cleanup()
 
     def _create_schema(self) -> None:
@@ -151,6 +166,48 @@ class TestPracticeTurnFeedback:
         stored_conversation = json.loads(row["conversation_json"])
         assert stored_payload["turn_feedback"] == expected_feedback
         assert stored_conversation[-1]["turn_feedback"] == expected_feedback
+
+    def test_chat_records_practice_evo_episode_and_returns_id(self) -> None:
+        def fake_run_practice1_chat(**kwargs):
+            return {
+                "ok": True,
+                "raw": {"answer": "我还是担心这款后续不保值。", "conversation_id": "conv_evo_1"},
+                "data": {
+                    "assistant_reply": "我还是担心这款后续不保值。",
+                    "conversation_id": "conv_evo_1",
+                },
+            }
+
+        practice_router.run_practice1_chat = fake_run_practice1_chat
+
+        response = self.client.post(
+            "/api/practice/chat",
+            json={
+                "session_id": "ps_evo_1",
+                "scene_code": "objection_handling",
+                "module_code": "objection_handling",
+                "difficulty_level": "standard",
+                "user_message": "这款能不能保证以后保值？",
+                "conversation_id": "",
+                "action": "send",
+            },
+        )
+
+        payload = response.json()
+        assert response.status_code == 200
+        episode_id = payload["data"]["evo_episode_id"]
+        assert isinstance(episode_id, int)
+        assert episode_id > 0
+
+        with self.EvoSession() as session:
+            episode = session.get(AgentEvoEpisode, episode_id)
+            assert episode is not None
+            assert episode.module == "practice"
+            assert episode.user_id == "1"
+            assert episode.store_id == "STORE01"
+            assert episode.request_id == "ps_evo_1"
+            assert episode.query_text == "这款能不能保证以后保值？"
+            assert episode.response_text == "我还是担心这款后续不保值。"
 
     def test_chat_builds_fallback_turn_feedback_when_dify_missing_fields(self) -> None:
         def fake_run_practice1_chat(**kwargs):

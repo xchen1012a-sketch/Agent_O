@@ -15,7 +15,7 @@ if str(BACKEND_DIR) not in sys.path:
 from database import Base
 from models import User
 from routers import performance as performance_router
-from routers.performance import _ABILITY_TIMELINE_DIMENSIONS, _build_ability_timeline_items
+from routers.performance import _ABILITY_TIMELINE_DIMENSIONS, _build_ability_timeline_items, _list_leaderboard_stores
 
 
 def test_build_ability_timeline_items_maps_snapshot_dimensions() -> None:
@@ -188,3 +188,18 @@ def test_get_ability_timeline_endpoint_returns_selected_user_payload(monkeypatch
     finally:
         db.close()
         engine.dispose()
+
+
+def test_list_leaderboard_stores_skips_legacy_null_primary_key_rows() -> None:
+    class FakeQuery:
+        def order_by(self, *_args):
+            return self
+
+        def all(self):
+            return [None]
+
+    class FakeDb:
+        def query(self, *_args):
+            return FakeQuery()
+
+    assert _list_leaderboard_stores(FakeDb()) == []

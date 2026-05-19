@@ -1,0 +1,440 @@
+app:
+  description: 实战陪练模块 - 导师金句工作流：根据评分生成鼓励或指导式导师点评
+  icon: "🎯"
+  icon_background: "#FFEAD5"
+  icon_type: emoji
+  mode: workflow
+  name: 实战导师金句工作流
+  use_icon_as_answer_icon: false
+dependencies:
+  - current_identifier: null
+    type: marketplace
+    value:
+      marketplace_plugin_unique_identifier: langgenius/tongyi:0.1.32@20a5454088fa017b72490e1cbaeebff21094d11b13e41197591734d1c08cdbb5
+    version: null
+kind: app
+version: 0.6.0
+workflow:
+  conversation_variables: []
+  environment_variables: []
+  features:
+    file_upload:
+      allowed_file_extensions:
+        - .JPG
+        - .JPEG
+        - .PNG
+        - .GIF
+        - .WEBP
+        - .SVG
+      allowed_file_types:
+        - image
+      allowed_file_upload_methods:
+        - local_file
+        - remote_url
+      enabled: false
+      image:
+        enabled: false
+        number_limits: 3
+        transfer_methods:
+          - local_file
+          - remote_url
+      number_limits: 3
+    opening_statement: ""
+    retriever_resource:
+      enabled: false
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions: []
+    suggested_questions_after_answer:
+      enabled: false
+    text_to_speech:
+      enabled: false
+      language: ""
+      voice: ""
+  graph:
+    edges:
+      - data:
+          isInIteration: false
+          isInLoop: false
+          sourceType: start
+          targetType: if-else
+        id: mentor_start-source-mentor_if_score-target
+        source: mentor_start
+        sourceHandle: source
+        target: mentor_if_score
+        targetHandle: target
+        type: custom
+        zIndex: 0
+      - data:
+          isInIteration: false
+          isInLoop: false
+          sourceType: if-else
+          targetType: llm
+        id: mentor_if_score-true-mentor_llm_high-target
+        source: mentor_if_score
+        sourceHandle: "true"
+        target: mentor_llm_high
+        targetHandle: target
+        type: custom
+        zIndex: 0
+      - data:
+          isInIteration: false
+          isInLoop: false
+          sourceType: if-else
+          targetType: llm
+        id: mentor_if_score-false-mentor_llm_low-target
+        source: mentor_if_score
+        sourceHandle: "false"
+        target: mentor_llm_low
+        targetHandle: target
+        type: custom
+        zIndex: 0
+      - data:
+          isInIteration: false
+          isInLoop: false
+          sourceType: llm
+          targetType: code
+        id: mentor_llm_high-source-mentor_merge-target
+        source: mentor_llm_high
+        sourceHandle: source
+        target: mentor_merge
+        targetHandle: target
+        type: custom
+        zIndex: 0
+      - data:
+          isInIteration: false
+          isInLoop: false
+          sourceType: llm
+          targetType: code
+        id: mentor_llm_low-source-mentor_merge-target
+        source: mentor_llm_low
+        sourceHandle: source
+        target: mentor_merge
+        targetHandle: target
+        type: custom
+        zIndex: 0
+      - data:
+          isInIteration: false
+          isInLoop: false
+          sourceType: code
+          targetType: end
+        id: mentor_merge-source-mentor_end-target
+        source: mentor_merge
+        sourceHandle: source
+        target: mentor_end
+        targetHandle: target
+        type: custom
+        zIndex: 0
+    nodes:
+      # ========== 节点1: 开始 ==========
+      - data:
+          desc: 输入陪练结果和评分数据
+          title: 开始
+          type: start
+          variables:
+            - label: 陪练会话ID
+              max_length: 64
+              options: []
+              required: false
+              type: text-input
+              variable: practice_id
+            - label: 用户ID
+              max_length: 64
+              options: []
+              required: false
+              type: text-input
+              variable: user_id
+            - label: 学员姓名
+              max_length: 64
+              options: []
+              required: false
+              type: text-input
+              variable: trainee_name
+            - label: 场景类型
+              max_length: 128
+              options: []
+              required: false
+              type: text-input
+              variable: scenario_type
+            - label: 对话文本
+              max_length: 20000
+              options: []
+              required: false
+              type: paragraph
+              variable: dialogue_text
+            - label: 综合评分
+              max_length: 16
+              options: []
+              required: false
+              type: text-input
+              variable: overall_score
+            - label: 亮点列表
+              max_length: 5000
+              options: []
+              required: false
+              type: paragraph
+              variable: highlights
+            - label: 问题点列表
+              max_length: 5000
+              options: []
+              required: false
+              type: paragraph
+              variable: problem_points
+            - label: 改进建议
+              max_length: 5000
+              options: []
+              required: false
+              type: paragraph
+              variable: improvement_advice
+        height: 680
+        id: mentor_start
+        position:
+          x: 80
+          y: 250
+        positionAbsolute:
+          x: 80
+          y: 250
+        selected: false
+        sourcePosition: right
+        targetPosition: left
+        type: custom
+        width: 242
+      # ========== 节点2: 条件分支 ==========
+      - data:
+          cases:
+            - case_id: "true"
+              conditions:
+                - comparison_operator: ">="
+                  id: score_check_true
+                  value: "80"
+                  varType: number
+                  variable_selector:
+                    - mentor_start
+                    - overall_score
+              id: "true"
+              logical_operator: and
+          desc: 评分>=80走鼓励分支，<80走指导分支
+          title: 评分分流
+          type: if-else
+        height: 168
+        id: mentor_if_score
+        position:
+          x: 400
+          y: 250
+        positionAbsolute:
+          x: 400
+          y: 250
+        selected: false
+        sourcePosition: right
+        targetPosition: left
+        type: custom
+        width: 242
+      # ========== 节点3: LLM高分(鼓励) ==========
+      - data:
+          context:
+            enabled: false
+            variable_selector: []
+          desc: 生成鼓励式导师金句
+          model:
+            completion_params: {}
+            mode: chat
+            name: kimi-k2.5
+            provider: langgenius/tongyi/tongyi
+          prompt_template:
+            - id: mentor_high_system
+              role: system
+              text: |
+                你是一位有10年珠宝销售经验的资深导师。你的学员刚刚完成了一次陪练练习，表现不错！
+
+                你的风格：
+                - 语气温暖，像前辈肯定后辈
+                - 具体指出1-2个做得好的地方，并解释为什么这样做有效
+                - 给出一句简短的行动建议
+                - 自然流畅，不要刻意的格式
+                - 可以用"你这轮..."、"继续保持..."、"太棒了..."开头
+
+                注意：
+                - 只输出一句话，50-100字
+                - 不要罗列分数
+                - 不要用列表或编号
+                - 让学员感到被认可，有动力继续练习
+            - id: mentor_high_user
+              role: user
+              text: |
+                学员姓名：{{#mentor_start.trainee_name#}}
+                场景类型：{{#mentor_start.scenario_type#}}
+                综合评分：{{#mentor_start.overall_score#}}分
+
+                对话内容：
+                {{#mentor_start.dialogue_text#}}
+
+                亮点：
+                {{#mentor_start.highlights#}}
+
+                请根据以上信息，写一句温暖有力的鼓励金句。
+          selected: false
+          title: 生成鼓励金句
+          type: llm
+          variables: []
+          vision:
+            enabled: false
+        height: 132
+        id: mentor_llm_high
+        position:
+          x: 720
+          y: 80
+        positionAbsolute:
+          x: 720
+          y: 80
+        selected: false
+        sourcePosition: right
+        targetPosition: left
+        type: custom
+        width: 242
+      # ========== 节点4: LLM低分(指导) ==========
+      - data:
+          context:
+            enabled: false
+            variable_selector: []
+          desc: 生成指导式导师金句
+          model:
+            completion_params: {}
+            mode: chat
+            name: kimi-k2.5
+            provider: langgenius/tongyi/tongyi
+          prompt_template:
+            - id: mentor_low_system
+              role: system
+              text: |
+                你是一位有10年珠宝销售经验的资深导师。你的学员刚刚完成了一次陪练练习，还有提升空间，需要你的专业指导。
+
+                你的风格：
+                - 先肯定做得好的地方，再指出问题
+                - 语气亲切但不打击人
+                - 指出最关键的1个需要改进的地方，并给出具体的改进方法
+                - 给出一句具体可执行的行动建议
+                - 自然流畅，不要刻意的格式
+
+                注意：
+                - 只输出一句话，50-100字
+                - 不要罗列分数
+                - 不要用列表或编号
+                - 让学员感到被关心，有方向去改进
+
+                参考口吻：
+                "你这轮异议处理还有提升空间，顾客说'太贵了'的时候别急着降价，先试着拆解价值——好东西贵一点，顾客反而更放心。"
+            - id: mentor_low_user
+              role: user
+              text: |
+                学员姓名：{{#mentor_start.trainee_name#}}
+                场景类型：{{#mentor_start.scenario_type#}}
+                综合评分：{{#mentor_start.overall_score#}}分
+
+                对话内容：
+                {{#mentor_start.dialogue_text#}}
+
+                问题点：
+                {{#mentor_start.problem_points#}}
+
+                改进建议：
+                {{#mentor_start.improvement_advice#}}
+
+                请根据以上信息，写一句专业温暖的指导金句。
+          selected: false
+          title: 生成指导金句
+          type: llm
+          variables: []
+          vision:
+            enabled: false
+        height: 132
+        id: mentor_llm_low
+        position:
+          x: 720
+          y: 420
+        positionAbsolute:
+          x: 720
+          y: 420
+        selected: false
+        sourcePosition: right
+        targetPosition: left
+        type: custom
+        width: 242
+      # ========== 节点5: 汇总输出 ==========
+      - data:
+          code: |
+            def main(high_text: str = "", low_text: str = "", overall_score: str = "") -> dict:
+                def clean(value):
+                    return str(value or "").strip()
+
+                high = clean(high_text)
+                low = clean(low_text)
+                try:
+                    score = float(clean(overall_score) or 0)
+                except Exception:
+                    score = 0.0
+
+                mentor_sentence = high if score >= 80 else low
+                if not mentor_sentence:
+                    mentor_sentence = high or low
+                return {"mentor_sentence": mentor_sentence}
+          code_language: python3
+          desc: 汇总高分/低分分支，确保任一分支命中后都能稳定输出 mentor_sentence。
+          outputs:
+            mentor_sentence:
+              type: string
+          selected: false
+          title: 汇总导师金句
+          type: code
+          variables:
+            - value_selector:
+                - mentor_llm_high
+                - text
+              variable: high_text
+            - value_selector:
+                - mentor_llm_low
+                - text
+              variable: low_text
+            - value_selector:
+                - mentor_start
+                - overall_score
+              variable: overall_score
+        height: 176
+        id: mentor_merge
+        position:
+          x: 1040
+          y: 250
+        positionAbsolute:
+          x: 1040
+          y: 250
+        selected: false
+        sourcePosition: right
+        targetPosition: left
+        type: custom
+        width: 242
+      # ========== 节点6: 结束 ==========
+      - data:
+          desc: 输出导师金句
+          outputs:
+            - variable: mentor_sentence
+              value_selector:
+                - mentor_merge
+                - mentor_sentence
+          selected: false
+          title: 结束
+          type: end
+          variables: []
+        height: 90
+        id: mentor_end
+        position:
+          x: 1360
+          y: 250
+        positionAbsolute:
+          x: 1360
+          y: 250
+        selected: false
+        sourcePosition: right
+        targetPosition: left
+        type: custom
+        width: 242

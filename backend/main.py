@@ -32,6 +32,7 @@ from auth import (
 )
 from database import SQLITE_DB_PATH, SessionLocal, ensure_database_initialized, utc_now_iso
 from db_stage3 import ensure_stage3_tables
+from evo.scheduler import start_scheduler, stop_scheduler
 from routers import BUSINESS_ROUTERS, task
 from workflow_registry import DIFY_WORKFLOW_REGISTRY
 
@@ -280,11 +281,15 @@ async def lifespan(_app: FastAPI):
         FRONTEND_DIR,
         FRONTEND_DIR.is_dir(),
     )
-    yield
+    start_scheduler()
+    try:
+        yield
+    finally:
+        stop_scheduler()
 
 
 app = FastAPI(
-    title="珠宝企业培训智能体系统（14工作流版）",
+    title="珠宝企业培训智能体系统（19工作流版）",
     version="2.0.0",
     lifespan=lifespan,
 )
@@ -959,12 +964,49 @@ else:
     _log.warning("frontend directory not found, /frontend/ mount skipped: %s", FRONTEND_DIR)
 
 
+def _is_port_in_use(host: str, port: int) -> bool:
+    import socket
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        return s.connect_ex((host, port)) == 0
+
+
+def _kill_port_owner(host: str, port: int) -> bool:
+    """On Windows, kill the process holding *port* via netstat+taskkill."""
+    import subprocess
+    try:
+        out = subprocess.check_output(
+            f'netstat -ano | findstr "{host}:{port}" | findstr "LISTENING"',
+            shell=True, text=True, timeout=5,
+        ).strip()
+        if not out:
+            return False
+        pid = int(out.strip().split()[-1])
+        subprocess.check_call(f'taskkill /F /PID {pid}', shell=True, timeout=5)
+        _log.info("killed stale process pid=%s on %s:%s", pid, host, port)
+        return True
+    except Exception as exc:
+        _log.warning("failed to kill port owner: %s", exc)
+        return False
+
+
 if __name__ == "__main__":
     import uvicorn
 
+    host = app_config.UVICORN_HOST
+    port = app_config.UVICORN_PORT
+
+    if _is_port_in_use(host, port):
+        _log.warning("port %s:%s already in use, attempting to reclaim", host, port)
+        _kill_port_owner(host, port)
+        import time
+        time.sleep(1)
+        if _is_port_in_use(host, port):
+            _log.error("port %s:%s still in use after reclaim attempt, aborting", host, port)
+            raise SystemExit(1)
+
     uvicorn.run(
         app,
-        host=app_config.UVICORN_HOST,
-        port=app_config.UVICORN_PORT,
+        host=host,
+        port=port,
         log_level=app_config.UVICORN_LOG_LEVEL,
     )

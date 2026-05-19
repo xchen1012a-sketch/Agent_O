@@ -36,6 +36,7 @@ _KNOWLEDGE_SOURCE_BY_ROLE = {
     "examiner": "考核题库",
     "service": "珠宝知识库",
     "analyst": "经营数据看板",
+    "evolution": "自我进化记忆库",
 }
 
 

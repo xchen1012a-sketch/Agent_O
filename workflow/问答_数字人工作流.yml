@@ -1,0 +1,423 @@
+app:
+  description: 知识问答对话模式 - 支持对话上下文和逐轮教练反馈的数字人反馈工作流，专注生成数字人播报的教练点评
+  icon: 📘
+  icon_background: '#D9F7BE'
+  icon_type: emoji
+  mode: advanced-chat
+  name: 知识问答_对话工作流
+  use_icon_as_answer_icon: false
+dependencies:
+- current_identifier: null
+  type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: langgenius/tongyi:0.1.32@20a545408fa017b72490e1cbaeebff21094d11b13e41197591734d1c08cdbb5
+  version: null
+kind: app
+version: 0.6.0
+workflow:
+  conversation_variables: []
+  environment_variables: []
+  features:
+    file_upload:
+      allowed_file_extensions:
+      - .JPG
+      - .JPEG
+      - .PNG
+      - .GIF
+      - .WEBP
+      - .SVG
+      allowed_file_types:
+      - image
+      allowed_file_upload_methods:
+      - local_file
+      - remote_url
+      enabled: false
+      image:
+        enabled: false
+        number_limits: 3
+        transfer_methods:
+        - local_file
+        - remote_url
+      number_limits: 3
+    opening_statement: ''
+    retriever_resource:
+      enabled: false
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions: []
+    suggested_questions_after_answer:
+      enabled: false
+    text_to_speech:
+      enabled: false
+      language: ''
+      voice: ''
+  graph:
+    edges:
+    # ===== start → prepare =====
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: start
+        targetType: code
+      id: qc_start-qc_prepare
+      source: qc_start
+      sourceHandle: source
+      target: qc_prepare
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    # ===== prepare → knowledge =====
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: knowledge-retrieval
+      id: qc_prepare-qc_knowledge
+      source: qc_prepare
+      sourceHandle: source
+      target: qc_knowledge
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    # ===== knowledge → context =====
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: knowledge-retrieval
+        targetType: code
+      id: qc_knowledge-qc_context
+      source: qc_knowledge
+      sourceHandle: source
+      target: qc_context
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    # ===== context → llm =====
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: llm
+      id: qc_context-qc_llm
+      source: qc_context
+      sourceHandle: source
+      target: qc_llm
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    # ===== llm → answer =====
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: llm
+        targetType: answer
+      id: qc_llm-qc_answer
+      source: qc_llm
+      sourceHandle: source
+      target: qc_answer
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    nodes:
+    # ========== 节点1: 开始 ==========
+    - data:
+        desc: 接收用户知识问答问题
+        selected: false
+        title: 开始
+        type: start
+        variables:
+        - label: 用户问题
+          max_length: 3000
+          options: []
+          required: true
+          type: paragraph
+          variable: question
+      height: 116
+      id: qc_start
+      position:
+        x: 80
+        y: 250
+      positionAbsolute:
+        x: 80
+        y: 250
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    # ========== 节点2: 输入处理 ==========
+    - data:
+        code: |
+          def main(question: str = "") -> dict:
+              import re
+              def clean(v):
+                  return str(v or "").replace("\r\n", "\n").replace("\r", "\n").strip()
+              text = clean(question)
+              text = re.sub(r"\s+", " ", text).strip()
+              if not text:
+                  text = "请介绍一个珠宝门店常用知识点。"
+
+              question_type = "通用知识"
+              if re.search(r"4c|钻石|翡翠|黄金|铂金|k金|材质|工艺|镶嵌|证书|纯度|克拉", text, re.I):
+                  question_type = "产品知识"
+              elif re.search(r"合规|红线|承诺|保值|违规|真假|鉴定|不能说|边界", text, re.I):
+                  question_type = "合规边界"
+              elif re.search(r"顾客|太贵|异议|话术|怎么接|怎么回|推荐|成交|试戴|犹豫", text, re.I):
+                  question_type = "销售话术"
+              elif re.search(r"系统|页面|按钮|怎么操作|怎么看|哪里|功能", text, re.I):
+                  question_type = "系统使用"
+
+              retrieval_query = f"珠宝门店 {question_type} {text}"
+              return {
+                  "cleaned_question": text,
+                  "question_type": question_type,
+                  "retrieval_query": retrieval_query,
+              }
+        code_language: python3
+        desc: 问题清洗与粗分类
+        outputs:
+          cleaned_question:
+            type: string
+          question_type:
+            type: string
+          retrieval_query:
+            type: string
+        selected: false
+        title: 输入处理
+        type: code
+        variables:
+        - value_selector:
+          - qc_start
+          - question
+          variable: question
+      height: 96
+      id: qc_prepare
+      position:
+        x: 380
+        y: 250
+      positionAbsolute:
+        x: 380
+        y: 250
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    # ========== 节点3: 知识检索 ==========
+    - data:
+        dataset_ids:
+        - J3feDEiEmkB+GBiKZO8R//BmAAyH2m2FzEaE1FTYz4nfkghitO6iGOqrsfs2Bsle
+        desc: 检索珠宝知识库
+        multiple_retrieval_config:
+          reranking_enable: true
+          reranking_mode: reranking_model
+          reranking_model:
+            model: gte-rerank
+            provider: langgenius/tongyi/tongyi
+          top_k: 3
+        query_attachment_selector: []
+        query_variable_selector:
+        - qc_prepare
+        - retrieval_query
+        retrieval_mode: multiple
+        selected: false
+        title: 知识检索
+        type: knowledge-retrieval
+      height: 134
+      id: qc_knowledge
+      position:
+        x: 680
+        y: 250
+      positionAbsolute:
+        x: 680
+        y: 250
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    # ========== 节点4: 知识结果整理 ==========
+    - data:
+        code: |
+          def main(cleaned_question: str = "", question_type: str = "", retrieved_docs=None) -> dict:
+              docs = retrieved_docs or []
+              blocks = []
+              for idx, doc in enumerate(docs[:3], 1):
+                  content = ""
+                  try:
+                      if isinstance(doc, dict):
+                          content = str(doc.get("content") or doc.get("segment") or doc.get("text") or "").strip()
+                          if not content:
+                              metadata = doc.get("metadata") or {}
+                              content = str(metadata.get("content") or "").strip()
+                      else:
+                          content = str(doc).strip()
+                  except Exception:
+                      content = str(doc).strip()
+                  if content:
+                      blocks.append(f"[知识片段{idx}]\n{content[:200]}")
+
+              kb_context = "\n\n".join(blocks)
+              if not kb_context:
+                  kb_context = "未检索到强相关知识片段，按通用珠宝门店知识回答。"
+
+              return {
+                  "cleaned_question_out": cleaned_question,
+                  "question_type_out": question_type,
+                  "kb_context": kb_context,
+              }
+        code_language: python3
+        desc: 把检索结果压缩成 LLM 上下文
+        outputs:
+          cleaned_question_out:
+            type: string
+          kb_context:
+            type: string
+          question_type_out:
+            type: string
+        selected: false
+        title: 知识结果整理
+        type: code
+        variables:
+        - value_selector:
+          - qc_prepare
+          - cleaned_question
+          variable: cleaned_question
+        - value_selector:
+          - qc_prepare
+          - question_type
+          variable: question_type
+        - value_selector:
+          - qc_knowledge
+          - result
+          variable: retrieved_docs
+      height: 96
+      id: qc_context
+      position:
+        x: 980
+        y: 250
+      positionAbsolute:
+        x: 980
+        y: 250
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    # ========== 节点5: 主LLM - 答案 + 逐轮反馈 ==========
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        desc: 回答问题并生成数字人教练反馈
+        memory:
+          query_prompt_template: '{{#sys.query#}}'
+          role_prefix:
+            assistant: ''
+            user: ''
+          window:
+            enabled: true
+            size: 8
+        model:
+          completion_params:
+            temperature: 0.3
+          mode: chat
+          name: kimi-k2.5
+          provider: langgenius/tongyi/tongyi
+        prompt_template:
+        - id: qc-system-prompt
+          role: system
+          text: |
+            你是珠宝门店的知识培训教练。用户是门店导购，正在学习产品知识和销售技巧。
+
+            ## 任务
+            1. 用简洁易懂的方式回答用户的问题
+            2. 给出一个适合数字人口播的知识摘要，帮助导购快速记住关键点
+
+            ## 回答要求
+            - 用培训教练的口吻，但不要用"建议你""你可以""针对"等培训腔
+            - 回答要简洁、准确、可执行，40~120字
+            - 先给结论，再给依据，最后补一句门店里怎么说
+            - 严禁编造不存在的制度、价格、证书结论
+            - 结合对话历史连贯推进，不重复
+            - 知识命中时吸收有效信息
+
+            ## 输出格式
+
+            回答文字
+
+            ---TF---
+            {"knowledge_point":"知识点名称","mastery_hint":"掌握程度提示","mentor_comment":"30字内教练点评，直说重点","learning_tip":"一句话记忆技巧","next_direction":"下一步学习方向","related_topic":"关联知识","voice_advice":"20~40字知识摘要，先结论后一个依据，能独立成立"}
+
+            ## voice_advice 额外约束
+            - 必须写成自然短句，用户只听这一句也能得到一个完整判断
+            - 先给结论，再补一个依据或适用场景
+            - 不要广告腔、押韵词、口号式表达
+            - 不要把几个属性压缩成并列短标签，比如"银白硬平价"
+            - 不要写成"先记住这个数字"这类脱离问题上下文的提醒句
+            - 不要只报关键词，必须像一句完整的话
+
+            ## 示例
+
+            18K金含75%黄金，其余25%是其他贵金属合金。硬度比足金高，更适合镶嵌类款式，日常佩戴不容易变形。门店里如果顾客问"为什么不是纯金"，你可以这样说：纯金太软做不了这种造型，18K是兼顾纯度和硬度的最佳选择。
+
+            ---TF---
+            {"knowledge_point":"18K金成分","mastery_hint":"基础概念","mentor_comment":"这个点顾客常问，记住75%这个数字就够用。","learning_tip":"18K=75%黄金+25%合金，硬但不掉色。","next_direction":"对比24K足金和18K的区别","related_topic":"黄金纯度","voice_advice":"18K金含75%黄金，兼顾纯度和硬度，更适合镶嵌款。"}
+        - id: qc-user-prompt
+          role: user
+          text: |
+            【用户问题】
+            {{#qc_context.cleaned_question_out#}}
+
+            【问题类型】{{#qc_context.question_type_out#}}
+            【可用知识】
+            {{#qc_context.kb_context#}}
+
+            回答问题并生成反馈。
+        selected: false
+        title: 答案与反馈生成
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 132
+      id: qc_llm
+      position:
+        x: 1280
+        y: 250
+      positionAbsolute:
+        x: 1280
+        y: 250
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    # ========== 节点6: 回复 ==========
+    - data:
+        answer: '{{#qc_llm.text#}}'
+        desc: 输出答案和逐轮反馈（后端通过 ---TF--- 分隔符解析）
+        selected: false
+        title: 知识问答回复
+        type: answer
+        variables: []
+      height: 103
+      id: qc_answer
+      position:
+        x: 1580
+        y: 250
+      positionAbsolute:
+        x: 1580
+        y: 250
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    viewport:
+      x: 0
+      y: 200
+      zoom: 0.8
+  rag_pipeline_variables: []

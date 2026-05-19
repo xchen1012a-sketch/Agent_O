@@ -16,7 +16,7 @@ from agent_activity import (
     unsubscribe_agent_activity,
 )
 from api_response import success_response
-from auth import decode_token_optional, get_current_user, get_optional_user, normalize_app_role
+from auth import decode_token_optional, get_current_user, get_optional_user, is_management_role, normalize_app_role
 from workflow_registry import (
     AGENT_ROLE_DEFINITIONS,
     AGENT_TOPOLOGY_EDGES,
@@ -167,7 +167,7 @@ def build_agent_topology_payload(current_user: dict[str, Any] | None = None) -> 
             "id": "user_input",
             "label": "用户输入",
             "agent_name": "用户输入",
-            "headline": "训练任务、顾客问题、经营查询统一进入编排层",
+            "headline": "任务统一进入中枢",
             "color": "#334155",
         },
         "agents": agents,
@@ -186,10 +186,19 @@ def build_agent_topology_payload(current_user: dict[str, Any] | None = None) -> 
     }
 
 
+def _require_management_user(current_user: dict[str, Any]) -> None:
+    if not is_management_role(_as_text((current_user or {}).get("role"))):
+        raise HTTPException(
+            status.HTTP_403_FORBIDDEN,
+            "权限不足：仅管理员或店长可访问此资源",
+        )
+
+
 @router.get("/topology")
 def get_agent_topology(
     current_user: Annotated[dict[str, Any], Depends(get_current_user)],
 ):
+    _require_management_user(current_user)
     return success_response(
         build_agent_topology_payload(current_user),
         workflow_code=_WORKFLOW_CODE,
@@ -264,6 +273,7 @@ async def get_agent_activity_stream(
     request: Request,
     current_user: Annotated[dict[str, Any], Depends(_get_activity_stream_user)],
 ):
+    _require_management_user(current_user)
     return StreamingResponse(
         _activity_event_stream(request, current_user),
         media_type="text/event-stream",

@@ -63,6 +63,9 @@ function resolveBrowserExecutable() {
 async function bootstrapPage(page, url) {
   await page.goto(url + '/index.html#practical_training');
   await page.evaluate(() => {
+    Object.keys(localStorage).forEach((key) => {
+      if (String(key || '').indexOf('digital_human_') === 0) localStorage.removeItem(key);
+    });
     localStorage.setItem('token', 'dev-token');
     localStorage.setItem('role', 'trainee');
     localStorage.setItem('username', 'trainee');

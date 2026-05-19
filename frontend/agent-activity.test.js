@@ -4,6 +4,7 @@ const path = require('node:path');
 const vm = require('node:vm');
 
 const SOURCE_PATH = path.join(__dirname, 'js', 'agent-activity.js');
+const APP_SOURCE_PATH = path.join(__dirname, 'js', 'app.js');
 
 function createClassList() {
   const values = new Set();
@@ -209,10 +210,23 @@ vm.createContext(context);
 vm.runInContext(fs.readFileSync(SOURCE_PATH, 'utf8'), context);
 
 const AgentO = context.window.AgentO;
+const appSource = fs.readFileSync(APP_SOURCE_PATH, 'utf8');
 
 assert.equal(typeof AgentO.mountAgentActivityPanel, 'function');
 assert.equal(typeof AgentO.pushAgentActivityEvent, 'function');
 assert.equal(typeof AgentO.normalizeAgentActivity, 'function');
+assert.ok(
+  appSource.includes("const AGENT_ACTIVITY_ORDINARY_PAGES = ['practical_training', 'on_duty_assistant', 'knowledge_qa', 'quick_query'];"),
+  'ordinary users should only see the activity panel on business AI pages'
+);
+assert.ok(
+  appSource.includes("window.AgentO.mountAgentActivityPanel({ connect: false });"),
+  'ordinary users should mount the activity panel without global SSE'
+);
+assert.ok(
+  appSource.includes('maybePushLocalAgentActivityEvent(path, method, res.status, json'),
+  'ordinary user activity events should be generated from local apiFetch responses'
+);
 
 const normalized = AgentO.normalizeAgentActivity({
   agent_role: 'practice',
@@ -314,3 +328,16 @@ assert.equal(AgentO._agentActivityState.events.length, 4);
 AgentO.destroyAgentActivityPanel();
 assert.equal(FakeEventSource.instances[0].closed, true);
 assert.equal(document.getElementById('agent-activity-root'), null);
+
+const sourceCountBeforeLocalMount = FakeEventSource.instances.length;
+const localState = AgentO.mountAgentActivityPanel({ connect: false, token: 'abc' });
+assert.ok(document.getElementById('agent-activity-root'));
+assert.equal(FakeEventSource.instances.length, sourceCountBeforeLocalMount);
+AgentO.pushAgentActivityEvent({
+  agent_name: 'Practice Agent',
+  workflow_code: 'practice1',
+  workflow_label: 'Practice Chat',
+  elapsed_ms: 321,
+});
+assert.equal(localState.events[0].workflowCode, 'practice1');
+AgentO.destroyAgentActivityPanel();

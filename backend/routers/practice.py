@@ -14,6 +14,7 @@ from auth import get_current_user
 from database import SessionLocal
 from db_stage3 import get_conn, json_text, upsert_employee_profile
 from dify_stage4b import run_practice1_chat, run_practice2_workflow, run_practice3_workflow, run_practice_mentor_workflow, run_practice_turn_feedback
+from evo import record_episode
 from routers.performance import build_employee_performance_bundle
 
 router = APIRouter(prefix="/api/practice", tags=["practice"])
@@ -626,6 +627,32 @@ def _load_performance_linkage(employee_id: str) -> dict[str, Any]:
         return {}
 
 
+def _record_practice_evo_episode(
+    *,
+    session_id: str,
+    employee_id: str,
+    store_id: str,
+    user_message: str,
+    assistant_reply: str,
+) -> int | None:
+    try:
+        with SessionLocal() as db:
+            record = record_episode(
+                db,
+                module="practice",
+                user_id=employee_id,
+                store_id=store_id,
+                request_id=session_id,
+                query_text=user_message,
+                response_text=assistant_reply,
+            )
+            db.commit()
+            return int(record.id)
+    except Exception:
+        _log.exception("practice evo episode record failed user_id=%s session_id=%s", employee_id, session_id)
+        return None
+
+
 @router.post("/chat")
 def practice_chat(
     body: PracticeChatRequest,
@@ -902,7 +929,19 @@ def practice_chat(
         "auto_chain_hint": bool(next_end_flag == 1),
         "session_state": session_state,
         "turn_feedback": turn_feedback,
+        "evo_episode_id": None,
     }
+    evo_episode_id = _record_practice_evo_episode(
+        session_id=session_id,
+        employee_id=employee_id,
+        store_id=_as_text(current_user.get("store_id")),
+        user_message=user_message,
+        assistant_reply=assistant_reply,
+    )
+    if evo_episode_id:
+        data["evo_episode_id"] = evo_episode_id
+        if next_conversation and isinstance(next_conversation[-1], dict):
+            next_conversation[-1]["evo_episode_id"] = evo_episode_id
     with get_conn() as conn:
         row = conn.execute(
             """
