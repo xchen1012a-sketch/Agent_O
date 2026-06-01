@@ -86,7 +86,7 @@ const SIDEBAR_SECTIONS = [
     title: '业务助手',
     zone: 'workspace',
     icon: 'support',
-    items: ['on_duty_assistant', 'knowledge_qa', 'quick_query', 'competition'],
+    items: ['on_duty_assistant', 'knowledge_qa', 'quick_query', 'talent_dashboard', 'competition'],
   },
   {
     id: 'organization',
@@ -107,7 +107,7 @@ const SIDEBAR_SECTIONS = [
     title: '系统治理',
     zone: 'admin',
     icon: 'system',
-    items: ['account_settings', 'digital_human_settings', 'evo_governance', 'talent_dashboard', 'audit_logs', 'system_logs'],
+    items: ['account_settings', 'digital_human_settings', 'evo_governance', 'audit_logs', 'system_logs'],
   },
 ];
 

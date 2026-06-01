@@ -9,6 +9,8 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from api_response import success_response
 from assistant_service import resolve_user_context
 from auth import get_current_user
+from database import SessionLocal
+from evo import record_episode
 from qa_service import (
     classify_qa_question,
     fetch_qa_citations,
@@ -22,6 +24,53 @@ from schemas import QaAskRequest
 
 router = APIRouter(prefix="/api/qa", tags=["qa"])
 _log = logging.getLogger("jewelry_qipei.router.qa")
+
+
+def _record_qa_episode_safe(
+    *,
+    user_id: str,
+    store_id: str,
+    question: str,
+    answer_text: str,
+    request_id: str = "",
+) -> int | None:
+    try:
+        with SessionLocal() as db:
+            record = record_episode(
+                db,
+                module="qa",
+                user_id=user_id,
+                store_id=store_id,
+                request_id=request_id,
+                query_text=question,
+                response_text=answer_text,
+            )
+            db.commit()
+            return int(record.id)
+    except Exception:
+        _log.exception("qa evo episode record failed user_id=%s", user_id)
+        return None
+
+
+def _with_qa_episode(
+    payload: dict[str, Any],
+    *,
+    current_user: dict[str, Any],
+    question: str,
+    request_id: str = "",
+) -> dict[str, Any]:
+    context = resolve_user_context(current_user)
+    episode_id = _record_qa_episode_safe(
+        user_id=context["user_id"],
+        store_id=context["store_id"],
+        question=question,
+        answer_text=str(payload.get("answer_text") or ""),
+        request_id=request_id or str(payload.get("conversation_id") or ""),
+    )
+    if episode_id:
+        payload = dict(payload)
+        payload["evo_episode_id"] = episode_id
+    return payload
 
 
 def _redirect_questions() -> list[str]:
@@ -183,15 +232,21 @@ def qa_ask(
 
     if run_result.get("ok"):
         data = run_result.get("data") if isinstance(run_result.get("data"), dict) else {}
+        payload = _plain_qa_payload(
+            answer_text=str(data.get("answer_text") or "").strip(),
+            citations=citations,
+            related_questions=data.get("related_questions") or [],
+            conversation_id=str(data.get("conversation_id") or conversation_id),
+            qa_chat_conversation_id=str(qa_chat_result.get("qa_chat_conversation_id") or ""),
+            turn_feedback=qa_chat_result.get("turn_feedback"),
+            reply_mode="dify",
+        )
         return success_response(
-            _plain_qa_payload(
-                answer_text=str(data.get("answer_text") or "").strip(),
-                citations=citations,
-                related_questions=data.get("related_questions") or [],
-                conversation_id=str(data.get("conversation_id") or conversation_id),
-                qa_chat_conversation_id=str(qa_chat_result.get("qa_chat_conversation_id") or ""),
-                turn_feedback=qa_chat_result.get("turn_feedback"),
-                reply_mode="dify",
+            _with_qa_episode(
+                payload,
+                current_user=current_user,
+                question=question,
+                request_id=payload.get("conversation_id", ""),
             ),
             workflow_code="qa1",
             mock=False,

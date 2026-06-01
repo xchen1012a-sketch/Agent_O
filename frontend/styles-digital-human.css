@@ -639,6 +639,23 @@ body.theme-dark .dh-error {
   }
 }
 
+@media (max-width: 640px) {
+  .dh-floating-root:not(.dh-login-mode) {
+    z-index: 42;
+  }
+
+  .dh-floating-root:not(.dh-login-mode) .dh-widget {
+    --dh-widget-bottom: max(0.45rem, env(safe-area-inset-bottom));
+    --dh-loading-bottom: 4.4rem;
+    --dh-menu-bottom: 8.7rem;
+    --dh-menu-panel-bottom: 8.2rem;
+    --dh-bubble-bottom: 6.1rem;
+    width: 136px;
+    height: 272px;
+    right: -1.05rem;
+  }
+}
+
 /* ==================== Login page mode ==================== */
 .dh-floating-root.dh-login-mode {
   z-index: 101;

@@ -16,10 +16,38 @@ from assistant_service import (
     run_assistant_chat_sync,
 )
 from auth import get_current_user
+from database import SessionLocal
+from evo import record_episode
 from schemas import AssistantReplyRequest
 
 router = APIRouter(prefix="/api/assistant", tags=["assistant"])
 _log = logging.getLogger("jewelry_qipei.router.assistant")
+
+
+def _record_assistant_episode_safe(
+    *,
+    user_id: str,
+    store_id: str,
+    scene_input: str,
+    response_text: str,
+    request_id: str = "",
+) -> int | None:
+    try:
+        with SessionLocal() as db:
+            record = record_episode(
+                db,
+                module="assistant",
+                user_id=user_id,
+                store_id=store_id,
+                request_id=request_id,
+                query_text=scene_input,
+                response_text=response_text,
+            )
+            db.commit()
+            return int(record.id)
+    except Exception:
+        _log.exception("assistant evo episode record failed user_id=%s", user_id)
+        return None
 
 
 @router.post("/reply")
@@ -83,6 +111,18 @@ def assistant_reply(
         "coach_tip": reply_obj.coach_tip or "",
         "voice_advice": reply_obj.voice_advice or "",
     }
+    episode_text = "\n".join(
+        part for part in [reply_obj.reply_script, reply_obj.followup_question or ""] if part
+    )
+    evo_episode_id = _record_assistant_episode_safe(
+        user_id=context["user_id"],
+        store_id=context["store_id"],
+        scene_input=scene_input,
+        response_text=episode_text,
+        request_id=reply_obj.conversation_id or conversation_id,
+    )
+    if evo_episode_id:
+        resp_data["evo_episode_id"] = evo_episode_id
     if reply_obj.turn_feedback:
         resp_data["turn_feedback"] = reply_obj.turn_feedback
     if reply_obj.conversation_id:

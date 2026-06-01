@@ -40,59 +40,59 @@
 <div id="toast" class="toast"></div>
 
 <!-- ==================== 登录视图（Apple 式极简居中 · #f5f5f7） ==================== -->
-<div id="view-login" class="login-shell fixed inset-0 z-[100] flex min-h-[100dvh] w-full flex-col items-center justify-center bg-[#f5f5f7] px-4 py-10">
+<div id="view-login" class="login-shell fixed inset-0 z-[100] flex min-h-[100dvh] w-full flex-col items-center justify-center bg-[#F4F5F3] px-4 py-10">
   <div class="w-full max-w-md">
-    <div class="rounded-3xl border border-gray-100 bg-white p-10 sm:p-12">
+    <div class="rounded-3xl border border-[#D8D6CF] bg-white p-10 shadow-[0_18px_44px_rgba(32,39,43,0.08)] sm:p-12">
       <div class="text-center">
         <div class="mb-6 flex justify-center">
           <svg class="h-16 w-16 shrink-0" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
             <defs>
               <linearGradient id="lg-facet1" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0%" stop-color="#818cf8"/>
-                <stop offset="100%" stop-color="#6366f1"/>
+                <stop offset="0%" stop-color="#3d7973"/>
+                <stop offset="100%" stop-color="#0f5f59"/>
               </linearGradient>
               <linearGradient id="lg-facet2" x1="1" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#a78bfa"/>
-                <stop offset="100%" stop-color="#7c3aed"/>
+                <stop offset="0%" stop-color="#d0aa73"/>
+                <stop offset="100%" stop-color="#b88746"/>
               </linearGradient>
               <linearGradient id="lg-shine" x1="0" y1="0" x2="0.5" y2="1">
-                <stop offset="0%" stop-color="#c4b5fd"/>
-                <stop offset="100%" stop-color="#7c3aed"/>
+                <stop offset="0%" stop-color="#efe4d2"/>
+                <stop offset="100%" stop-color="#b88746"/>
               </linearGradient>
             </defs>
             <polygon points="32,4 56,24 32,32 8,24" fill="url(#lg-shine)" opacity="0.95"/>
             <polygon points="8,24 32,32 32,60" fill="url(#lg-facet1)" opacity="0.95"/>
             <polygon points="56,24 32,32 32,60" fill="url(#lg-facet2)" opacity="0.95"/>
-            <line x1="32" y1="4" x2="32" y2="60" stroke="#c4b5fd" stroke-width="0.5" opacity="0.4"/>
-            <line x1="8" y1="24" x2="32" y2="32" stroke="#e0e7ff" stroke-width="0.5" opacity="0.3"/>
-            <line x1="56" y1="24" x2="32" y2="32" stroke="#e0e7ff" stroke-width="0.5" opacity="0.3"/>
-            <circle cx="20" cy="16" r="1.5" fill="#e0e7ff" opacity="0.6"/>
+            <line x1="32" y1="4" x2="32" y2="60" stroke="#f1e4cf" stroke-width="0.5" opacity="0.44"/>
+            <line x1="8" y1="24" x2="32" y2="32" stroke="#f8efe1" stroke-width="0.5" opacity="0.36"/>
+            <line x1="56" y1="24" x2="32" y2="32" stroke="#f8efe1" stroke-width="0.5" opacity="0.36"/>
+            <circle cx="20" cy="16" r="1.5" fill="#f8efe1" opacity="0.62"/>
           </svg>
         </div>
         <h1 class="app-page-title">珠宝企培数智管家</h1>
-        <p class="mt-1 text-sm text-[#86868b]">Intelligent Training Platform</p>
+        <p class="mt-1 text-sm text-[#667085]">Intelligent Training Platform</p>
       </div>
 
       <form onsubmit="login(event)" class="mt-10 space-y-5" autocomplete="on">
         <div>
-          <label for="login-user" class="mb-2 block text-sm text-[#86868b]">账号</label>
+          <label for="login-user" class="mb-2 block text-sm text-[#667085]">账号</label>
           <input
             id="login-user"
             name="username"
             type="text"
-            class="block h-14 w-full rounded-xl border border-[#d2d2d7] bg-[#f5f5f7] px-4 text-[15px] text-[#1d1d1f] placeholder:text-[15px] placeholder:text-[#86868b] focus:border-[#0071e3] focus:outline-none focus:ring-4 focus:ring-[#0071e3]/20 focus:ring-offset-0"
+            class="block h-14 w-full rounded-xl border border-[#D8D6CF] bg-[#F8F7F4] px-4 text-[15px] text-[#1F2933] placeholder:text-[15px] placeholder:text-[#8A9189] focus:border-[#0F5F59] focus:outline-none focus:ring-4 focus:ring-[#0F5F59]/15 focus:ring-offset-0"
             placeholder="账号"
             autocomplete="username"
             required
           />
         </div>
         <div>
-          <label for="login-pass" class="mb-2 block text-sm text-[#86868b]">密码</label>
+          <label for="login-pass" class="mb-2 block text-sm text-[#667085]">密码</label>
           <input
             id="login-pass"
             name="password"
             type="password"
-            class="block h-14 w-full rounded-xl border border-[#d2d2d7] bg-[#f5f5f7] px-4 text-[15px] text-[#1d1d1f] placeholder:text-[15px] placeholder:text-[#86868b] focus:border-[#0071e3] focus:outline-none focus:ring-4 focus:ring-[#0071e3]/20 focus:ring-offset-0"
+            class="block h-14 w-full rounded-xl border border-[#D8D6CF] bg-[#F8F7F4] px-4 text-[15px] text-[#1F2933] placeholder:text-[15px] placeholder:text-[#8A9189] focus:border-[#0F5F59] focus:outline-none focus:ring-4 focus:ring-[#0F5F59]/15 focus:ring-offset-0"
             placeholder="密码"
             autocomplete="current-password"
             required
@@ -101,7 +101,7 @@
         <button
           id="login-btn"
           type="submit"
-          class="mt-2 h-14 w-full rounded-full bg-[#0071e3] text-[15px] font-medium text-white hover:bg-[#0077ED] disabled:opacity-50"
+          class="mt-2 h-14 w-full rounded-full bg-[#0F5F59] text-[15px] font-medium text-white hover:bg-[#0B514C] disabled:opacity-50"
         >
           登入系统
         </button>
@@ -109,7 +109,7 @@
 
       <p id="login-error" class="mt-6 text-center text-sm text-red-600 hidden"></p>
     </div>
-    <p class="mt-8 text-center text-xs text-[#86868b]">
+    <p class="mt-8 text-center text-xs text-[#667085]">
       © 珠宝企培数智管家 · 内部使用 |
       <a href="https://beian.miit.gov.cn/" target="_blank" rel="noreferrer">粤ICP备2026042285号-1</a>
     </p>
@@ -147,7 +147,7 @@
           type="button"
           id="sidebar-collapse-btn"
           onclick="toggleSidebarCollapsed(event)"
-          class="sidebar-collapse-btn flex items-center justify-center outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF]/40 cursor-pointer transition-colors"
+          class="sidebar-collapse-btn flex items-center justify-center outline-none focus-visible:ring-2 focus-visible:ring-[#0F5F59]/40 cursor-pointer transition-colors"
           aria-label="收起侧边栏"
           aria-expanded="true"
         >
@@ -161,7 +161,7 @@
       <!-- 侧栏菜单项由 js/app.js 中 renderMenu() 注入，请勿在此处手写静态菜单 -->
       <nav id="sidebar-menu" class="sidebar-nav-scroll flex-1 overflow-y-auto min-h-0 px-4 pb-6 pt-1"></nav>
       <div class="sidebar-footer-row sidebar-footer-ios relative flex-shrink-0 px-4 pb-4 pt-2 mt-auto sidebar-collapse-hide">
-        <button type="button" id="profile-widget-btn" onclick="toggleProfilePopover(event)" class="sidebar-profile-card w-full p-2 rounded-xl hover:bg-black/[0.04] cursor-pointer transition-colors duration-200 flex items-center gap-2.5 text-left outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF]/30" aria-expanded="false" aria-haspopup="true">
+        <button type="button" id="profile-widget-btn" onclick="toggleProfilePopover(event)" class="sidebar-profile-card w-full p-2 rounded-xl cursor-pointer transition-colors duration-200 flex items-center gap-2.5 text-left outline-none focus-visible:ring-2 focus-visible:ring-[#0F5F59]/30" aria-expanded="false" aria-haspopup="true">
           <div id="avatar-letter" class="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-500 to-blue-400 text-white flex items-center justify-center text-xs font-medium shadow-sm flex-shrink-0">A</div>
           <div class="min-w-0 flex-1 sidebar-collapse-hide">
             <p id="profile-widget-name" class="text-[15px] font-semibold text-gray-900 truncate">用户</p>
@@ -182,7 +182,7 @@
       </div>
     </aside>
 
-    <main class="workbench-main-ios flex-1 overflow-auto min-h-0 py-6 lg:py-8 bg-[#F2F2F7]">
+    <main class="workbench-main-ios flex-1 overflow-auto min-h-0 py-6 lg:py-8 bg-[#F4F5F3]">
       <div id="content-area" class="w-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-10 2xl:px-14 ios-page-enter"></div>
       <footer class="w-full max-w-[1600px] mx-auto px-4 pt-6 pb-4 text-center text-xs text-[#86868b] sm:px-6 lg:px-10 2xl:px-14">
         © 珠宝企培数智管家 · 内部使用 |
@@ -282,14 +282,14 @@
 <div id="modal-stores" class="ios-sheet-overlay hidden" data-align="center" onclick="if(event.target===this)closeStoresModal()">
   <div class="ios-sheet-card ios-ui" onclick="event.stopPropagation()">
     <header class="relative flex shrink-0 items-center justify-between border-b border-[#E5E5EA]/90 bg-white px-3 py-3">
-      <button type="button" onclick="closeStoresModal()" class="min-w-[56px] rounded-lg px-2 py-1.5 text-left text-[17px] font-normal leading-[22px] text-[#007AFF] transition-colors hover:opacity-80">取消</button>
+      <button type="button" onclick="closeStoresModal()" class="min-w-[56px] rounded-lg px-2 py-1.5 text-left text-[17px] font-normal leading-[22px] text-[#0F5F59] transition-colors hover:opacity-80">取消</button>
       <h3 class="ios-list-title pointer-events-none absolute left-1/2 top-1/2 max-w-[60%] -translate-x-1/2 -translate-y-1/2 truncate text-center">门店管理</h3>
-      <button type="button" id="btn-store-modal-save" onclick="handleSave()" class="min-w-[56px] rounded-lg px-2 py-1.5 text-right text-[17px] font-semibold leading-[22px] text-[#007AFF] transition-colors hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-40">保存</button>
+      <button type="button" id="btn-store-modal-save" onclick="handleSave()" class="min-w-[56px] rounded-lg px-2 py-1.5 text-right text-[17px] font-semibold leading-[22px] text-[#0F5F59] transition-colors hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-40">保存</button>
     </header>
     <div class="min-h-0 flex-1 overflow-y-auto bg-[#F2F2F7] px-4 py-3">
       <div id="stores-list-body"></div>
       <p id="store-form-error" class="ios-list-body mt-2 hidden text-center font-normal text-[#FF3B30]" role="alert"></p>
-      <button type="button" id="btn-store-modal-add" onclick="handleAddStore()" class="mt-3 hidden min-h-[48px] w-full rounded-xl bg-white px-4 py-3.5 text-center text-[17px] font-medium leading-[22px] text-[#007AFF] transition-colors hover:bg-[#F2F2F7] active:bg-gray-50">+ 新增门店</button>
+      <button type="button" id="btn-store-modal-add" onclick="handleAddStore()" class="mt-3 hidden min-h-[48px] w-full rounded-xl bg-white px-4 py-3.5 text-center text-[17px] font-medium leading-[22px] text-[#0F5F59] transition-colors hover:bg-[#F8F7F4] active:bg-gray-50">+ 新增门店</button>
     </div>
   </div>
 </div>
@@ -457,7 +457,7 @@
     <form id="account-settings-form" onsubmit="submitAccountSettings(event)" class="px-8 py-6 pb-8">
       <div class="mb-8 flex flex-col items-center">
         <div class="group relative cursor-pointer rounded-full" onclick="document.getElementById('acc-display-name').focus();" title="在下方修改姓名">
-          <div id="acc-modal-avatar" class="flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-tr from-[#007AFF] to-[#5AC8FA] text-2xl font-semibold text-white shadow-md">U</div>
+          <div id="acc-modal-avatar" class="flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-tr from-[#0F5F59] to-[#B88746] text-2xl font-semibold text-white shadow-md">U</div>
           <div class="absolute inset-0 flex items-center justify-center rounded-full bg-black/0 transition-colors duration-200 group-hover:bg-black/40">
             <span class="text-xs font-medium text-white opacity-0 transition-opacity group-hover:opacity-100">编辑</span>
           </div>
@@ -466,7 +466,7 @@
       <div class="space-y-0 rounded-2xl bg-[#F2F2F7] p-4">
         <div class="flex items-center justify-between gap-4 border-b border-[#E5E5EA]/90 py-3">
           <label for="acc-display-name" class="shrink-0 text-sm text-[#86868B]">姓名</label>
-          <input id="acc-display-name" type="text" autocomplete="name" class="min-w-0 flex-1 bg-transparent text-right text-sm text-[#1D1D1F] placeholder:text-[#C7C7CC] transition-colors focus:text-[#007AFF] focus:outline-none" placeholder="显示名称" />
+          <input id="acc-display-name" type="text" autocomplete="name" class="min-w-0 flex-1 bg-transparent text-right text-sm text-[#1F2933] placeholder:text-[#A4A8A1] transition-colors focus:text-[#0F5F59] focus:outline-none" placeholder="显示名称" />
         </div>
         <div class="flex items-center justify-between gap-4 border-b border-[#E5E5EA]/90 py-3">
           <span class="shrink-0 text-sm text-[#86868B]">登录账号</span>
@@ -478,20 +478,20 @@
         </div>
         <div class="flex items-center justify-between gap-4 border-b border-[#E5E5EA]/90 py-3">
           <label for="acc-phone" class="shrink-0 text-sm text-[#86868B]">手机号</label>
-          <input id="acc-phone" type="tel" autocomplete="tel" inputmode="tel" class="min-w-0 flex-1 bg-transparent text-right text-sm text-[#1D1D1F] placeholder:text-[#C7C7CC] transition-colors focus:text-[#007AFF] focus:outline-none" placeholder="选填" />
+          <input id="acc-phone" type="tel" autocomplete="tel" inputmode="tel" class="min-w-0 flex-1 bg-transparent text-right text-sm text-[#1F2933] placeholder:text-[#A4A8A1] transition-colors focus:text-[#0F5F59] focus:outline-none" placeholder="选填" />
         </div>
         <div class="flex items-center justify-between gap-4 border-b border-[#E5E5EA]/90 py-3">
           <label for="acc-old-password" class="shrink-0 text-sm text-[#86868B]">旧密码</label>
-          <input id="acc-old-password" type="password" autocomplete="current-password" class="min-w-0 flex-1 bg-transparent text-right text-sm text-[#1D1D1F] placeholder:text-[#C7C7CC] transition-colors focus:text-[#007AFF] focus:outline-none" placeholder="修改密码时必填" />
+          <input id="acc-old-password" type="password" autocomplete="current-password" class="min-w-0 flex-1 bg-transparent text-right text-sm text-[#1F2933] placeholder:text-[#A4A8A1] transition-colors focus:text-[#0F5F59] focus:outline-none" placeholder="修改密码时必填" />
         </div>
         <div class="flex items-center justify-between gap-4 py-3">
           <label for="acc-password" class="shrink-0 text-sm text-[#86868B]">新密码</label>
-          <input id="acc-password" type="password" autocomplete="new-password" class="min-w-0 flex-1 bg-transparent text-right text-sm text-[#1D1D1F] placeholder:text-[#C7C7CC] transition-colors focus:text-[#007AFF] focus:outline-none" placeholder="留空则不修改" />
+          <input id="acc-password" type="password" autocomplete="new-password" class="min-w-0 flex-1 bg-transparent text-right text-sm text-[#1F2933] placeholder:text-[#A4A8A1] transition-colors focus:text-[#0F5F59] focus:outline-none" placeholder="留空则不修改" />
         </div>
       </div>
       <div class="mt-8 flex justify-end gap-3">
         <button type="button" onclick="closeAccountModal()" class="rounded-full px-4 py-2 text-sm font-medium text-[#86868B] transition-colors hover:bg-[#F2F2F7]">取消</button>
-        <button type="submit" id="acc-save-btn" class="rounded-full bg-[#007AFF] px-6 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:brightness-105 disabled:opacity-50">保存更改</button>
+        <button type="submit" id="acc-save-btn" class="rounded-full bg-[#0F5F59] px-6 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#0B514C] disabled:opacity-50">保存更改</button>
       </div>
     </form>
   </div>
@@ -501,9 +501,9 @@
 <script src="./vendor/flatpickr/l10n/zh.js?v=20260420-v1"></script>
 <!-- 样式必须在 Tailwind CDN 注入之后加载：先侧栏修正，再全站 styles，最后内联兜底在岗助手 -->
 <link rel="stylesheet" href="./sidebar-nav.css?v=20260517-evo-v3" />
-<link rel="stylesheet" href="./styles.css?v=20260517-evo-v3" />
+<link rel="stylesheet" href="./styles.css?v=20260520-sidebar-soft-v2" />
 <link rel="stylesheet" href="./styles/employee-journey.css?v=20260519-journey-picker-v1" />
-<link rel="stylesheet" href="./styles/wrong-questions.css?v=20260517-evo-v3" />
+<link rel="stylesheet" href="./styles/wrong-questions.css?v=20260520-review-time-v1" />
 <style id="assistant-on-duty-inline">
 /* 内联兜底：确保压过 Tailwind 运行时注入（与外链顺序无关时仍生效） */
 #content-area .assistant-cc-page {
@@ -612,6 +612,7 @@ body.theme-dark #content-area .oj-assistant-page .assistant-cc-empty-desc {
   color: #636366 !important;
 }
 </style>
+<link rel="stylesheet" href="./styles/enterprise-radius.css?v=20260520-enterprise-radius-v1" />
 <script src="js/date-range-calendar.js?v=20260517-evo-v3"></script>
 <script src="js/stage-unlock.js?v=20260517-evo-v3"></script>
 <script src="js/radar-timeline.js?v=20260517-evo-v3"></script>
@@ -619,9 +620,9 @@ body.theme-dark #content-area .oj-assistant-page .assistant-cc-empty-desc {
 <script src="js/agent-orchestration.js?v=20260517-agent-topology-v4"></script>
 <script src="js/agent-activity.js?v=20260517-evo-v3"></script>
 <script src="js/knowledge-feedback.js?v=20260517-evo-v3"></script>
-<script src="js/wrong-questions.js?v=20260517-evo-v3"></script>
+<script src="js/wrong-questions.js?v=20260520-review-time-v1"></script>
 <script src="js/evo-governance.js?v=20260518-preflight-v1"></script>
-<script src="js/app.js?v=20260519-journey-picker-v1"></script>
+<script src="js/app.js?v=20260521-sidebar-support-v1"></script>
 <!-- 3D Digital Human: importmap for Three.js ES modules -->
 <script type="importmap">
 {

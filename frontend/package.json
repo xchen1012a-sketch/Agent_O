@@ -4,7 +4,7 @@
   "description": "",
   "main": "e2e-test.js",
   "scripts": {
-    "test": "node assessment-center-state.test.js && node conversation-persistence.test.js && node home-hero-title.test.js",
+    "test": "node assessment-center-state.test.js && node conversation-persistence.test.js && node home-hero-title.test.js && node sidebar-business-assistant.test.js",
     "test:home-hero-title": "node home-hero-title.test.js",
     "test:assessment-center-state": "node assessment-center-state.test.js",
     "test:assessment-coach-state": "node assessment-coach-state.test.js",
@@ -15,7 +15,8 @@
     "test:knowledge-qa-followup": "node knowledge-qa-followup.test.js",
     "test:knowledge-qa-voice-advice": "node knowledge-qa-voice-advice.test.js",
     "test:system-settings-digital-human": "node system-settings-digital-human.test.js",
-    "test:conversation-persistence": "node conversation-persistence.test.js"
+    "test:conversation-persistence": "node conversation-persistence.test.js",
+    "test:sidebar-business-assistant": "node sidebar-business-assistant.test.js"
   },
   "keywords": [],
   "author": "",

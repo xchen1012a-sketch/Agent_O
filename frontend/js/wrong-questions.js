@@ -104,6 +104,31 @@
     return escapeHtml(String(value));
   }
 
+  function formatOccurredAt(value) {
+    var raw = asText(value);
+    if (!raw) return '';
+    var date = new Date(raw);
+    if (Number.isNaN(date.getTime())) return raw.replace('T', ' ').replace(/\.\d+/, '').replace(/([+-]\d{2}:?\d{2}|Z)$/i, '');
+    try {
+      var dtf = new Intl.DateTimeFormat('zh-CN', {
+        timeZone: 'Asia/Shanghai',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        hourCycle: 'h23',
+        hour12: false,
+      });
+      var parts = dtf.formatToParts(date);
+      var map = {};
+      for (var i = 0; i < parts.length; i++) map[parts[i].type] = parts[i].value;
+      return [map.year, map.month, map.day].join('-') + ' ' + [map.hour, map.minute].join(':');
+    } catch (e) {
+      return date.toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai', hour12: false });
+    }
+  }
+
   function renderRecurringTop(summary) {
     var top = (summary && Array.isArray(summary.recurring_top)) ? summary.recurring_top : [];
     if (!top.length) return '';
@@ -180,6 +205,7 @@
     var sourceLabel = SOURCE_LABELS[item.source] || item.source || '';
     var sevLabel = SEVERITY_LABELS[item.severity] || '';
     var body = item.source === 'assessment' ? renderAssessmentBody(item) : renderEvidenceBody(item);
+    var occurredAt = formatOccurredAt(item.occurred_at);
     var actionBtn = '';
     var action = item.suggested_action || {};
     if (action.route) {
@@ -204,7 +230,7 @@
       + '<h3 class="wq-card-title">' + escapeHtml(item.title || '') + '</h3>'
       + body
       + '<footer class="wq-card-foot">'
-        + '<span>' + escapeHtml(item.occurred_at || '') + '</span>'
+        + '<span class="wq-card-time" title="' + escapeHtml(item.occurred_at || '') + '">发生时间 ' + escapeHtml(occurredAt || '未记录') + '</span>'
         + '<span class="wq-card-foot-actions">' + masterBtn + actionBtn + '</span>'
       + '</footer>'
     + '</article>';
@@ -445,6 +471,7 @@
   AgentO.wrongQuestions = {
     fetch: fetchReviewNotebook,
     render: renderReviewNotebook,
+    _formatOccurredAt: formatOccurredAt,
   };
   AgentO.reviewNotebook = AgentO.wrongQuestions;
 })();

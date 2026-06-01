@@ -1,0 +1,66 @@
+# Environment and secrets
+.env
+.env.*
+!.env.example
+backend/.env
+backend/.env.*
+!backend/.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+env/
+
+# Node / frontend
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+dist/
+build/
+coverage/
+.vite/
+.next/
+.turbo/
+.parcel-cache/
+
+# Runtime data
+*.log
+logs/
+cache/
+*.sqlite
+*.sqlite3
+*.db
+*.db-shm
+*.db-wal
+
+# Temporary/generated working files
+_tmp*/
+tmp/
+temp/
+*.tmp
+*.bak
+*.swp
+*.swo
+
+# OS/editor files
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+
+# Local agent/tool state
+.claude/
+
+# Visual QA screenshots generated during development
+frontend/*check*.png

@@ -12,8 +12,10 @@ from pydantic import BaseModel, Field
 import config as app_config
 from api_response import dify_failure_response, make_request_id, success_response
 from auth import get_current_user, normalize_app_role
+from database import SessionLocal
 from db_stage3 import get_conn, get_readonly_conn, json_text
 from dify_stage4b import run_query1_workflow, run_query2_workflow
+from evo import record_episode
 from local_query_templates import try_local_query_template
 from query_catalog import query_catalog_prompt_summary, query_catalog_rows
 
@@ -2413,6 +2415,53 @@ def _insert_query_record(
     return 0
 
 
+def _record_quick_query_episode_safe(
+    *,
+    user_id: str,
+    store_id: str,
+    request_id: str,
+    query_text: str,
+    response_text: str,
+) -> int | None:
+    try:
+        with SessionLocal() as db:
+            record = record_episode(
+                db,
+                module="quick_query",
+                user_id=user_id,
+                store_id=store_id,
+                request_id=request_id,
+                query_text=query_text,
+                response_text=response_text,
+            )
+            db.commit()
+            return int(record.id)
+    except Exception:
+        _log.exception("quick_query evo episode record failed user_id=%s", user_id)
+        return None
+
+
+def _attach_quick_query_episode(
+    data: dict[str, Any],
+    *,
+    user_id: str,
+    store_id: str,
+    request_id: str,
+    query_text: str,
+    response_text: str,
+) -> dict[str, Any]:
+    episode_id = _record_quick_query_episode_safe(
+        user_id=user_id,
+        store_id=store_id,
+        request_id=request_id,
+        query_text=query_text,
+        response_text=response_text,
+    )
+    if episode_id:
+        data["evo_episode_id"] = episode_id
+    return data
+
+
 @router.post('/ask')
 def query_ask(
     body: QueryAskRequest,
@@ -2456,6 +2505,14 @@ def query_ask(
             'query_status': 'error',
             'problem_note': '命中安全拦截',
         }
+        data = _attach_quick_query_episode(
+            data,
+            user_id=employee_id,
+            store_id=store_id,
+            request_id=ask_id,
+            query_text=raw_query_text,
+            response_text=data['answer_text'],
+        )
         return success_response(data, workflow_code='query_ask', mock=True)
 
     local_result: dict[str, Any] | None = None
@@ -2541,6 +2598,14 @@ def query_ask(
             query_text=raw_query_text,
             parsed_intent='local_template',
             payload=data,
+        )
+        data = _attach_quick_query_episode(
+            data,
+            user_id=employee_id,
+            store_id=store_id,
+            request_id=ask_id,
+            query_text=raw_query_text,
+            response_text=answer_text,
         )
         return success_response(data, workflow_code=workflow_code, mock=is_mock)
 
@@ -2785,6 +2850,14 @@ def query_ask(
     except Exception as exc:
         _log.debug("query_ask record insert failed: %s", exc)
 
+    data = _attach_quick_query_episode(
+        data,
+        user_id=employee_id,
+        store_id=store_id,
+        request_id=ask_id,
+        query_text=raw_query_text,
+        response_text=answer_text,
+    )
     return success_response(data, workflow_code='query_ask', mock=False)
 
 
